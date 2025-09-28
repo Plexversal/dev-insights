@@ -1,8 +1,11 @@
-import { navigateTo } from '@devvit/web/client';
+import { navigateTo, } from '@devvit/web/client';
 import { useCounter } from './hooks/useCounter';
+import { CommentDisplay } from './components/CommentDisplay';
 
 export const App = () => {
-  const { count, username, loading, increment, decrement } = useCounter();
+  const { count, username, loading, increment, decrement, postId } = useCounter();
+
+  console.log(`[App] Current postId: ${postId}`);
   return (
     <div className="flex relative flex-col justify-center items-center min-h-screen gap-4">
       <img className="object-contain w-1/2 max-w-[250px] mx-auto" src="/snoo.png" alt="Snoo" />
@@ -34,6 +37,10 @@ export const App = () => {
           +
         </button>
       </div>
+
+      {/* Comments Section */}
+      <CommentDisplay postId={postId} />
+
       <footer className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 text-[0.8em] text-gray-600">
         <button
           className="cursor-pointer"

@@ -3,6 +3,7 @@ export type InitResponse = {
   postId: string;
   count: number;
   username: string;
+  comment: string;
 };
 
 export type IncrementResponse = {

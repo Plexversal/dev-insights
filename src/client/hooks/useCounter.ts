@@ -11,7 +11,7 @@ export const useCounter = () => {
   const [state, setState] = useState<CounterState>({
     count: 0,
     username: null,
-    loading: true,
+    loading: true
   });
   const [postId, setPostId] = useState<string | null>(null);
 
@@ -23,7 +23,7 @@ export const useCounter = () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: InitResponse = await res.json();
         if (data.type !== 'init') throw new Error('Unexpected response');
-        setState({ count: data.count, username: data.username, loading: false });
+        setState({ count: data.count, username: data.username, loading: false});
         setPostId(data.postId);
       } catch (err) {
         console.error('Failed to init counter', err);
@@ -60,6 +60,7 @@ export const useCounter = () => {
 
   return {
     ...state,
+    postId,
     increment,
     decrement,
   } as const;
