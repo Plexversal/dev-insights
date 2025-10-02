@@ -35,6 +35,19 @@
 
   },
     "permissions": {
-    "redis": true
+    "redis": true,
+    "http": {
+      "enable": true,
+      "domains": ["google.com"]
+    }
+  },
+  "settings": {
+    "global": {
+      "apiKey": {
+        "type": "string",
+        "label": "API Key",
+        "isSecret": true
+      }
+    }
   }
 }

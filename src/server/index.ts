@@ -1,5 +1,5 @@
 import express from 'express';
-import { createServer, getServerPort } from '@devvit/web/server';
+import { createServer, getServerPort, settings } from '@devvit/web/server';
 import apiRoutes from './routes/api';
 import internalRoutes from './routes/internal';
 
