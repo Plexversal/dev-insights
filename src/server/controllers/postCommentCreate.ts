@@ -1,13 +1,27 @@
 import { Request, Response } from 'express';
-import { context, redis } from '@devvit/web/server';
+import { context, redis, reddit, settings } from '@devvit/web/server';
 import { RedditComment } from '../../shared/types/comment';
+import { CommentCreateBody } from '../../shared/types/api';
 
 export const postCommentCreate = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const comment: RedditComment = _req.body.comment;
+    const body: CommentCreateBody = _req.body
+    const comment: RedditComment = body.comment;
+
+    const [subredditUsers, subredditFlairText, subredditFlairCssclass] = await Promise.all([
+        settings.get('subredditUsers'),
+        settings.get('subredditFlairText'),
+        settings.get('subredditFlairCssclass')
+    ]);
+
+    console.log('subreddit config >>', subredditUsers, subredditFlairText, subredditFlairCssclass)
+    
+    let getUser = await reddit.getUserById(comment.author)
+    let flairtext = await getUser?.getUserFlairBySubreddit(context.subredditName)
+    console.log(flairtext)
 
     console.log('full comment obj >>>', comment);
     console.log(`Processing comment: ${comment.id} for post: ${comment.postId}`);
@@ -26,7 +40,7 @@ export const postCommentCreate = async (
 
     // Use the actual createdAt timestamp from the comment
     const timestamp = comment.createdAt;
-
+    
     // Build correct Reddit URL from permalink
     const correctUrl = `https://www.reddit.com${comment.permalink}`;
 
@@ -43,7 +57,10 @@ export const postCommentCreate = async (
       url: correctUrl
     };
 
+
     console.log(`Storing comment data:`, commentData);
+    let user = await reddit.getUserById(comment.author)
+    console.log(user)
 
     // Store the detailed data in a hash
     await redis.hSet(dataKey, commentData);

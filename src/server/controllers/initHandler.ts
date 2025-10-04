@@ -18,6 +18,26 @@ export const initHandler = async (
   }
 
   try {
+
+      try {
+        let allFlairs = await reddit.getUserFlairTemplates(context.subredditName)
+        let detailedFlairs = allFlairs.map((e: any) => ({
+          id: e.id,
+          text: e.text,
+          textColor: e.textColor,
+          backgroundColor: e.backgroundColor,
+          allowableContent: e.allowableContent,
+          modOnly: e.modOnly,
+          maxEmojis: e.maxEmojis,
+          allowUserEdits: e.allowUserEdits
+        }))
+        let styles = await reddit.getSubredditStyles(context.subredditId)
+
+        console.log(detailedFlairs, styles)
+      } catch (e) {
+        console.log(e)
+      }
+
     const [count, username, comment] = await Promise.all([
       redis.get('count'),
       reddit.getCurrentUsername(),

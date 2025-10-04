@@ -39,7 +39,7 @@ export const debugRedisHandler = async (
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error debugging global Redis:`, error);
     res.status(500).json({
       status: 'error',

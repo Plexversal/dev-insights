@@ -3,7 +3,7 @@ export interface RedditComment {
   id: string;                              // e.g., 't1_ngpko91'
   parentId: string;                        // e.g., 't3_1nsx56d' (post) or 't1_xxx' (comment)
   body: string;                            // Comment text content
-  author: string;                          // Author ID e.g., 't2_8fuxfbi'
+  author: `t2_${string}`;                  // Author ID e.g., 't2_8fuxfbi'
   numReports: number;                      // Number of reports
   collapsedBecauseCrowdControl: boolean;   // Crowd control status
   spam: boolean;                           // Is spam

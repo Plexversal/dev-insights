@@ -13,7 +13,7 @@ export const getCommentsHandler = async (
       by: 'rank',
       reverse: true
     });
-    const commentIds = comments.map(c => c.member);
+    const commentIds = comments.map((c: any) => c.member);
 
     console.log(`Found ${commentIds.length} global comments:`, commentIds);
 
@@ -30,7 +30,7 @@ export const getCommentsHandler = async (
             postId: commentData.postId || '',
             authorId: commentData.authorId || 'unknown',
             authorName: commentData.authorId || 'Unknown', // We'll display the authorId for now
-            url: commentData.url || `https://reddit.com/comments/${commentId.replace('t1_', '')}`,
+            url: commentData.url || `https://reddit.com${commentData.permalink}`,
             body: commentData.body || 'No content available',
             score: parseInt(commentData.score || '0') || 0,
             permalink: commentData.permalink || '',
@@ -43,7 +43,7 @@ export const getCommentsHandler = async (
             postId: '',
             authorId: 'unknown',
             authorName: 'Unknown',
-            url: `https://reddit.com/comments/${commentId.replace('t1_', '')}`,
+            url: `https://reddit.com${commentData.permalink}`,
             body: 'Comment data not available',
             score: 0,
             permalink: '',

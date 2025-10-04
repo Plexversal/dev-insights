@@ -38,7 +38,7 @@
     "redis": true,
     "http": {
       "enable": true,
-      "domains": ["google.com"]
+      "domains": ["google.com", "*.httpbin.org"]
     }
   },
   "settings": {
@@ -48,6 +48,32 @@
         "label": "API Key",
         "isSecret": true
       }
-    }
+
+    }, 
+      "subreddit": {
+        "subredditUsers": {
+          "type": "string",
+          "label": "Match Users",
+          "helpText": "Enter users to match, seperate users with a comma. (e.g. PlexversalHD, u/dev-insights, u/spez)",
+          "placeholder": "Optional (but at least one text box should be filled).",
+          "validationEndpoint": "/internal/settings/validate-users"
+        },
+        "subredditFlairText": {
+          "type": "string",
+          "label": "Match Flair Text",
+          "helpText": "Enter flair text to match, seperate flair text with a comma. (e.g. Dev, Community manager, :YT: YouTuber)",
+          "placeholder": "Optional (but at least one text box should be filled).",
+          "validationEndpoint": "/internal/settings/validate-flairtext"
+        },
+         "subredditFlairCssclass": {
+          "type": "string",
+          "label": "Match Flair CSS",
+          "helpText": "Enter flair text shown in subreddit flair settings, seperate flair text with a comma. (e.g. dev, community-manager, youtuber)",
+          "placeholder": "Optional (but at least one text box should be filled).",
+          "validationEndpoint": "/internal/settings/validate-cssclass"
+        }
+        
+        
+      }
   }
 }
