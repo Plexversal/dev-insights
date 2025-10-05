@@ -28,7 +28,8 @@
   },
   "triggers": {
     "onAppInstall": "/internal/on-app-install",
-    "onCommentCreate": "/internal/on-comment-create"
+    "onCommentCreate": "/internal/on-comment-create",
+    "onPostCreate": "/internal/on-post-create"
   },
   "dev": {
     "subreddit": "dev_insights_dev"
