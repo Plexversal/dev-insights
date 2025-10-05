@@ -1,6 +1,7 @@
 import React from 'react';
 import { navigateTo } from '@devvit/web/client';
 import { useComments } from '../hooks/useComments';
+import { cleanFlairText } from '../lib/cleanFlairText';
 
 interface CommentDisplayProps {
   postId: string | null;
@@ -40,13 +41,13 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8 p-4 bg-white rounded-lg shadow-sm border">
+    <div className="w-full max-w-2xl mx-auto mt-2 p-4 bg-[white] rounded-lg shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)] border border-[#eaeaea]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-sm font-semibold text-gray-700">
           Comments ({commentCount})
         </h2>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <button
             onClick={refreshComments}
             disabled={loading}
@@ -60,7 +61,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
           >
             Debug Redis
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Comments List */}
@@ -79,25 +80,36 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900">
-                    {comment.authorId}
+                  <span className="font-medium text-gray-900 min-[600px]:text-base text-sm">
+                    {comment.authorName}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  {comment.userFlairText && cleanFlairText(comment.userFlairText) && (
+                    <span
+                      className="min-[600px]:text-xs text-[10px] px-[6px] rounded-[1.25rem]"
+                      style={{
+                        backgroundColor: comment.flairBgColor === 'transparent' ? '#E4E4E4' : (comment.flairBgColor || '#E4E4E4'),
+                        color: comment.flairTextColor || '#000000'
+                      }}
+                    >
+                      {cleanFlairText(comment.userFlairText)}
+                    </span>
+                  )}
+                  <span className="min-[600px]:text-xs text-[10px] text-gray-500">
                     {formatTimeAgo(comment.timestamp)}
                   </span>
-                  <span className="text-xs text-green-600">
+                  {/* <span className="text-xs text-green-600">
                     ↑{comment.score}
-                  </span>
+                  </span> */}
                 </div>
-                <div className="text-xs text-blue-600">
+                <div className="min-[600px]:text-xs text-[10px] text-blue-600">
                   Click to view →
                 </div>
               </div>
-              <div className="text-sm text-gray-700 mb-2 line-clamp-3">
+              <div className="min-[600px]:text-sm text-xs text-gray-700 mb-2 line-clamp-3">
                 {comment.body}
               </div>
-              <div className="text-xs text-gray-500 font-mono">
-                {comment.id}
+              <div className="min-[600px]:text-xs text-[10px] text-gray-500 font-mono border-t border-gray-200 pt-[6px] line-clamp-1">
+                Replied to {comment.repliedToUser} &middot; {comment.parentPostTitle}
               </div>
             </div>
           ))

@@ -30,8 +30,15 @@ export interface CommentData {
   authorId: string;
   authorName: string;
   body: string;
-  score: number;
+  score: string;
   permalink: string;
   timestamp: string;
   url: string;
+  repliedToUser: string;
+  parentPostTitle: string;
+  userFlairText?: string;
+  flairBgColor?: string;
+  flairTextColor?: string;
 }
+
+export type CommentDataRecord = Record<string, string>;
