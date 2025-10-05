@@ -50,10 +50,10 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-2 p-4 bg-white rounded-lg shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)] border border-[#eaeaea]">
+    <div className="w-full max-w-2xl p-4 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)] border border-[#eaeaea] dark:border-[#2a2a2a]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-700">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
           Posts ({postCount})
         </h2>
         {/* <button
@@ -68,7 +68,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
       {/* Posts List - Horizontal Scroll */}
       <div className="overflow-x-auto pb-2">
         {posts.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <div className="text-lg mb-2">📝</div>
             <div>No posts yet.</div>
           </div>
@@ -80,11 +80,11 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
               return (
                 <div
                   key={post.id}
-                  className="flex-shrink-0 w-[220px] min-h-[165px] p-3 bg-gray-50 rounded-lg border-l-4 border-green-400 cursor-pointer hover:bg-gray-100 transition-colors flex flex-col"
+                  className="flex-shrink-0 w-[220px] min-h-[165px] p-3 bg-gray-50 dark:bg-[#272729] rounded-lg border-l-4 border-green-400 dark:border-green-500 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#343536] transition-colors flex flex-col"
                   onClick={() => handlePostClick(post.permalink)}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-gray-900 text-sm truncate">
+                    <span className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
                       {post.authorName}
                     </span>
                     {post.userFlairText && cleanFlairText(post.userFlairText) && (
@@ -100,7 +100,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
                     )}
                   </div>
 
-                  <div className="font-semibold text-sm mb-2 line-clamp-1">
+                  <div className="font-semibold text-sm mb-2 line-clamp-1 dark:text-gray-100">
                     {post.title}
                   </div>
 
@@ -111,12 +111,12 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
                       className="w-full h-20 object-cover rounded mb-2"
                     />
                   ) : post.body ? (
-                    <div className="text-xs text-gray-700 mb-2 line-clamp-3 flex-1">
+                    <div className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-3 flex-1">
                       {post.body}
                     </div>
                   ) : null}
 
-                  <div className="text-xs text-gray-500 mt-auto">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-auto">
                     {formatTimeAgo(post.timestamp)}
                   </div>
                 </div>

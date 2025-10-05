@@ -8,7 +8,7 @@ export const App = () => {
 
   console.log(`[App] Current postId: ${postId}`);
   return (
-    <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-white p-[4px]">
+    <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-white dark:bg-black p-2">
 
 
       {/* Posts Section */}
