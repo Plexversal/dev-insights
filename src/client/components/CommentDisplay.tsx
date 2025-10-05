@@ -80,14 +80,25 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-gray-900">
-                    {comment.authorId}
+                    {comment.authorName}
                   </span>
+                  {comment.userFlairText && (
+                    <span
+                      className="text-xs px-[6px] rounded-[1.25rem]"
+                      style={{
+                        backgroundColor: comment.flairBgColor || '#E4E4E4',
+                        color: comment.flairTextColor || '#E4E4E4;'
+                      }}
+                    >
+                      {comment.userFlairText}
+                    </span>
+                  )}
                   <span className="text-xs text-gray-500">
                     {formatTimeAgo(comment.timestamp)}
                   </span>
-                  <span className="text-xs text-green-600">
+                  {/* <span className="text-xs text-green-600">
                     ↑{comment.score}
-                  </span>
+                  </span> */}
                 </div>
                 <div className="text-xs text-blue-600">
                   Click to view →

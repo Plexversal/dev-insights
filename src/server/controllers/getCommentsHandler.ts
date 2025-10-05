@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { redis, context } from '@devvit/web/server';
+import { redis, context, reddit } from '@devvit/web/server';
+import { getFlairColorsByText } from './getFlairTemplates';
 
 export const getCommentsHandler = async (
   req: Request,
@@ -17,7 +18,7 @@ export const getCommentsHandler = async (
 
     console.log(`Found ${commentIds.length} global comments:`, commentIds);
 
-    // Fetch detailed data for each comment
+    // Fetch detailed data for each comment and dynamically fetch current flair
     const commentsWithData = [];
     for (const commentId of commentIds) {
       try {
@@ -25,29 +26,32 @@ export const getCommentsHandler = async (
         const commentData = await redis.hGetAll(dataKey);
 
         if (Object.keys(commentData).length > 0) {
+          // Dynamically fetch current user flair
+          let userFlairText: string | undefined = undefined;
+          let flairBgColor: string | undefined = undefined;
+          let flairTextColor: string | undefined = undefined;
+
+          if (commentData.authorId) {
+            try {
+              const user = await reddit.getUserById(commentData.authorId as `t2_${string}`);
+              const userFlair = await user?.getUserFlairBySubreddit(context.subredditName);
+
+              if (userFlair?.flairText) {
+                userFlairText = userFlair.flairText;
+                const flairColors = await getFlairColorsByText(userFlair.flairText);
+                flairBgColor = flairColors.backgroundColor;
+                flairTextColor = flairColors.textColor;
+              }
+            } catch (err) {
+              console.error(`Error fetching user flair for ${commentData.authorId}:`, err);
+            }
+          }
+
           commentsWithData.push({
-            id: commentId,
-            postId: commentData.postId || '',
-            authorId: commentData.authorId || 'unknown',
-            authorName: commentData.authorId || 'Unknown', // We'll display the authorId for now
-            url: commentData.url || `https://reddit.com${commentData.permalink}`,
-            body: commentData.body || 'No content available',
-            score: parseInt(commentData.score || '0') || 0,
-            permalink: commentData.permalink || '',
-            timestamp: commentData.timestamp || Date.now().toString()
-          });
-        } else {
-          // Fallback if no detailed data found
-          commentsWithData.push({
-            id: commentId,
-            postId: '',
-            authorId: 'unknown',
-            authorName: 'Unknown',
-            url: `https://reddit.com${commentData.permalink}`,
-            body: 'Comment data not available',
-            score: 0,
-            permalink: '',
-            timestamp: Date.now().toString()
+            ...commentData,
+            userFlairText,
+            flairBgColor,
+            flairTextColor
           });
         }
       } catch (err) {

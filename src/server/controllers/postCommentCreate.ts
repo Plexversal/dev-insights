@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { context, redis, reddit, settings } from '@devvit/web/server';
 import { RedditComment } from '../../shared/types/comment';
 import { CommentCreateBody } from '../../shared/types/api';
+import { CommentData, CommentDataRecord } from '../../shared/types/comment';
 
 export const postCommentCreate = async (
   _req: Request,
@@ -19,20 +20,10 @@ export const postCommentCreate = async (
 
     console.log('subreddit config >>', subredditUsers, subredditFlairText, subredditFlairCssclass)
     
-    let getUser = await reddit.getUserById(comment.author)
-    let flairtext = await getUser?.getUserFlairBySubreddit(context.subredditName)
-    console.log(flairtext)
+    let user = await reddit.getUserById(comment.author)
 
     console.log('full comment obj >>>', comment);
     console.log(`Processing comment: ${comment.id} for post: ${comment.postId}`);
-    console.log(`Comment details:`, JSON.stringify({
-      id: comment.id,
-      postId: comment.postId,
-      authorId: comment.author,
-      body: comment.body.substring(0, 50) + '...',
-      score: comment.score,
-      permalink: comment.permalink
-    }));
 
     // Store comment data in Redis hash and ID in sorted set GLOBALLY
     const key = 'global_comments';
@@ -45,25 +36,23 @@ export const postCommentCreate = async (
     const correctUrl = `https://www.reddit.com${comment.permalink}`;
 
     // Store detailed comment data in a hash
-    const commentData = {
+    const commentData: CommentData = {
       id: comment.id,
       postId: comment.postId,
       authorId: comment.author,
+      authorName: user?.username || comment.author,
       body: comment.body.substring(0, 200), // Store first 200 chars
       score: comment.score.toString(),
       permalink: comment.permalink,
-      createdAt: comment.createdAt.toString(),
       timestamp: timestamp.toString(),
       url: correctUrl
     };
 
-
     console.log(`Storing comment data:`, commentData);
-    let user = await reddit.getUserById(comment.author)
-    console.log(user)
+
 
     // Store the detailed data in a hash
-    await redis.hSet(dataKey, commentData);
+    await redis.hSet(dataKey, commentData as unknown as CommentDataRecord);
 
     // Store comment ID in sorted set for ordering (using actual createdAt)
     const result = await redis.zAdd(key, {
