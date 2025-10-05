@@ -18,6 +18,9 @@ export const getCommentsHandler = async (
 
     console.log(`Found ${commentIds.length} global comments:`, commentIds);
 
+    // Cache for user flair data to avoid redundant API calls
+    const userFlairCache = new Map<string, { text?: string | undefined; bgColor?: string | undefined; textColor?: string | undefined }>();
+
     // Fetch detailed data for each comment and dynamically fetch current flair
     const commentsWithData = [];
     for (const commentId of commentIds) {
@@ -32,18 +35,34 @@ export const getCommentsHandler = async (
           let flairTextColor: string | undefined = undefined;
 
           if (commentData.authorId) {
-            try {
-              const user = await reddit.getUserById(commentData.authorId as `t2_${string}`);
-              const userFlair = await user?.getUserFlairBySubreddit(context.subredditName);
+            // Check cache first
+            if (userFlairCache.has(commentData.authorId)) {
+              const cached = userFlairCache.get(commentData.authorId)!;
+              userFlairText = cached.text;
+              flairBgColor = cached.bgColor;
+              flairTextColor = cached.textColor;
+            } else {
+              // Fetch from API and cache
+              try {
+                const user = await reddit.getUserById(commentData.authorId as `t2_${string}`);
+                const userFlair = await user?.getUserFlairBySubreddit(context.subredditName);
 
-              if (userFlair?.flairText) {
-                userFlairText = userFlair.flairText;
-                const flairColors = await getFlairColorsByText(userFlair.flairText);
-                flairBgColor = flairColors.backgroundColor;
-                flairTextColor = flairColors.textColor;
+                if (userFlair?.flairText) {
+                  userFlairText = userFlair.flairText;
+                  const flairColors = await getFlairColorsByText(userFlair.flairText);
+                  flairBgColor = flairColors.backgroundColor;
+                  flairTextColor = flairColors.textColor;
+                }
+
+                // Store in cache
+                userFlairCache.set(commentData.authorId, {
+                  text: userFlairText,
+                  bgColor: flairBgColor,
+                  textColor: flairTextColor
+                });
+              } catch (err) {
+                console.error(`Error fetching user flair for ${commentData.authorId}:`, err);
               }
-            } catch (err) {
-              console.error(`Error fetching user flair for ${commentData.authorId}:`, err);
             }
           }
 

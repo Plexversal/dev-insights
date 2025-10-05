@@ -60,7 +60,7 @@ export type CommentCreateBody = {
     title: string;
     selftext: string;
     nsfw: boolean;
-    authorId: string;
+    authorId: `t2_${string}`;
     crowdControlLevel: number;
     numReports: number;
     isGallery: boolean;

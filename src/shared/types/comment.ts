@@ -34,6 +34,8 @@ export interface CommentData {
   permalink: string;
   timestamp: string;
   url: string;
+  repliedToUser: string;
+  parentPostTitle: string;
   userFlairText?: string;
   flairBgColor?: string;
   flairTextColor?: string;
