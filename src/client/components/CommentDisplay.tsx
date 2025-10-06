@@ -2,6 +2,10 @@ import React from 'react';
 import { navigateTo } from '@devvit/web/client';
 import { useComments } from '../hooks/useComments';
 import { cleanFlairText } from '../lib/cleanFlairText';
+import { formatTimeAgo } from '../lib/formatTimeAgo';
+import { deleteItem } from '../lib/deleteItem';
+import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
+import { useMod } from '../contexts/ModContext';
 
 interface CommentDisplayProps {
   postId: string | null;
@@ -9,23 +13,14 @@ interface CommentDisplayProps {
 
 export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
   const { comments, loading, subredditName, refreshComments, commentCount } = useComments();
-
+  const { isMod, loading: modLoading } = useMod()
   const handleCommentClick = (commentUrl: string) => {
     navigateTo(commentUrl);
   };
 
-  const formatTimeAgo = (timestamp: string) => {
-    const date = new Date(parseInt(timestamp));
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffSecs = Math.floor(diffMs / 1000);
-    const diffMins = Math.floor(diffSecs / 60);
-    const diffHours = Math.floor(diffMins / 60);
-
-    if (diffSecs < 60) return `${diffSecs}s ago`;
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
+  const handleDeleteComment = async (commentId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
+    await deleteItem(commentId, 'comments', refreshComments);
   };
 
   const debugRedis = async () => {
@@ -108,8 +103,15 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
               <div className="min-[600px]:text-sm text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-3">
                 {comment.body}
               </div>
-              <div className="min-[600px]:text-xs text-[10px] text-gray-500 dark:text-gray-400 font-mono border-t border-gray-200 dark:border-gray-600 pt-[6px] line-clamp-1">
-                Replied to {comment.repliedToUser} &middot; {comment.parentPostTitle}
+              <div className="flex items-center justify-between min-[600px]:text-xs text-[10px] text-gray-500 dark:text-gray-400 font-mono border-t border-gray-200 dark:border-gray-600 pt-[6px]">
+                <span className="line-clamp-1">Replied to {comment.repliedToUser} &middot; {comment.parentPostTitle}</span>
+                <button
+                  onClick={(e) => handleDeleteComment(comment.id, e)}
+                  className="w-5 h-5 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full flex-shrink-0 ml-2 p-1 cursor-pointer"
+                  title="Delete from app (only mods can see this)"
+                >
+                  {isMod && <TrashCanIcon className="w-full h-full" fill="currentColor" />}
+                </button>
               </div>
             </div>
           ))
