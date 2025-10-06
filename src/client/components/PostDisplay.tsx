@@ -2,6 +2,10 @@ import React from 'react';
 import { navigateTo } from '@devvit/web/client';
 import { usePosts } from '../hooks/usePosts';
 import { cleanFlairText } from '../lib/cleanFlairText';
+import { formatTimeAgo } from '../lib/formatTimeAgo';
+import { deleteItem } from '../lib/deleteItem';
+import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
+import { useMod } from '../contexts/ModContext';
 
 interface PostDisplayProps {
   postId: string | null;
@@ -9,23 +13,15 @@ interface PostDisplayProps {
 
 export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
   const { posts, loading, subredditName, refreshPosts, postCount } = usePosts();
+  const { isMod, loading: modLoading } = useMod()
 
   const handlePostClick = (permalink: string) => {
     navigateTo(`https://www.reddit.com${permalink}`);
   };
 
-  const formatTimeAgo = (timestamp: string) => {
-    const date = new Date(parseInt(timestamp));
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffSecs = Math.floor(diffMs / 1000);
-    const diffMins = Math.floor(diffSecs / 60);
-    const diffHours = Math.floor(diffMins / 60);
-
-    if (diffSecs < 60) return `${diffSecs}s ago`;
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
+  const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
+    await deleteItem(postId, 'posts', refreshPosts);
   };
 
   const getPostMedia = (post: any) => {
@@ -116,8 +112,15 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
                     </div>
                   ) : null}
 
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-auto">
-                    {formatTimeAgo(post.timestamp)}
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-auto">
+                    <span>{formatTimeAgo(post.timestamp)}</span>
+                    <button
+                      onClick={(e) => handleDeletePost(post.id, e)}
+                      className="w-5 h-5 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full p-1 cursor-pointer"
+                      title="Delete from app (only mods can see this)"
+                    >
+                      {isMod && <TrashCanIcon className="w-full h-full" fill="currentColor" />}
+                    </button>
                   </div>
                 </div>
               );
