@@ -6,6 +6,9 @@ Comments can also get lost over time once the posts age past a couple of days an
 
 It is advisable you pin/add to highlights the post after install which will put it in the second slot on your subreddit for users to see the full application.
 
+* No need to worry about running out of pin space or removing old pins!
+* Long history of comments and posts!
+
 ## 🔥 Key features
 
 * Track comments and posts from any of `flair text`, `flair css class`, and/or `users`. (You can match all 3 if you like!)

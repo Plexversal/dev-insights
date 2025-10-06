@@ -18,8 +18,7 @@ export const initHandler = async (
   }
 
   try {
-    const [count, username, comment] = await Promise.all([
-      redis.get('count'),
+    const [username, comment] = await Promise.all([
       reddit.getCurrentUsername(),
       (await reddit.getCommentById('t1_ng5vb6a')).body,
     ]);
@@ -27,7 +26,6 @@ export const initHandler = async (
     res.json({
       type: 'init',
       postId: postId,
-      count: count ? parseInt(count) : 0,
       username: username ?? 'anonymous',
       comment: comment ?? ''
     });

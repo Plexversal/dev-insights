@@ -14,6 +14,7 @@ interface PostDisplayProps {
 export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
   const { posts, loading, subredditName, refreshPosts, postCount } = usePosts();
   const { isMod, loading: modLoading } = useMod()
+  const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
 
   const handlePostClick = (permalink: string) => {
     navigateTo(`https://www.reddit.com${permalink}`);
@@ -22,6 +23,10 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
   const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking delete
     await deleteItem(postId, 'posts', refreshPosts);
+  };
+
+  const handleImageError = (postId: string) => {
+    setImageErrors(prev => new Set(prev).add(postId));
   };
 
   const getPostMedia = (post: any) => {
@@ -101,11 +106,22 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
                   </div>
 
                   {media ? (
-                    <img
-                      src={media.url}
-                      alt={post.title}
-                      className="w-full h-20 object-cover rounded mb-2"
-                    />
+                    imageErrors.has(post.id) ? (
+                      <div className="w-full h-20 flex flex-col items-center justify-center bg-gray-200 dark:bg-[#1a1a1a] rounded mb-2 text-xs text-gray-600 dark:text-gray-400 text-center px-2">
+                        <span>Post contains media</span>
+                        <span className="min-[600px]:text-xs text-[10px] text-blue-600 dark:text-blue-400">
+                          Click to view →
+                        </span>
+                        
+                      </div>
+                    ) : (
+                      <img
+                        src={media.url}
+                        alt={post.title}
+                        className="w-full h-20 object-cover rounded mb-2"
+                        onError={() => handleImageError(post.id)}
+                      />
+                    )
                   ) : post.body ? (
                     <div className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-3 flex-1">
                       {post.body}
