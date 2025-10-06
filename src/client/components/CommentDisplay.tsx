@@ -12,7 +12,7 @@ interface CommentDisplayProps {
 }
 
 export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
-  const { comments, loading, subredditName, refreshComments, commentCount } = useComments();
+  const { comments, loading, loadingMore, subredditName, refreshComments, loadMoreComments, hasMore, commentCount, commentsPerPage } = useComments();
   const { isMod, loading: modLoading } = useMod()
   const handleCommentClick = (commentUrl: string) => {
     navigateTo(commentUrl);
@@ -40,7 +40,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-          Comments ({commentCount})
+          Comments ({commentCount > commentsPerPage ? `${commentsPerPage}+` : commentCount})
         </h2>
         {/* <div className="flex gap-2">
           <button
@@ -61,13 +61,19 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
 
       {/* Comments List */}
       <div className="space-y-3 max-h-96 overflow-y-auto">
-        {comments.length === 0 ? (
+        {loading && comments.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-lg mb-2">⏳</div>
+            <div>Loading comments...</div>
+          </div>
+        ) : comments.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <div className="text-lg mb-2">💬</div>
             <div>No comments yet.</div>
           </div>
         ) : (
-          comments.map((comment, index) => (
+          <>
+            {comments.map((comment, index) => (
             <div
               key={comment.id}
               className="p-3 bg-gray-50 dark:bg-[#272729] rounded-lg border-l-4 border-blue-400 dark:border-blue-500 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#343536] transition-colors"
@@ -114,7 +120,19 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
                 </button>
               </div>
             </div>
-          ))
+          ))}
+          {hasMore && (
+            <div className="flex justify-center pt-3">
+              <button
+                onClick={loadMoreComments}
+                disabled={loadingMore}
+                className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {loadingMore ? 'Loading...' : 'Load More Comments'}
+              </button>
+            </div>
+          )}
+          </>
         )}
       </div>
     </div>

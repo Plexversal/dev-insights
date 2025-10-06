@@ -12,7 +12,7 @@ interface PostDisplayProps {
 }
 
 export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
-  const { posts, loading, subredditName, refreshPosts, postCount } = usePosts();
+  const { posts, loading, loadingMore, subredditName, refreshPosts, loadMorePosts, hasMore, postCount, postsPerPage } = usePosts();
   const { isMod, loading: modLoading } = useMod()
   const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
 
@@ -55,7 +55,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-          Posts ({postCount})
+          Posts ({postCount > postsPerPage ? `${postsPerPage}+` : postCount})
         </h2>
         {/* <button
           onClick={refreshPosts}
@@ -68,7 +68,12 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
 
       {/* Posts List - Horizontal Scroll */}
       <div className="overflow-x-auto pb-2">
-        {posts.length === 0 ? (
+        {loading && posts.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-lg mb-2">⏳</div>
+            <div>Loading posts...</div>
+          </div>
+        ) : posts.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <div className="text-lg mb-2">📝</div>
             <div>No posts yet.</div>
@@ -141,6 +146,17 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
                 </div>
               );
             })}
+            {hasMore && (
+              <div className="flex-shrink-0 w-[220px] min-h-[165px] p-3 bg-gray-50 dark:bg-[#272729] rounded-lg border-l-4 border-blue-400 dark:border-blue-500 flex items-center justify-center">
+                <button
+                  onClick={loadMorePosts}
+                  disabled={loadingMore}
+                  className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {loadingMore ? 'Loading...' : 'Load More Posts'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

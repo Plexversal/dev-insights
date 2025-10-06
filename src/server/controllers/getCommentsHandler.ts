@@ -7,16 +7,23 @@ export const getCommentsHandler = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log(`Fetching global comments from Redis`);
+    // Parse pagination params
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 50;
 
-    // Get comment IDs from Redis sorted set GLOBALLY (newest first)
-    const comments = await redis.zRange('global_comments', 0, -1, {
+    console.log(`Fetching global comments from Redis (offset: ${offset}, limit: ${limit})`);
+
+    // Get total count
+    const totalCount = await redis.zCard('global_comments');
+
+    // Get comment IDs from Redis sorted set GLOBALLY (newest first) with pagination
+    const comments = await redis.zRange('global_comments', offset, offset + limit - 1, {
       by: 'rank',
       reverse: true
     });
     const commentIds = comments.map((c: any) => c.member);
 
-    console.log(`Found ${commentIds.length} global comments:`, commentIds);
+    console.log(`Found ${commentIds.length} comments out of ${totalCount} total:`, commentIds);
 
     // Cache for user flair data to avoid redundant API calls
     const userFlairCache = new Map<string, { text?: string | undefined; bgColor?: string | undefined; textColor?: string | undefined }>();
@@ -84,7 +91,11 @@ export const getCommentsHandler = async (
       status: 'success',
       subredditName: context.subredditName,
       comments: commentsWithData,
-      count: commentsWithData.length
+      count: commentsWithData.length,
+      totalCount,
+      hasMore: offset + limit < totalCount,
+      offset,
+      limit
     });
   } catch (error) {
     console.error(`Error fetching global comments:`, error);

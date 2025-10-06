@@ -7,16 +7,23 @@ export const getPostsHandler = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log(`Fetching global posts from Redis`);
+    // Parse pagination params
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 25;
 
-    // Get post IDs from Redis sorted set GLOBALLY (newest first)
-    const posts = await redis.zRange('global_posts', 0, -1, {
+    console.log(`Fetching global posts from Redis (offset: ${offset}, limit: ${limit})`);
+
+    // Get total count
+    const totalCount = await redis.zCard('global_posts');
+
+    // Get post IDs from Redis sorted set GLOBALLY (newest first) with pagination
+    const posts = await redis.zRange('global_posts', offset, offset + limit - 1, {
       by: 'rank',
       reverse: true
     });
     const postIds = posts.map((p: any) => p.member);
 
-    console.log(`Found ${postIds.length} global posts:`, postIds);
+    console.log(`Found ${postIds.length} posts out of ${totalCount} total:`, postIds);
 
     // Cache for user flair data to avoid redundant API calls
     const userFlairCache = new Map<string, { text?: string | undefined; bgColor?: string | undefined; textColor?: string | undefined }>();
@@ -84,7 +91,11 @@ export const getPostsHandler = async (
       status: 'success',
       subredditName: context.subredditName,
       posts: postsWithData,
-      count: postsWithData.length
+      count: postsWithData.length,
+      totalCount,
+      hasMore: offset + limit < totalCount,
+      offset,
+      limit
     });
   } catch (error) {
     console.error(`Error fetching global posts:`, error);
