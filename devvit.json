@@ -23,6 +23,27 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
+      },
+      {
+        "label": "Fetch previous user content",
+        "description": "dev-insights",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/fetch-user-content"
+      },
+      {
+        "label": "Pin to Insights",
+        "description": "dev-insights",
+        "location": "post",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/add-manual-post"
+      },
+      {
+        "label": "Pin to Insights",
+        "description": "dev-insights",
+        "location": "comment",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/add-manual-comment"
       }
     ]
   },
@@ -42,8 +63,7 @@
     "permissions": {
     "redis": true,
     "http": {
-      "enable": true,
-      "domains": ["api.twitterapi.io"]
+      "enable": true
     }
   },
   "settings": {

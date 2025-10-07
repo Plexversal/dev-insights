@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { context, redis, reddit } from '@devvit/web/server';
 import { RedditComment } from '../../shared/types/comment';
 import { CommentCreateBody } from '../../shared/types/api';
-import { CommentData, CommentDataRecord } from '../../shared/types/comment';
 import { validateUser } from '../lib/validateUser';
+import { addCommentToDb } from '../lib/addCommentToDb';
 
 export const postCommentCreate = async (
   _req: Request,
@@ -33,61 +33,31 @@ export const postCommentCreate = async (
     const user = await reddit.getUserById(comment.author);
     if (!user) throw new Error('Failed to fetch user in postCommentCreate');
 
-    // Store comment data in Redis hash and ID in sorted set GLOBALLY
-    const key = 'global_comments';
-    const dataKey = `comment_data:${comment.id}`;
-    const timestamp = comment.createdAt;
-    const correctUrl = `https://www.reddit.com${comment.permalink}`;
     const repliedToUser = await reddit.getUserById(body.post.authorId);
+    const correctUrl = `https://www.reddit.com${comment.permalink}`;
 
+    // Add comment to database using lib function
+    const dbResult = await addCommentToDb(
+      comment,
+      user?.username || comment.author,
+      repliedToUser?.username || '',
+      body.post.title
+    );
 
-    // Store detailed comment data in a hash
-    const commentData: CommentData = {
-      id: comment.id,
-      postId: comment.postId,
-      authorId: comment.author,
-      authorName: user?.username || comment.author,
-      body: comment.body.substring(0, 200), // Store first 200 chars
-      score: comment.score.toString(),
-      permalink: comment.permalink,
-      timestamp: timestamp.toString(),
-      url: correctUrl,
-      repliedToUser: repliedToUser?.username || '',
-      parentPostTitle: body.post.title.substring(0, 50)
-    };
-
-    console.log(`Storing comment data:`, commentData);
-
-
-    // Store the detailed data in a hash
-    await redis.hSet(dataKey, commentData as unknown as CommentDataRecord);
-
-    // Store comment ID in sorted set for ordering (using actual createdAt)
-    const result = await redis.zAdd(key, {
-      member: comment.id,
-      score: timestamp
-    });
-
-    console.log(`zAdd result: ${result}`);
-
-    // Verify the data was stored
-    const count = await redis.zCard(key);
-    console.log(`Post-zAdd count for ${key}: ${count}`);
+    if (!dbResult.success) {
+      res.json({
+        status: 'skipped',
+        message: dbResult.error || 'Failed to add comment to database',
+        comment: comment.id
+      });
+      return;
+    }
 
     res.json({
       status: 'success',
       message: 'Comment processed successfully',
       navigateTo: correctUrl,
-      comment: comment.id,
-      debug: {
-        key,
-        dataKey,
-        zAddResult: result,
-        postAddCount: count,
-        commentData,
-        correctUrl,
-        originalPermalink: comment.permalink
-      }
+      comment: comment.id
     });
   } catch (error) {
     console.error(`Error handling comment creation: ${error}`);

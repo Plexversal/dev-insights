@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { context, redis, reddit } from '@devvit/web/server';
-import { RedditComment } from '../../shared/types/comment';
 import { PostCreateBody } from '../../shared/types/api';
-import { RedditPost, PostData, PostDatRecord } from '../../shared/types/post';
+import { RedditPost } from '../../shared/types/post';
 import { validateUser } from '../lib/validateUser';
+import { addPostToDb } from '../lib/addPostToDb';
 
 export const postPostCreate = async (
   _req: Request,
@@ -32,66 +32,29 @@ export const postPostCreate = async (
     console.log(`Post validated: ${validationResult.reason}`);
     console.log(`Processing post: ${post.id}`);
 
+    // Add post to database using lib function
+    const dbResult = await addPostToDb(
+      post,
+      user.snoovatarImage,
+      user.url
+    );
 
+    if (!dbResult.success) {
+      res.json({
+        status: 'skipped',
+        message: dbResult.error || 'Failed to add post to database',
+        post: post.id
+      });
+      return;
+    }
 
-    // Store post data in Redis hash and ID in sorted set GLOBALLY
-    const key = 'global_posts';
-    const dataKey = `post_data:${post.id}`;
-    const timestamp = post.createdAt;
     const correctUrl = `https://www.reddit.com${post.permalink}`;
-
-
-    // Store detailed comment data in a hash
-    const postData: PostData = {
-      id: post.id,
-      authorId: post.authorId,
-      authorName: user.name || post.authorId,
-      snoovatarImage: user.snoovatarImage,
-      userProfileLink: user.url,
-      title: post.title,
-      body: post.selftext.substring(0, 200), // Store first 200 chars
-      thumbnail: post.thumbnail,
-      score: post.score.toString(),
-      permalink: post.permalink,
-      timestamp: timestamp.toString(),
-      image: post.type == 'image' ? post.url : '',
-      galleryImages: post.type == 'gallery' ? JSON.stringify(post.galleryImages) : '',
-      postLink: post.type == 'link' ? post.url : ''
-
-    };
-
-    console.log(`Storing post data:`, postData);
-
-
-    // Store the detailed data in a hash
-    await redis.hSet(dataKey, postData as unknown as PostDatRecord);
-
-    // Store comment ID in sorted set for ordering (using actual createdAt)
-    const result = await redis.zAdd(key, {
-      member: post.id,
-      score: timestamp
-    });
-
-    console.log(`zAdd result: ${result}`);
-
-    // Verify the data was stored
-    const count = await redis.zCard(key);
-    console.log(`Post-zAdd count for ${key}: ${count}`);
 
     res.json({
       status: 'success',
-      message: 'Comment processed successfully',
+      message: 'Post processed successfully',
       navigateTo: correctUrl,
-      comment: post.id,
-      debug: {
-        key,
-        dataKey,
-        zAddResult: result,
-        postAddCount: count,
-        postData,
-        correctUrl,
-        originalPermalink: post.permalink
-      }
+      post: post.id
     });
   } catch (error) {
     console.error(`Error handling comment creation: ${error}`);

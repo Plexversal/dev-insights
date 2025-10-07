@@ -8,7 +8,7 @@ export const createPost = async () => {
 
   return await reddit.submitCustomPost({
     splash: {
-      appDisplayName: 'dev-insights',
+      appDisplayName: 'Dev-Insights',
     },
     subredditName: subredditName,
     title: 'Community Figure Inights',

@@ -26,7 +26,7 @@ It is advisable you pin/add to highlights the post after install which will put 
 2. Select your subreddit
 3. Once added Navigate to your subreddit > click `•••` > Create a new post (this is a **new** option provided by the app)
 4. Click Mod Shield on the new post > Add to Highlights. This will add it under the highlights as its own large post.
-5. Configure the Flair text, users and flair css classes to match in [My Communities](https://developers.reddit.com/my/communities) > Click your subreddit you just added it to > Dev Insights (Settings) > Configure at least one option here for it to work.
+5. Configure the Flair text, users and flair css classes to match in [My Communities](https://developers.reddit.com/my/communities) > Click your subreddit you just added it to > Dev Insights (Settings) > Configure at least one option here for it to work. (specify users if you want to get their past posts, flairs won't work for that.)
 6. That's it!
 
 ### ⚠️ Warning!
