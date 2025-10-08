@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { context } from '@devvit/web/server';
-import { createPost } from '../core/post';
+import { createPost } from '../../core/post';
 
-export const appInstallHandler = async (
+export const postOnAppInstall = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const post = await createPost();
+    await post.sticky();
 
     res.json({
       status: 'success',
