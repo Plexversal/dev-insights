@@ -16,6 +16,7 @@ interface AddPostResult {
  */
 export async function addPostToDb(
   post: RedditPost,
+  authorName: string,
   userSnoovatarImage?: string,
   userProfileLink?: string
 ): Promise<AddPostResult> {
@@ -39,7 +40,7 @@ export async function addPostToDb(
     const postData: PostData = {
       id: post.id,
       authorId: post.authorId,
-      authorName: post.authorId, // Will be overridden if user data is provided
+      authorName: authorName, // Will be overridden if user data is provided
       snoovatarImage: userSnoovatarImage || '',
       userProfileLink: userProfileLink || '',
       title: post.title,

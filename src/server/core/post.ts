@@ -11,6 +11,6 @@ export const createPost = async () => {
       appDisplayName: 'Dev-Insights',
     },
     subredditName: subredditName,
-    title: 'Community Figure Inights',
+    title: 'Community Figure Insights',
   });
 };

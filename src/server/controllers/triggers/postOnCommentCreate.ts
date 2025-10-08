@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { context, redis, reddit } from '@devvit/web/server';
-import { RedditComment } from '../../shared/types/comment';
-import { CommentCreateBody } from '../../shared/types/api';
-import { validateUser } from '../lib/validateUser';
-import { addCommentToDb } from '../lib/addCommentToDb';
+import { RedditComment } from '../../../shared/types/comment';
+import { CommentCreateBody } from '../../../shared/types/api';
+import { validateUser } from '../../lib/validateUser';
+import { addCommentToDb } from '../../lib/addCommentToDb';
 
 export const postCommentCreate = async (
   _req: Request,
@@ -30,7 +30,7 @@ export const postCommentCreate = async (
     console.log('full comment obj >>>', comment);
     console.log(`Processing comment: ${comment.id} for post: ${comment.postId}`);
 
-    const user = await reddit.getUserById(comment.author);
+    const user = body.author
     if (!user) throw new Error('Failed to fetch user in postCommentCreate');
 
     const repliedToUser = await reddit.getUserById(body.post.authorId);
@@ -39,7 +39,7 @@ export const postCommentCreate = async (
     // Add comment to database using lib function
     const dbResult = await addCommentToDb(
       comment,
-      user?.username || comment.author,
+      user.name,
       repliedToUser?.username || '',
       body.post.title
     );

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { context, settings, redis } from '@devvit/web/server';
 import { fetchMultipleUsersContent } from '../../lib/fetchUserContent';
 
-const ONE_HOUR_MS = 60;
+const ONE_HOUR_MS = 60 * 60 * 1000;
 const RATE_LIMIT_KEY = 'user_fetch_last_run';
 
 export const postFetchUserContent = async (
@@ -38,8 +38,7 @@ export const postFetchUserContent = async (
 
     if (usersArray.length === 0) {
       res.json({
-        status: 'error',
-        message: 'No users configured in settings. Please add usernames to track.'
+        showToast: 'No users configured in settings. Please add usernames to track.'
       });
       return;
     }

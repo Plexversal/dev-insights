@@ -14,14 +14,27 @@ interface CommentDisplayProps {
 export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
   const { comments, loading, loadingMore, subredditName, refreshComments, loadMoreComments, hasMore, commentCount, commentsPerPage } = useComments();
   const { isMod, loading: modLoading } = useMod()
+  const [deletingComments, setDeletingComments] = React.useState<Set<string>>(new Set());
+
   const handleCommentClick = (commentUrl: string) => {
     navigateTo(commentUrl);
   };
 
   const handleDeleteComment = async (commentId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking delete
+    if (deletingComments.has(commentId)) return; // Prevent multiple clicks
+
+    setDeletingComments(prev => new Set(prev).add(commentId));
     await deleteItem(commentId, 'comments', refreshComments);
+    // Keep button disabled while refresh is in progress
   };
+
+  // Clear deleting state when loading completes
+  React.useEffect(() => {
+    if (!loading) {
+      setDeletingComments(new Set());
+    }
+  }, [loading]);
 
   const debugRedis = async () => {
     try {
@@ -111,13 +124,16 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
               </div>
               <div className="flex items-center justify-between min-[600px]:text-xs text-[10px] text-gray-500 dark:text-gray-400 font-mono border-t border-gray-200 dark:border-gray-600 pt-[6px]">
                 <span className="line-clamp-1">Replied to {comment.repliedToUser} &middot; {comment.parentPostTitle}</span>
-                <button
+                {
+                  isMod && <button
                   onClick={(e) => handleDeleteComment(comment.id, e)}
-                  className="w-5 h-5 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full flex-shrink-0 ml-2 p-1 cursor-pointer"
+                  disabled={deletingComments.has(comment.id)}
+                  className="w-5 h-5 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full flex-shrink-0 ml-2 p-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Delete from app (only mods can see this)"
                 >
-                  {isMod && <TrashCanIcon className="w-full h-full" fill="currentColor" />}
+                  {<TrashCanIcon className="w-full h-full" fill="currentColor" />}
                 </button>
+                }
               </div>
             </div>
           ))}

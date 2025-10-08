@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { context, redis, reddit } from '@devvit/web/server';
-import { PostCreateBody } from '../../shared/types/api';
-import { RedditPost } from '../../shared/types/post';
-import { validateUser } from '../lib/validateUser';
-import { addPostToDb } from '../lib/addPostToDb';
+import { PostCreateBody } from '../../../shared/types/api';
+import { RedditPost } from '../../../shared/types/post';
+import { validateUser } from '../../lib/validateUser';
+import { addPostToDb } from '../../lib/addPostToDb';
 
 export const postPostCreate = async (
   _req: Request,
@@ -35,6 +35,7 @@ export const postPostCreate = async (
     // Add post to database using lib function
     const dbResult = await addPostToDb(
       post,
+      user.name,
       user.snoovatarImage,
       user.url
     );

@@ -15,6 +15,24 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
   const { posts, loading, loadingMore, subredditName, refreshPosts, loadMorePosts, hasMore, postCount, postsPerPage } = usePosts();
   const { isMod, loading: modLoading } = useMod()
   const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
+  const [deletingPosts, setDeletingPosts] = React.useState<Set<string>>(new Set());
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Handle horizontal scroll with mouse wheel
+  React.useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaY;
+      }
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const handlePostClick = (permalink: string) => {
     navigateTo(`https://www.reddit.com${permalink}`);
@@ -22,8 +40,19 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
 
   const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking delete
+    if (deletingPosts.has(postId)) return; // Prevent multiple clicks
+
+    setDeletingPosts(prev => new Set(prev).add(postId));
     await deleteItem(postId, 'posts', refreshPosts);
+    // Keep button disabled while refresh is in progress
   };
+
+  // Clear deleting state when loading completes
+  React.useEffect(() => {
+    if (!loading) {
+      setDeletingPosts(new Set());
+    }
+  }, [loading]);
 
   const handleImageError = (postId: string) => {
     setImageErrors(prev => new Set(prev).add(postId));
@@ -67,7 +96,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
       </div>
 
       {/* Posts List - Horizontal Scroll */}
-      <div className="overflow-x-auto pb-2">
+      <div ref={scrollContainerRef} className="overflow-x-auto pb-2">
         {loading && posts.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <div className="text-lg mb-2">⏳</div>
@@ -135,13 +164,17 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
 
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-auto">
                     <span>{formatTimeAgo(post.timestamp)}</span>
-                    <button
+                    {
+                      isMod && <button
                       onClick={(e) => handleDeletePost(post.id, e)}
-                      className="w-5 h-5 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full p-1 cursor-pointer"
+                      disabled={deletingPosts.has(post.id)}
+                      className="w-5 h-5 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full p-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Delete from app (only mods can see this)"
                     >
                       {isMod && <TrashCanIcon className="w-full h-full" fill="currentColor" />}
                     </button>
+                    }
+                    
                   </div>
                 </div>
               );

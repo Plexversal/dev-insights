@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { postCreateHandler } from '../controllers/postCreateHandler';
-import { postCommentCreate } from '../controllers/postCommentCreate';
+import { postCommentCreate } from '../controllers/triggers/postOnCommentCreate';
 import { validateUsers } from '../controllers/validateUsers';
 import { validateCssClass } from '../controllers/validateCssClass';
 import { validateFlairText } from '../controllers/validateFlairText';
-import { postPostCreate } from '../controllers/postPostCreate';
+import { postPostCreate } from '../controllers/triggers/postOnPostCreate';
 import { postOnCommentDelete } from '../controllers/triggers/postOnCommentDelete';
 import { postOnPostDelete } from '../controllers/triggers/postOnPostDelete';
 import { postOnCommentUpdate } from '../controllers/triggers/postOnCommentUpdate';
