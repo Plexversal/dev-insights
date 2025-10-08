@@ -61,10 +61,7 @@
 
   },
     "permissions": {
-    "redis": true,
-    "http": {
-      "enable": true
-    }
+    "redis": true
   },
   "settings": {
     "global": {
