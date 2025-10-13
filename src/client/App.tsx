@@ -1,7 +1,6 @@
 import { useInit } from './hooks/useInit';
 import { PostDisplay } from './components/PostDisplay';
 import { CommentDisplay } from './components/CommentDisplay';
-import Footer from './components/Footer';
 import Header from './components/Header';
 
 export const App = () => {
@@ -17,8 +16,6 @@ export const App = () => {
 
       {/* Comments Section */}
       <CommentDisplay postId={postId} />
-
-      <Footer />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
+import { ScrollButtons } from './ScrollButtons';
 
 interface PostDisplayProps {
   postId: string | null;
@@ -80,22 +81,16 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl p-4 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)] border border-[#eaeaea] dark:border-[#2a2a2a]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+    <div className="relative w-full max-w-2xl p-4 pt-8 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)] border border-[#eaeaea] dark:border-[#2a2a2a]">
+      {/* Header - Overlapping */}
+      <div className="absolute top-2 left-2 z-10 bg-white dark:bg-[#1a1a1a] px-2 rounded">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-[2px]">
           Posts ({postCount > postsPerPage ? `${postsPerPage}+` : postCount})
         </h2>
-        {/* <button
-          onClick={refreshPosts}
-          disabled={loading}
-          className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          {loading ? 'Loading...' : 'Refresh'}
-        </button> */}
       </div>
 
       {/* Posts List - Horizontal Scroll */}
+      <ScrollButtons scrollContainerRef={scrollContainerRef} scrollAmount={450} />
       <div ref={scrollContainerRef} className="overflow-x-auto pb-2">
         {loading && posts.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
