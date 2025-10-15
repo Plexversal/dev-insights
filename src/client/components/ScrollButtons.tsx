@@ -33,7 +33,8 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
     checkScroll();
 
     // Add scroll listener
-    container.addEventListener('scroll', checkScroll);
+    const scrollHandler = checkScroll;
+    container.addEventListener('scroll', scrollHandler);
 
     // Add resize listener to handle window resizing
     window.addEventListener('resize', checkScroll);
@@ -43,7 +44,9 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
     observer.observe(container, { childList: true, subtree: true });
 
     return () => {
-      container.removeEventListener('scroll', checkScroll);
+      if (container) {
+        container.removeEventListener('scroll', scrollHandler);
+      }
       window.removeEventListener('resize', checkScroll);
       observer.disconnect();
     };
@@ -53,8 +56,32 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    container.scrollBy({
-      left: -scrollAmount,
+    const innerContainer = container.firstElementChild as HTMLElement;
+    if (!innerContainer) return;
+
+    // Find all items (direct children of the flex/grid container)
+    const items = Array.from(innerContainer.children) as HTMLElement[];
+    if (items.length === 0) return;
+
+    const currentScroll = container.scrollLeft;
+
+    // Get first item's width including gap
+    const firstItem = items[0];
+    if (!firstItem) return;
+
+    const itemWidth = firstItem.offsetWidth;
+    const gap = parseFloat(window.getComputedStyle(innerContainer).gap) || 12;
+    const itemWithGap = itemWidth + gap;
+
+    // Calculate current index based on scroll position
+    const currentIndex = Math.round(currentScroll / itemWithGap);
+
+    // Go to previous item
+    const targetIndex = Math.max(0, currentIndex - 1);
+    const targetScroll = targetIndex * itemWithGap;
+
+    container.scrollTo({
+      left: targetScroll,
       behavior: 'smooth'
     });
   };
@@ -63,8 +90,32 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    container.scrollBy({
-      left: scrollAmount,
+    const innerContainer = container.firstElementChild as HTMLElement;
+    if (!innerContainer) return;
+
+    // Find all items (direct children of the flex/grid container)
+    const items = Array.from(innerContainer.children) as HTMLElement[];
+    if (items.length === 0) return;
+
+    const currentScroll = container.scrollLeft;
+
+    // Get first item's width including gap
+    const firstItem = items[0];
+    if (!firstItem) return;
+
+    const itemWidth = firstItem.offsetWidth;
+    const gap = parseFloat(window.getComputedStyle(innerContainer).gap) || 12;
+    const itemWithGap = itemWidth + gap;
+
+    // Calculate current index based on scroll position
+    const currentIndex = Math.round(currentScroll / itemWithGap);
+
+    // Go to next item
+    const targetIndex = Math.min(items.length - 1, currentIndex + 1);
+    const targetScroll = targetIndex * itemWithGap;
+
+    container.scrollTo({
+      left: targetScroll,
       behavior: 'smooth'
     });
   };
@@ -75,7 +126,7 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
       {showLeftButton && (
         <button
           onClick={scrollLeft}
-          className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 text-white rounded-full shadow-lg cursor-pointer transition-all"
+          className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all"
           aria-label="Scroll left"
         >
           <svg
@@ -97,7 +148,7 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
       {showRightButton && (
         <button
           onClick={scrollRight}
-          className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 text-white rounded-full shadow-lg cursor-pointer transition-all"
+          className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all"
           aria-label="Scroll right"
         >
           <svg

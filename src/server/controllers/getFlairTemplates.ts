@@ -48,10 +48,11 @@ export const getFlairColorsByText = async (flairText: string): Promise<{ backgro
     const allFlairs = await reddit.getUserFlairTemplates(context.subredditName);
     const matchedFlair = allFlairs.find((flair: any) => flair.text === flairText);
 
+
     if (matchedFlair) {
       return {
         backgroundColor: matchedFlair.backgroundColor,
-        textColor: matchedFlair.textColor
+        textColor: matchedFlair.textColor == 'dark' ? '#000000' : '#ffffff'
       };
     }
 

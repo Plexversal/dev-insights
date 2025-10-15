@@ -18,21 +18,21 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
   const [deletingComments, setDeletingComments] = React.useState<Set<string>>(new Set());
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
-  // Handle horizontal scroll with mouse wheel
-  React.useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  // Disabled scroll wheel to comply with Reddit rules
+  // React.useEffect(() => {
+  //   const container = scrollContainerRef.current;
+  //   if (!container) return;
 
-    const handleWheel = (e: WheelEvent) => {
-      if (e.deltaY !== 0) {
-        e.preventDefault();
-        container.scrollLeft += e.deltaY;
-      }
-    };
+  //   const handleWheel = (e: WheelEvent) => {
+  //     if (e.deltaY !== 0) {
+  //       e.preventDefault();
+  //       container.scrollLeft += e.deltaY;
+  //     }
+  //   };
 
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    return () => container.removeEventListener('wheel', handleWheel);
-  }, []);
+  //   container.addEventListener('wheel', handleWheel, { passive: false });
+  //   return () => container.removeEventListener('wheel', handleWheel);
+  // }, []);
 
   const handleCommentClick = (commentUrl: string) => {
     navigateTo(commentUrl);
@@ -76,8 +76,8 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
       </div>
 
       {/* Comments List - Horizontal Scroll Single Row */}
-      <ScrollButtons scrollContainerRef={scrollContainerRef} scrollAmount={600} />
-      <div ref={scrollContainerRef} className="overflow-x-auto pb-2">
+      <ScrollButtons scrollContainerRef={scrollContainerRef} />
+      <div ref={scrollContainerRef} className="overflow-x-hidden pb-2">
         {loading && comments.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <div className="text-lg mb-2">⏳</div>
