@@ -50,10 +50,13 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
         className="h-full p-3 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors flex flex-col"
         onClick={() => handleCommentClick(comment.url)}
       >
-        <div className="flex flex-col min-[600px]:flex-row gap-1 min-[600px]:items-center mb-2 flex-shrink-0">
+        <div className="flex flex-row gap-1 items-center mb-2 flex-shrink-0">
+          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
+            {comment.authorName}
+          </span>
           {comment.userFlairText && cleanFlairText(comment.userFlairText) && (
             <span
-              className="text-xs px-[6px] rounded-[1.25rem] self-start flex-shrink-0 min-[600px]:order-2"
+              className="text-xs px-[6px] rounded-[1.25rem] flex-shrink-0"
               style={{
                 backgroundColor: comment.flairBgColor === 'transparent' ? '#E4E4E4' : (comment.flairBgColor || '#E4E4E4'),
                 color: comment.flairTextColor || '#000000'
@@ -62,9 +65,6 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
               {cleanFlairText(comment.userFlairText)}
             </span>
           )}
-          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate min-[600px]:order-1">
-            {comment.authorName}
-          </span>
         </div>
         <div className="text-xs text-gray-700 dark:text-gray-300 mb-2 line-clamp-5 flex-1 overflow-hidden">
           {comment.body}

@@ -8,14 +8,18 @@ export const postOnAppUpgrade = async (
   res: Response
 ): Promise<void> => {
   try {
-    return;
 
-    const post: Post = await createPost();
-    await afterAppCreate(post);
+    // const post: Post = await createPost();
+    // await afterAppCreate(post);
 
-    res.json({
+    // res.json({
+    //   status: 'success',
+    //   message: `Post created in subreddit ${context.subredditName} with id ${post.id}`,
+    // });
+
+        res.json({
       status: 'success',
-      message: `Post created in subreddit ${context.subredditName} with id ${post.id}`,
+      message: `Post created in subreddit ${context.subredditName}`,
     });
   } catch (error) {
     console.error(`Error creating post: ${error}`);

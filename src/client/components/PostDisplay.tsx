@@ -279,9 +279,9 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
           <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0">
             <div className="flex items-center gap-2">
               {isMostRecent && (
-                <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-                  <span className="text-green-400 text-base leading-none flex items-center">•</span>
-                  <span className="text-green-400 text-xs font-semibold">Most Recent</span>
+                <div className="flex items-center gap-1 dark:bg-black/60 dark:backdrop-blur-sm px-2 py-1 rounded-md">
+                  <span className="text-green-500 dark:text-green-400 text-base leading-none flex items-center">•</span>
+                  <span className="text-green-500 dark:text-green-400 text-xs font-semibold">Most Recent</span>
                 </div>
               )}
               <span>{formatTimeAgo(post.timestamp)}</span>
@@ -358,9 +358,9 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
         <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0">
           <div className="flex items-center gap-2">
             {isMostRecent && (
-              <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-                <span className="text-green-400 text-base leading-none flex items-center">•</span>
-                <span className="text-green-400 text-xs font-semibold">Most Recent</span>
+              <div className="flex items-center gap-1 dark:bg-black/60 dark:backdrop-blur-sm px-2 py-1 rounded-md">
+                <span className="text-green-500 dark:text-green-400 text-base leading-none flex items-center">•</span>
+                <span className="text-green-500 dark:text-green-400 text-xs font-semibold">Most Recent</span>
               </div>
             )}
             <span>{formatTimeAgo(post.timestamp)}</span>
