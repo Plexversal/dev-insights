@@ -6,6 +6,7 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
+import { ScrollButtons } from './ScrollButtons';
 
 interface PostDisplayProps {
   postId: string | null;
@@ -112,8 +113,15 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
             )}
           </div>
 
+          {/* Title for non-media posts on mobile - shown right after username */}
+          {!media && (
+            <div className="min-[600px]:hidden font-semibold text-base text-[22px] mb-1 dark:text-gray-100 line-clamp-3 order-1">
+              {post.title}
+            </div>
+          )}
+
           {/* Content on top (mobile) or right (desktop) */}
-          <div className="flex flex-col min-h-0 overflow-hidden min-[600px]:order-2 flex-1">
+          <div className="flex flex-col min-h-0 overflow-hidden min-[600px]:order-2 flex-1 order-3">
             {/* Username - shown on desktop only */}
             <div className="hidden min-[600px]:flex items-center gap-1.5 mb-1 flex-shrink-0">
               <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
@@ -133,7 +141,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
             </div>
 
             {/* Title - shown on desktop only */}
-            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] mb-1 dark:text-gray-100 overflow-hidden ${media ? 'flex-shrink-0' : ''}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] mb-1 dark:text-gray-100 overflow-hidden min-[600px]:line-clamp-2 ${media ? 'flex-shrink-0' : ''}`}>
               {post.title}
             </div>
 
@@ -155,7 +163,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
 
           {/* Media on bottom (mobile) or left (desktop) */}
           {media && (
-            <div className="w-full min-[600px]:w-2/5 h-32 min-[600px]:h-full flex-shrink-0 overflow-hidden rounded-md relative min-[600px]:order-1">
+            <div className="w-full min-[600px]:w-2/5 h-32 min-[600px]:h-full flex-shrink-0 overflow-hidden rounded-md relative min-[600px]:order-1 order-2">
               {imageErrors.has(post.id) ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gray-200 dark:bg-[#1a1a1a] text-[10px] text-gray-600 dark:text-gray-400 text-center px-2">
                   <span>Media</span>
@@ -180,15 +188,8 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
             </div>
           )}
 
-          {/* For non-media posts on mobile, show title normally */}
-          {!media && (
-            <div className="min-[600px]:hidden font-semibold text-base text-[22px] mb-1 dark:text-gray-100 line-clamp-3">
-              {post.title}
-            </div>
-          )}
-
           {/* Timestamp only on mobile - below everything */}
-          <div className="flex min-[600px]:hidden items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto">
+          <div className="flex min-[600px]:hidden items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto order-last">
             <span>{formatTimeAgo(post.timestamp)}</span>
             {isMod && (
               <button
@@ -230,7 +231,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
           )}
         </div>
 
-        <div className={`font-semibold text-base text-[22px] mb-1 dark:text-gray-100 ${media ? 'line-clamp-2' : 'line-clamp-6'}`}>
+        <div className={`font-semibold text-base text-[22px] mb-1 dark:text-gray-100 flex-shrink-0 ${media ? 'line-clamp-2' : 'line-clamp-6'}`}>
           {post.title}
         </div>
 
@@ -263,9 +264,12 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
           </div>
         )}
 
+        {/* Spacer for non-media posts to push timestamp down */}
+        {!media && <div className="flex-1" />}
+
         {/* Most Recent badge for non-media posts - inline above timestamp */}
         {isMostRecent && !media && (
-          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md self-start mb-2 mt-auto">
+          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md self-start mb-2">
             <span className="text-green-400 text-base leading-none flex items-center">•</span>
             <span className="text-green-400 text-xs font-semibold">Most Recent</span>
           </div>
@@ -312,46 +316,32 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
       ) : (
         <>
           {/* Fixed Gallery Layout */}
-          <div className="flex h-[360px] w-full gap-2 mb-3">
-            {/* Big Post */}
-            <div className="w-1/2 h-full overflow-hidden rounded-lg">
-              {visiblePosts[0] && renderPost(visiblePosts[0], true, currentPage === 0)}
+          <div className="relative">
+            <div className="flex h-[360px] w-full gap-2 mb-3">
+              {/* Big Post */}
+              <div className="w-1/2 h-full overflow-hidden rounded-lg">
+                {visiblePosts[0] && renderPost(visiblePosts[0], true, currentPage === 0)}
+              </div>
+
+              {/* Small Posts */}
+              <div className="w-1/2 h-full flex flex-col gap-2">
+                <div className="h-1/2 overflow-hidden rounded-lg">
+                  {visiblePosts[1] && renderPost(visiblePosts[1], false)}
+                </div>
+                <div className="h-1/2 overflow-hidden rounded-lg">
+                  {visiblePosts[2] && renderPost(visiblePosts[2], false)}
+                </div>
+              </div>
             </div>
 
-            {/* Small Posts */}
-            <div className="w-1/2 h-full flex flex-col gap-2">
-              <div className="h-1/2 overflow-hidden rounded-lg">
-                {visiblePosts[1] && renderPost(visiblePosts[1], false)}
-              </div>
-              <div className="h-1/2 overflow-hidden rounded-lg">
-                {visiblePosts[2] && renderPost(visiblePosts[2], false)}
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handlePrev}
-              disabled={!canGoPrev}
-              className="cursor-pointer px-3 py-1.5 text-xs bg-blue-400 text-white rounded-full hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-            >
-              <span>←</span> Previous
-            </button>
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              Page {currentPage + 1} of {Math.max(totalPages, 1)}
-            </span>
-            <button
-              onClick={handleNext}
-              disabled={!canGoNext || loadingMore}
-              className="cursor-pointer px-3 py-1.5 text-xs bg-blue-400 text-white rounded-full hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-            >
-              {loadingMore ? 'Loading...' : (
-                <>
-                  Next <span>→</span>
-                </>
-              )}
-            </button>
+            {/* Navigation Buttons */}
+            <ScrollButtons
+              onPrevious={handlePrev}
+              onNext={handleNext}
+              canGoPrev={canGoPrev}
+              canGoNext={canGoNext}
+              loading={loadingMore}
+            />
           </div>
         </>
       )}

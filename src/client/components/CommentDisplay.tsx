@@ -6,6 +6,7 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
+import { ScrollButtons } from './ScrollButtons';
 
 interface CommentDisplayProps {
   postId: string | null;
@@ -100,13 +101,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
   };
 
   return (
-    <div className="relative w-full p-4 pt-8 bg-white dark:bg-[#1a1a1a] rounded-lg shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)] border border-[#eaeaea] dark:border-[#2a2a2a]">
-      {/* Header */}
-      <div className="absolute top-2 left-2 z-10 bg-white dark:bg-[#1a1a1a] px-2 rounded">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-[2px]">
-          Comments ({commentCount > commentsPerPage ? `${commentsPerPage}+` : commentCount})
-        </h2>
-      </div>
+    <>
 
       {loading && comments.length === 0 ? (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -121,37 +116,25 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
       ) : (
         <>
           {/* Grid Layout: 2x2 comments */}
-          <div className="grid grid-cols-2 gap-3 mb-4" style={{ height: '300px' }}>
-            {visibleComments[0] && renderComment(visibleComments[0])}
-            {visibleComments[1] && renderComment(visibleComments[1])}
-            {visibleComments[2] && renderComment(visibleComments[2])}
-            {visibleComments[3] && renderComment(visibleComments[3])}
-          </div>
+          <div className="relative">
+            <div className="grid grid-cols-2 gap-3 mb-4" style={{ height: '300px' }}>
+              {visibleComments[0] && renderComment(visibleComments[0])}
+              {visibleComments[1] && renderComment(visibleComments[1])}
+              {visibleComments[2] && renderComment(visibleComments[2])}
+              {visibleComments[3] && renderComment(visibleComments[3])}
+            </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handlePrev}
-              disabled={!canGoPrev}
-              className="px-3 py-1.5 text-xs bg-blue-400 text-white rounded-full hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
-            >
-              <span>←</span> Previous
-            </button>
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              Page {currentPage + 1} of {Math.max(totalPages, 1)}
-            </span>
-            <button
-              onClick={handleNext}
-              disabled={!canGoNext || loadingMore}
-              className="px-3 py-1.5 text-xs bg-blue-400 text-white rounded-full hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
-            >
-              {loadingMore ? 'Loading...' : (
-                <>Next <span>→</span></>
-              )}
-            </button>
+            {/* Navigation Buttons */}
+            <ScrollButtons
+              onPrevious={handlePrev}
+              onNext={handleNext}
+              canGoPrev={canGoPrev}
+              canGoNext={canGoNext}
+              loading={loadingMore}
+            />
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };

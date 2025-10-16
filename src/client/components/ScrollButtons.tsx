@@ -1,133 +1,30 @@
 import React from 'react';
 
 interface ScrollButtonsProps {
-  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
-  scrollAmount?: number;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  canGoPrev?: boolean;
+  canGoNext?: boolean;
+  loading?: boolean;
 }
 
 export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
-  scrollContainerRef,
-  scrollAmount = 300
+  onPrevious,
+  onNext,
+  canGoPrev = true,
+  canGoNext = true,
+  loading = false
 }) => {
-  const [showLeftButton, setShowLeftButton] = React.useState(false);
-  const [showRightButton, setShowRightButton] = React.useState(false);
-
-  const checkScroll = React.useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const { scrollLeft, scrollWidth, clientWidth } = container;
-
-    // Show left button if scrolled right
-    setShowLeftButton(scrollLeft > 0);
-
-    // Show right button if there's more content to the right
-    setShowRightButton(scrollLeft < scrollWidth - clientWidth - 1);
-  }, [scrollContainerRef]);
-
-  React.useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    // Check initial state
-    checkScroll();
-
-    // Add scroll listener
-    const scrollHandler = checkScroll;
-    container.addEventListener('scroll', scrollHandler);
-
-    // Add resize listener to handle window resizing
-    window.addEventListener('resize', checkScroll);
-
-    // Use MutationObserver to detect content changes
-    const observer = new MutationObserver(checkScroll);
-    observer.observe(container, { childList: true, subtree: true });
-
-    return () => {
-      if (container) {
-        container.removeEventListener('scroll', scrollHandler);
-      }
-      window.removeEventListener('resize', checkScroll);
-      observer.disconnect();
-    };
-  }, [checkScroll, scrollContainerRef]);
-
-  const scrollLeft = () => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const innerContainer = container.firstElementChild as HTMLElement;
-    if (!innerContainer) return;
-
-    // Find all items (direct children of the flex/grid container)
-    const items = Array.from(innerContainer.children) as HTMLElement[];
-    if (items.length === 0) return;
-
-    const currentScroll = container.scrollLeft;
-
-    // Get first item's width including gap
-    const firstItem = items[0];
-    if (!firstItem) return;
-
-    const itemWidth = firstItem.offsetWidth;
-    const gap = parseFloat(window.getComputedStyle(innerContainer).gap) || 12;
-    const itemWithGap = itemWidth + gap;
-
-    // Calculate current index based on scroll position
-    const currentIndex = Math.round(currentScroll / itemWithGap);
-
-    // Go to previous item
-    const targetIndex = Math.max(0, currentIndex - 1);
-    const targetScroll = targetIndex * itemWithGap;
-
-    container.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth'
-    });
-  };
-
-  const scrollRight = () => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const innerContainer = container.firstElementChild as HTMLElement;
-    if (!innerContainer) return;
-
-    // Find all items (direct children of the flex/grid container)
-    const items = Array.from(innerContainer.children) as HTMLElement[];
-    if (items.length === 0) return;
-
-    const currentScroll = container.scrollLeft;
-
-    // Get first item's width including gap
-    const firstItem = items[0];
-    if (!firstItem) return;
-
-    const itemWidth = firstItem.offsetWidth;
-    const gap = parseFloat(window.getComputedStyle(innerContainer).gap) || 12;
-    const itemWithGap = itemWidth + gap;
-
-    // Calculate current index based on scroll position
-    const currentIndex = Math.round(currentScroll / itemWithGap);
-
-    // Go to next item
-    const targetIndex = Math.min(items.length - 1, currentIndex + 1);
-    const targetScroll = targetIndex * itemWithGap;
-
-    container.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth'
-    });
-  };
 
   return (
     <>
       {/* Left Button */}
-      {showLeftButton && (
+      {canGoPrev && (
         <button
-          onClick={scrollLeft}
-          className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all"
-          aria-label="Scroll left"
+          onClick={onPrevious}
+          disabled={!canGoPrev}
+          className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Previous"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -145,11 +42,12 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
       )}
 
       {/* Right Button */}
-      {showRightButton && (
+      {canGoNext && (
         <button
-          onClick={scrollRight}
-          className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all"
-          aria-label="Scroll right"
+          onClick={onNext}
+          disabled={!canGoNext || loading}
+          className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Next"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
