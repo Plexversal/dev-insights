@@ -133,7 +133,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
             </div>
 
             {/* Title - shown on desktop only */}
-            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] mb-1 dark:text-gray-100 ${media ? 'line-clamp-2' : 'line-clamp-3'}`}>
+            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] mb-1 dark:text-gray-100 overflow-hidden ${media ? 'flex-shrink-0' : ''}`} style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {post.title}
             </div>
 
@@ -230,7 +230,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
           )}
         </div>
 
-        <div className={`font-semibold text-base text-[22px] mb-1 dark:text-gray-100 ${media ? 'line-clamp-2 flex-shrink-0' : 'flex-1'}`} style={media ? {} : { display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <div className={`font-semibold text-base text-[22px] mb-1 dark:text-gray-100 ${media ? 'line-clamp-2' : 'line-clamp-6'}`}>
           {post.title}
         </div>
 
