@@ -71,44 +71,78 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
   const renderPost = (post: any, isLarge: boolean, isMostRecent: boolean = false) => {
     const media = getPostMedia(post);
 
-    if (!isLarge) {
+    // On mobile (<600px), render all posts with the small post layout (horizontal)
+    // On desktop (>=600px), differentiate between large and small posts
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
+    const useSmallLayout = !isLarge || isMobile;
+
+    if (useSmallLayout && !isLarge) {
       // Small post layout: horizontal on desktop (>600px), vertical on mobile
       return (
         <div
           key={post.id}
           className="h-full w-full p-2 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors flex flex-col min-[600px]:flex-row gap-2"
           onClick={() => handlePostClick(post.permalink)}
-          style={{ maxHeight: '100%', overflow: 'hidden' }}
         >
-          {/* Username - shown on mobile for all posts at the very top */}
-          <div className="flex min-[600px]:hidden items-center gap-1.5 flex-shrink-0 order-first">
-            <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
-              {post.authorName}
-            </span>
-            {post.userFlairText && cleanFlairText(post.userFlairText) && (
-              <span
-                className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
-                style={{
-                  backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
-                  color: post.flairTextColor || '#000000'
-                }}
-              >
-                {cleanFlairText(post.userFlairText)}
+          {/* Mobile: Wrap username, title, and media together */}
+          <div className="flex min-[600px]:hidden flex-col gap-2 flex-1">
+            {/* Username - shown on mobile for all posts at the very top */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
+                {post.authorName}
               </span>
+              {post.userFlairText && cleanFlairText(post.userFlairText) && (
+                <span
+                  className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
+                  style={{
+                    backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
+                    color: post.flairTextColor || '#000000'
+                  }}
+                >
+                  {cleanFlairText(post.userFlairText)}
+                </span>
+              )}
+            </div>
+
+            {/* Title for non-media posts on mobile - shown right after username */}
+            {!media && (
+              <div className="font-semibold text-base text-[22px] dark:text-gray-100 line-clamp-3">
+                {post.title}
+              </div>
+            )}
+
+            {/* Media on mobile */}
+            {media && (
+              <div className="w-full h-28 flex-shrink-0 overflow-hidden rounded-md relative">
+                {imageErrors.has(post.id) ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-200 dark:bg-[#1a1a1a] text-[10px] text-gray-600 dark:text-gray-400 text-center px-2">
+                    <span>Media</span>
+                  </div>
+                ) : (
+                  <div className="w-full h-full">
+                    <img
+                      src={media.url}
+                      alt={post.title}
+                      className="w-full h-full object-cover brightness-90"
+                      onError={() => handleImageError(post.id)}
+                    />
+                  </div>
+                )}
+
+                {/* Title overlay - shown on mobile only */}
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 backdrop-blur-sm">
+                  <div className="font-semibold text-white text-[18px] line-clamp-2">
+                    {post.title}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Title for non-media posts on mobile - shown right after username */}
-          {!media && (
-            <div className="min-[600px]:hidden font-semibold text-base text-[22px] mb-1 dark:text-gray-100 line-clamp-3 order-1">
-              {post.title}
-            </div>
-          )}
-
-          {/* Content on top (mobile) or right (desktop) */}
-          <div className="flex flex-col min-h-0 overflow-hidden min-[600px]:order-2 flex-1 order-3">
+          {/* Content on top (mobile) or right (desktop) - only shown on desktop */}
+          <div className="hidden min-[600px]:flex flex-col min-h-0 overflow-hidden min-[600px]:order-2 flex-1">
             {/* Username - shown on desktop only */}
-            <div className="hidden min-[600px]:flex items-center gap-1.5 mb-1 flex-shrink-0">
+            <div className="flex items-center gap-1.5 mb-1 flex-shrink-0">
               <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
                 {post.authorName}
               </span>
@@ -126,12 +160,12 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
             </div>
 
             {/* Title - shown on desktop only */}
-            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] dark:text-gray-100 overflow-hidden flex-1 min-h-0 ${media ? 'line-clamp-2 mb-1' : 'line-clamp-6'}`}>
+            <div className={`font-semibold text-base text-[22px] dark:text-gray-100 overflow-hidden flex-1 min-h-0 ${media ? 'line-clamp-2 mb-1' : 'line-clamp-6'}`}>
               {post.title}
             </div>
 
             {/* Timestamp only on desktop */}
-            <div className="hidden min-[600px]:flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto">
+            <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto">
               <span>{formatTimeAgo(post.timestamp)}</span>
               {isMod && (
                 <button
@@ -146,9 +180,9 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
             </div>
           </div>
 
-          {/* Media on bottom (mobile) or left (desktop) */}
+          {/* Media on desktop only - left side */}
           {media && (
-            <div className="w-full min-[600px]:w-2/5 h-32 min-[600px]:h-full flex-shrink-0 overflow-hidden rounded-md relative min-[600px]:order-1 order-2">
+            <div className="hidden min-[600px]:block w-2/5 h-full flex-shrink-0 overflow-hidden rounded-md relative min-[600px]:order-1">
               {imageErrors.has(post.id) ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gray-200 dark:bg-[#1a1a1a] text-[10px] text-gray-600 dark:text-gray-400 text-center px-2">
                   <span>Media</span>
@@ -163,18 +197,11 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
                   />
                 </div>
               )}
-
-              {/* Title overlay - shown on mobile only */}
-              <div className="min-[600px]:hidden absolute bottom-0 left-0 right-0 p-2 bg-black/60 backdrop-blur-sm">
-                <div className="font-semibold text-white text-[18px] line-clamp-2">
-                  {post.title}
-                </div>
-              </div>
             </div>
           )}
 
-          {/* Timestamp only on mobile - below everything */}
-          <div className="flex min-[600px]:hidden items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto order-last">
+          {/* Timestamp - on mobile at bottom, on desktop hidden (shown in content div) */}
+          <div className="flex min-[600px]:hidden items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto">
             <span>{formatTimeAgo(post.timestamp)}</span>
             {isMod && (
               <button
@@ -191,7 +218,89 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
       );
     }
 
-    // Large post layout (original)
+    // On mobile, use the small post layout for large posts too
+    if (isMobile) {
+      return (
+        <div
+          key={post.id}
+          className="h-full w-full p-2 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors flex flex-col gap-2"
+          onClick={() => handlePostClick(post.permalink)}
+          style={{ maxHeight: '100%', overflow: 'hidden' }}
+        >
+          {/* Username - at top on mobile */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
+              {post.authorName}
+            </span>
+            {post.userFlairText && cleanFlairText(post.userFlairText) && (
+              <span
+                className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
+                style={{
+                  backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
+                  color: post.flairTextColor || '#000000'
+                }}
+              >
+                {cleanFlairText(post.userFlairText)}
+              </span>
+            )}
+          </div>
+
+          {/* Horizontal layout: media on left, content on right */}
+          <div className="flex flex-row gap-2 flex-1 min-h-0">
+            {/* Media on left */}
+            {media && (
+              <div className="w-2/5 h-full flex-shrink-0 overflow-hidden rounded-md relative">
+                {imageErrors.has(post.id) ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gray-200 dark:bg-[#1a1a1a] text-[10px] text-gray-600 dark:text-gray-400 text-center px-2">
+                    <span>Media</span>
+                  </div>
+                ) : (
+                  <div className="w-full h-full">
+                    <img
+                      src={media.url}
+                      alt={post.title}
+                      className="w-full h-full object-cover brightness-90"
+                      onError={() => handleImageError(post.id)}
+                    />
+                  </div>
+                )}
+
+                {isMostRecent && (
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
+                    <span className="text-green-400 text-base leading-none flex items-center">•</span>
+                    <span className="text-green-400 text-xs font-semibold">Most Recent</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Content on right */}
+            <div className="flex flex-col min-h-0 overflow-hidden flex-1">
+              <div className="font-semibold text-base text-[22px] dark:text-gray-100 overflow-hidden line-clamp-2">
+                {post.title}
+              </div>
+            </div>
+          </div>
+
+          {/* Timestamp at bottom */}
+          <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0">
+            <span>{formatTimeAgo(post.timestamp)}</span>
+            {isMod && (
+              <button
+                onClick={(e) => handleDeletePost(post.id, e)}
+                disabled={deletingPosts.has(post.id)}
+                className="w-4 h-4 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Delete from app (only mods can see this)"
+              >
+                <TrashCanIcon className="w-full h-full" fill="currentColor" />
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Large post layout for desktop (original)
     return (
       <div
         key={post.id}
@@ -300,19 +409,19 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
         </div>
       ) : (
         <>
-          {/* Fixed Gallery Layout */}
-          <div className="flex h-[360px] w-full gap-2">
+          {/* Gallery Layout: Big post on top, small posts side-by-side below on mobile (<600px), side-by-side grid on desktop (>=600px) */}
+          <div className="flex flex-col min-[600px]:flex-row min-[600px]:h-[360px] w-full gap-2">
             {/* Big Post */}
-            <div className="w-1/2 h-full overflow-hidden rounded-lg">
+            <div className="w-full min-[600px]:w-1/2 h-[160px] min-[600px]:h-full overflow-hidden rounded-lg">
               {visiblePosts[0] && renderPost(visiblePosts[0], true, currentPage === 0)}
             </div>
 
-            {/* Small Posts */}
-            <div className="w-1/2 h-full flex flex-col gap-2">
-              <div className="h-1/2 overflow-hidden rounded-lg">
+            {/* Small Posts - side by side on mobile, stacked on desktop */}
+            <div className="w-full min-[600px]:w-1/2 min-[600px]:h-full flex flex-row min-[600px]:flex-col gap-2">
+              <div className="w-1/2 min-[600px]:w-full h-[200px] min-[600px]:h-1/2 rounded-lg">
                 {visiblePosts[1] && renderPost(visiblePosts[1], false)}
               </div>
-              <div className="h-1/2 overflow-hidden rounded-lg">
+              <div className="w-1/2 min-[600px]:w-full h-[200px] min-[600px]:h-1/2 rounded-lg">
                 {visiblePosts[2] && renderPost(visiblePosts[2], false)}
               </div>
             </div>
