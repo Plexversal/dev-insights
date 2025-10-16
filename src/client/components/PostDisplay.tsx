@@ -264,13 +264,6 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
                     />
                   </div>
                 )}
-
-                {isMostRecent && (
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-                    <span className="text-green-400 text-base leading-none flex items-center">•</span>
-                    <span className="text-green-400 text-xs font-semibold">Most Recent</span>
-                  </div>
-                )}
               </div>
             )}
 
@@ -284,7 +277,15 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
 
           {/* Timestamp at bottom */}
           <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0">
-            <span>{formatTimeAgo(post.timestamp)}</span>
+            <div className="flex items-center gap-2">
+              {isMostRecent && (
+                <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
+                  <span className="text-green-400 text-base leading-none flex items-center">•</span>
+                  <span className="text-green-400 text-xs font-semibold">Most Recent</span>
+                </div>
+              )}
+              <span>{formatTimeAgo(post.timestamp)}</span>
+            </div>
             {isMod && (
               <button
                 onClick={(e) => handleDeletePost(post.id, e)}
@@ -348,29 +349,22 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
                 />
               </div>
             )}
-
-            {isMostRecent && (
-              <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-                <span className="text-green-400 text-base leading-none flex items-center">•</span>
-                <span className="text-green-400 text-xs font-semibold">Most Recent</span>
-              </div>
-            )}
           </div>
         )}
 
         {/* Spacer for non-media posts to push timestamp down */}
         {!media && <div className="flex-1" />}
 
-        {/* Most Recent badge for non-media posts - inline above timestamp */}
-        {isMostRecent && !media && (
-          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md self-start mb-2">
-            <span className="text-green-400 text-base leading-none flex items-center">•</span>
-            <span className="text-green-400 text-xs font-semibold">Most Recent</span>
-          </div>
-        )}
-
         <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0">
-          <span>{formatTimeAgo(post.timestamp)}</span>
+          <div className="flex items-center gap-2">
+            {isMostRecent && (
+              <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
+                <span className="text-green-400 text-base leading-none flex items-center">•</span>
+                <span className="text-green-400 text-xs font-semibold">Most Recent</span>
+              </div>
+            )}
+            <span>{formatTimeAgo(post.timestamp)}</span>
+          </div>
           {isMod && (
             <button
               onClick={(e) => handleDeletePost(post.id, e)}
