@@ -6,6 +6,7 @@ import { ScrollButtons } from './components/ScrollButtons';
 import { usePosts } from './hooks/usePosts';
 import { useComments } from './hooks/useComments';
 import { useState, useEffect } from 'react';
+import { trackAnalytics } from './lib/trackAnalytics';
 
 export const App = () => {
   const { username, postId } = useInit();
@@ -71,6 +72,11 @@ export const App = () => {
   const handleNext = activeTab === 'posts' ? handlePostsNext : handleCommentsNext;
   const handlePrev = activeTab === 'posts' ? handlePostsPrev : handleCommentsPrev;
 
+  const handleTabSwitch = (tab: 'posts' | 'comments') => {
+    trackAnalytics(); // Track user interaction
+    setActiveTab(tab);
+  };
+
   console.log(`[App] Current postId: ${postId}`);
   return (
     <div className="flex relative flex-col items-center min-h-screen gap-4 bg-white dark:bg-black p-2">
@@ -80,7 +86,7 @@ export const App = () => {
         {/* Tab Buttons */}
         <div className="flex gap-2 pb-2 mb-3 border-b border-gray-300 dark:border-gray-700">
           <button
-            onClick={() => setActiveTab('posts')}
+            onClick={() => handleTabSwitch('posts')}
             className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
               activeTab === 'posts'
                 ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
@@ -91,7 +97,7 @@ export const App = () => {
             Announcements
           </button>
           <button
-            onClick={() => setActiveTab('comments')}
+            onClick={() => handleTabSwitch('comments')}
             className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
               activeTab === 'comments'
                 ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
