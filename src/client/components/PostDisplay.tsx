@@ -263,7 +263,15 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
           </div>
         )}
 
-        <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0 mt-auto">
+        {/* Most Recent badge for non-media posts - inline above timestamp */}
+        {isMostRecent && !media && (
+          <div className="flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md self-start mb-2 mt-auto">
+            <span className="text-green-400 text-base leading-none flex items-center">•</span>
+            <span className="text-green-400 text-xs font-semibold">Most Recent</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between text-[14px] text-gray-500 dark:text-gray-400 flex-shrink-0">
           <span>{formatTimeAgo(post.timestamp)}</span>
           {isMod && (
             <button
