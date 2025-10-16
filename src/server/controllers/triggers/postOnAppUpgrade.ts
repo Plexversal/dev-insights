@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import { context, Post } from '@devvit/web/server';
 import { createPost } from '../../core/post';
 import afterAppCreate from '../../lib/afterAppCreate';
-export const postOnAppInstall = async (
+
+export const postOnAppUpgrade = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
   try {
+    return;
 
     const post: Post = await createPost();
     await afterAppCreate(post);
