@@ -12,7 +12,7 @@ interface PostsResponse {
   limit: number;
 }
 
-interface PostsContextType {
+export interface PostsContextType {
   posts: PostData[];
   loading: boolean;
   loadingMore: boolean;

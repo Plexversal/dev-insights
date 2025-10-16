@@ -43,6 +43,11 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
     }
   }, [loading]);
 
+  const handleUsernameClick = (username: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent comment card click
+    navigateTo(`https://www.reddit.com/user/${username}/`);
+  };
+
   const renderComment = (comment: any) => {
     return (
       <div
@@ -51,7 +56,10 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
         onClick={() => handleCommentClick(comment.url)}
       >
         <div className="flex flex-row gap-1 items-center mb-2 flex-shrink-0">
-          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
+          <span
+            className="font-medium text-gray-600 dark:text-gray-400 text-sm truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+            onClick={(e) => handleUsernameClick(comment.authorName, e)}
+          >
             {comment.authorName}
           </span>
           {comment.userFlairText && cleanFlairText(comment.userFlairText) && (

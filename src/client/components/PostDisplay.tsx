@@ -27,6 +27,11 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
     navigateTo(`https://www.reddit.com${permalink}`);
   };
 
+  const handleUsernameClick = (username: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent post card click
+    navigateTo(`https://www.reddit.com/user/${username}/`);
+  };
+
   const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent navigation when clicking delete
     if (deletingPosts.has(postId)) return; // Prevent multiple clicks
@@ -88,7 +93,10 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
           <div className="flex min-[600px]:hidden flex-col gap-2 flex-1">
             {/* Username - shown on mobile for all posts at the very top */}
             <div className="flex items-center gap-1.5 flex-shrink-0">
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
+              <span
+                className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+                onClick={(e) => handleUsernameClick(post.authorName, e)}
+              >
                 {post.authorName}
               </span>
               {post.userFlairText && cleanFlairText(post.userFlairText) && (
@@ -143,7 +151,10 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
           <div className="hidden min-[600px]:flex flex-col min-h-0 overflow-hidden min-[600px]:order-2 flex-1">
             {/* Username - shown on desktop only */}
             <div className="flex items-center gap-1.5 mb-1 flex-shrink-0">
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
+              <span
+                className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+                onClick={(e) => handleUsernameClick(post.authorName, e)}
+              >
                 {post.authorName}
               </span>
               {post.userFlairText && cleanFlairText(post.userFlairText) && (
@@ -160,7 +171,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
             </div>
 
             {/* Title - shown on desktop only */}
-            <div className={`font-semibold text-base text-[22px] dark:text-gray-100 overflow-hidden flex-1 min-h-0 ${media ? 'line-clamp-2 mb-1' : 'line-clamp-6'}`}>
+            <div className={`font-semibold text-base text-[22px] dark:text-gray-100 mb-1 flex-shrink-0 ${media ? 'line-clamp-2' : 'line-clamp-6'}`}>
               {post.title}
             </div>
 
@@ -229,7 +240,10 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
         >
           {/* Username - at top on mobile */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
+            <span
+              className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+              onClick={(e) => handleUsernameClick(post.authorName, e)}
+            >
               {post.authorName}
             </span>
             {post.userFlairText && cleanFlairText(post.userFlairText) && (
@@ -310,7 +324,10 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
         style={{ maxHeight: '100%', overflow: 'hidden' }}
       >
         <div className="flex items-center gap-1.5 mb-1 flex-shrink-0">
-          <span className="font-medium text-gray-900 dark:text-gray-100 text-xs text-[14px] truncate">
+          <span
+            className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+            onClick={(e) => handleUsernameClick(post.authorName, e)}
+          >
             {post.authorName}
           </span>
           {post.userFlairText && cleanFlairText(post.userFlairText) && (

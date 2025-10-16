@@ -12,7 +12,7 @@ interface CommentsResponse {
   limit: number;
 }
 
-interface CommentsContextType {
+export interface CommentsContextType {
   comments: CommentData[];
   loading: boolean;
   loadingMore: boolean;

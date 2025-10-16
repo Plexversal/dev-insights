@@ -11,6 +11,6 @@ export const createPost = async () => {
       appDisplayName: 'Dev-Insights',
     },
     subredditName: subredditName,
-    title: 'Community Figure Insights',
+    title: 'Game Announcements',
   });
 };
