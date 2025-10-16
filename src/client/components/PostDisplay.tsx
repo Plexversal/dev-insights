@@ -6,40 +6,25 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
-import { ScrollButtons } from './ScrollButtons';
 
 interface PostDisplayProps {
   postId: string | null;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
-export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
+export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, onPageChange }) => {
   const { posts, loading, loadingMore, subredditName, refreshPosts, loadMorePosts, hasMore, postCount, postsPerPage } = usePosts();
   const { isMod, loading: modLoading } = useMod()
   const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
   const [deletingPosts, setDeletingPosts] = React.useState<Set<string>>(new Set());
-  const [currentPage, setCurrentPage] = React.useState(0);
 
   // Show 3 posts at a time (1 large + 2 small)
   const postsPerView = 3;
   const visiblePosts = posts.slice(currentPage * postsPerView, (currentPage + 1) * postsPerView);
-  const totalPages = Math.ceil(posts.length / postsPerView);
-  const canGoNext = currentPage < totalPages - 1 || hasMore;
-  const canGoPrev = currentPage > 0;
 
   const handlePostClick = (permalink: string) => {
     navigateTo(`https://www.reddit.com${permalink}`);
-  };
-
-  const handleNext = async () => {
-    // If we're at the last page and there's more data, load more
-    if (currentPage >= totalPages - 1 && hasMore) {
-      await loadMorePosts();
-    }
-    setCurrentPage(prev => prev + 1);
-  };
-
-  const handlePrev = () => {
-    setCurrentPage(prev => Math.max(0, prev - 1));
   };
 
   const handleDeletePost = async (postId: string, e: React.MouseEvent) => {
@@ -91,7 +76,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
       return (
         <div
           key={post.id}
-          className="h-full w-full p-2 bg-gray-50 dark:bg-[#272729] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#343536] transition-colors flex flex-col min-[600px]:flex-row gap-2"
+          className="h-full w-full p-2 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors flex flex-col min-[600px]:flex-row gap-2"
           onClick={() => handlePostClick(post.permalink)}
           style={{ maxHeight: '100%', overflow: 'hidden' }}
         >
@@ -141,7 +126,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
             </div>
 
             {/* Title - shown on desktop only */}
-            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] mb-1 dark:text-gray-100 overflow-hidden min-[600px]:line-clamp-2 ${media ? 'flex-shrink-0' : ''}`}>
+            <div className={`hidden min-[600px]:block font-semibold text-base text-[22px] dark:text-gray-100 overflow-hidden flex-1 min-h-0 ${media ? 'line-clamp-2 mb-1' : 'line-clamp-6'}`}>
               {post.title}
             </div>
 
@@ -210,7 +195,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
     return (
       <div
         key={post.id}
-        className="h-full w-full p-2 bg-gray-50 dark:bg-[#272729] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#343536] transition-colors flex flex-col"
+        className="h-full w-full p-2 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors flex flex-col"
         onClick={() => handlePostClick(post.permalink)}
         style={{ maxHeight: '100%', overflow: 'hidden' }}
       >
@@ -316,32 +301,21 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId }) => {
       ) : (
         <>
           {/* Fixed Gallery Layout */}
-          <div className="relative">
-            <div className="flex h-[360px] w-full gap-2 mb-3">
-              {/* Big Post */}
-              <div className="w-1/2 h-full overflow-hidden rounded-lg">
-                {visiblePosts[0] && renderPost(visiblePosts[0], true, currentPage === 0)}
-              </div>
-
-              {/* Small Posts */}
-              <div className="w-1/2 h-full flex flex-col gap-2">
-                <div className="h-1/2 overflow-hidden rounded-lg">
-                  {visiblePosts[1] && renderPost(visiblePosts[1], false)}
-                </div>
-                <div className="h-1/2 overflow-hidden rounded-lg">
-                  {visiblePosts[2] && renderPost(visiblePosts[2], false)}
-                </div>
-              </div>
+          <div className="flex h-[360px] w-full gap-2">
+            {/* Big Post */}
+            <div className="w-1/2 h-full overflow-hidden rounded-lg">
+              {visiblePosts[0] && renderPost(visiblePosts[0], true, currentPage === 0)}
             </div>
 
-            {/* Navigation Buttons */}
-            <ScrollButtons
-              onPrevious={handlePrev}
-              onNext={handleNext}
-              canGoPrev={canGoPrev}
-              canGoNext={canGoNext}
-              loading={loadingMore}
-            />
+            {/* Small Posts */}
+            <div className="w-1/2 h-full flex flex-col gap-2">
+              <div className="h-1/2 overflow-hidden rounded-lg">
+                {visiblePosts[1] && renderPost(visiblePosts[1], false)}
+              </div>
+              <div className="h-1/2 overflow-hidden rounded-lg">
+                {visiblePosts[2] && renderPost(visiblePosts[2], false)}
+              </div>
+            </div>
           </div>
         </>
       )}

@@ -6,39 +6,25 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
-import { ScrollButtons } from './ScrollButtons';
 
 interface CommentDisplayProps {
   postId: string | null;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+  isMobile: boolean;
 }
 
-export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
+export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentPage, onPageChange, isMobile }) => {
   const { comments, loading, loadingMore, subredditName, refreshComments, loadMoreComments, hasMore, commentCount, commentsPerPage } = useComments();
   const { isMod, loading: modLoading } = useMod()
   const [deletingComments, setDeletingComments] = React.useState<Set<string>>(new Set());
-  const [currentPage, setCurrentPage] = React.useState(0);
 
-  // Show 4 comments at a time
-  const commentsPerView = 4;
+  // Show 2 comments on mobile, 4 on desktop
+  const commentsPerView = isMobile ? 2 : 4;
   const visibleComments = comments.slice(currentPage * commentsPerView, (currentPage + 1) * commentsPerView);
-  const totalPages = Math.ceil(comments.length / commentsPerView);
-  const canGoNext = currentPage < totalPages - 1 || hasMore;
-  const canGoPrev = currentPage > 0;
 
   const handleCommentClick = (commentUrl: string) => {
     navigateTo(commentUrl);
-  };
-
-  const handleNext = async () => {
-    // If we're at the last page and there's more data, load more
-    if (currentPage >= totalPages - 1 && hasMore) {
-      await loadMoreComments();
-    }
-    setCurrentPage(prev => prev + 1);
-  };
-
-  const handlePrev = () => {
-    setCurrentPage(prev => Math.max(0, prev - 1));
   };
 
   const handleDeleteComment = async (commentId: string, e: React.MouseEvent) => {
@@ -61,7 +47,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
     return (
       <div
         key={comment.id}
-        className="h-full p-3 bg-gray-50 dark:bg-[#272729] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#343536] transition-colors flex flex-col"
+        className="h-full p-3 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-gray-600 dark:border-l-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#1a1a1a] transition-colors flex flex-col"
         onClick={() => handleCommentClick(comment.url)}
       >
         <div className="flex flex-col min-[600px]:flex-row gap-1 min-[600px]:items-center mb-2 flex-shrink-0">
@@ -115,23 +101,12 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId }) => {
         </div>
       ) : (
         <>
-          {/* Grid Layout: 2x2 comments */}
-          <div className="relative">
-            <div className="grid grid-cols-2 gap-3 mb-4" style={{ height: '300px' }}>
-              {visibleComments[0] && renderComment(visibleComments[0])}
-              {visibleComments[1] && renderComment(visibleComments[1])}
-              {visibleComments[2] && renderComment(visibleComments[2])}
-              {visibleComments[3] && renderComment(visibleComments[3])}
-            </div>
-
-            {/* Navigation Buttons */}
-            <ScrollButtons
-              onPrevious={handlePrev}
-              onNext={handleNext}
-              canGoPrev={canGoPrev}
-              canGoNext={canGoNext}
-              loading={loadingMore}
-            />
+          {/* Grid Layout: 1 column on mobile (<600px), 2x2 grid on desktop (>=600px) */}
+          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 gap-3" style={{ height: '300px' }}>
+            {visibleComments[0] && renderComment(visibleComments[0])}
+            {visibleComments[1] && renderComment(visibleComments[1])}
+            {!isMobile && visibleComments[2] && renderComment(visibleComments[2])}
+            {!isMobile && visibleComments[3] && renderComment(visibleComments[3])}
           </div>
         </>
       )}
