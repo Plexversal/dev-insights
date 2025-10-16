@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { redis, context, reddit } from '@devvit/web/server';
 import { getFlairColorsByText } from './getFlairTemplates';
+import { updateOldReddit } from './postUpdateOldReddit';
 
 export const getPostsHandler = async (
   req: Request,
@@ -86,6 +87,11 @@ export const getPostsHandler = async (
     }
 
     console.log(`Returning ${postsWithData.length} posts with data`);
+
+    // Update old Reddit fallback text (with rate limiting)
+    updateOldReddit().catch(err => {
+      console.error('[getPostsHandler] Error updating old Reddit fallback:', err);
+    });
 
     res.json({
       status: 'success',
