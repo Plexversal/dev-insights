@@ -13,6 +13,7 @@ import { postOnAppInstall } from '../controllers/triggers/postOnAppInstall';
 import { postFetchUserContent } from '../controllers/menu/postFetchUserContent';
 import { postAddManualComment } from '../controllers/menu/postAddManualComment';
 import { postAddManualPost } from '../controllers/menu/postAddManualPost';
+import { postOnAppUpgrade } from '../controllers/triggers/postOnAppUpgrade';
 
 
 const router = Router();
@@ -26,12 +27,14 @@ router.post('/internal/menu/add-manual-post', postAddManualPost);
 
 // triggers
 router.post('/internal/on-app-install', postOnAppInstall);
+router.post('/internal/on-app-upgrade', postOnAppUpgrade);
 router.post('/internal/on-post-create', postPostCreate);
 router.post('/internal/on-post-delete', postOnPostDelete);
 router.post('/internal/on-post-update', postOnPostUpdate);
 router.post('/internal/on-comment-create', postCommentCreate);
 router.post('/internal/on-comment-update', postOnCommentUpdate);
 router.post('/internal/on-comment-delete', postOnCommentDelete);
+
 
 // form validation routes
 router.post('/internal/settings/validate-users', validateUsers);

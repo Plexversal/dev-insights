@@ -49,6 +49,7 @@
   },
   "triggers": {
     "onAppInstall": "/internal/on-app-install",
+    "onAppUpgrade": "/internal/on-app-upgrade",
     "onCommentCreate": "/internal/on-comment-create",
     "onPostCreate": "/internal/on-post-create",
     "onPostDelete": "/internal/on-post-delete",

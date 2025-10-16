@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { context, Post } from '@devvit/web/server';
 import { createPost } from '../../core/post';
 import afterAppCreate from '../../lib/afterAppCreate';
-export const postOnAppInstall = async (
+
+export const postOnAppUpgrade = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
@@ -13,7 +14,7 @@ export const postOnAppInstall = async (
 
     res.json({
       status: 'success',
-      message: `Post created in subreddit ${context.subredditName} with id ${post.id}`,
+      message: `App upgraded in subreddit ${context.subredditName}`,
     });
   } catch (error) {
     console.error(`Error creating post: ${error}`);

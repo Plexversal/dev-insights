@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+/* Disable all scrolling on html and body */
+html,
+body {
+  overflow: hidden;
+  height: 100vh;
+}
+
 /* Firefox-style slim scrollbars */
 * {
   scrollbar-width: thin;
