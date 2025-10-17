@@ -80,7 +80,7 @@ export const App = () => {
 
   console.log(`[App] Current postId: ${postId}`);
   return (
-    <div className="flex relative flex-col items-center min-h-screen gap-4 bg-white dark:bg-black p-2">
+    <div className="flex relative flex-col items-center min-h-screen gap-4 p-2">
 
       {/* Tabbed Interface */}
       <div className="w-full max-w-2xl flex-1">
