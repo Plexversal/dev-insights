@@ -14,6 +14,7 @@ import { postFetchUserContent } from '../controllers/menu/postFetchUserContent';
 import { postAddManualComment } from '../controllers/menu/postAddManualComment';
 import { postAddManualPost } from '../controllers/menu/postAddManualPost';
 import { postOnAppUpgrade } from '../controllers/triggers/postOnAppUpgrade';
+import { schedulerLogAnalytics } from '../controllers/schedulerLogAnalytics';
 
 
 const router = Router();
@@ -34,6 +35,10 @@ router.post('/internal/on-post-update', postOnPostUpdate);
 router.post('/internal/on-comment-create', postCommentCreate);
 router.post('/internal/on-comment-update', postOnCommentUpdate);
 router.post('/internal/on-comment-delete', postOnCommentDelete);
+
+
+// scheduler tasks
+router.post('/internal/scheduler/log-analytics', schedulerLogAnalytics);
 
 
 // form validation routes

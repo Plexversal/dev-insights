@@ -1,4 +1,5 @@
 import React from 'react';
+import { trackAnalytics } from '../lib/trackAnalytics';
 
 interface ScrollButtonsProps {
   onPrevious?: () => void;
@@ -16,12 +17,22 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
   loading = false
 }) => {
 
+  const handlePrevious = () => {
+    trackAnalytics(); // Track user interaction
+    onPrevious?.();
+  };
+
+  const handleNext = () => {
+    trackAnalytics(); // Track user interaction
+    onNext?.();
+  };
+
   return (
     <>
       {/* Left Button */}
       {canGoPrev && (
         <button
-          onClick={onPrevious}
+          onClick={handlePrevious}
           disabled={!canGoPrev}
           className="absolute left-1 bottom-1 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Previous"
@@ -44,7 +55,7 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
       {/* Right Button */}
       {canGoNext && (
         <button
-          onClick={onNext}
+          onClick={handleNext}
           disabled={!canGoNext || loading}
           className="absolute right-1 bottom-1 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Next"

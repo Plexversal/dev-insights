@@ -6,6 +6,7 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
+import { trackAnalytics } from '../lib/trackAnalytics';
 
 interface PostDisplayProps {
   postId: string | null;
@@ -24,11 +25,13 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
   const visiblePosts = posts.slice(currentPage * postsPerView, (currentPage + 1) * postsPerView);
 
   const handlePostClick = (permalink: string) => {
+    trackAnalytics(); // Track user interaction
     navigateTo(`https://www.reddit.com${permalink}`);
   };
 
   const handleUsernameClick = (username: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent post card click
+    trackAnalytics(); // Track user interaction
     navigateTo(`https://www.reddit.com/user/${username}/`);
   };
 
@@ -36,6 +39,7 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
     e.stopPropagation(); // Prevent navigation when clicking delete
     if (deletingPosts.has(postId)) return; // Prevent multiple clicks
 
+    trackAnalytics(); // Track user interaction
     setDeletingPosts(prev => new Set(prev).add(postId));
     await deleteItem(postId, 'posts', refreshPosts);
     // Keep button disabled while refresh is in progress

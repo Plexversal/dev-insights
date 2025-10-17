@@ -57,6 +57,14 @@
     "onCommentDelete": "/internal/on-comment-delete",
     "onCommentUpdate": "/internal/on-comment-update"
   },
+  "scheduler": {
+    "tasks": {
+      "log-analytics-every-5min": {
+        "endpoint": "/internal/scheduler/log-analytics",
+        "cron": "*/5 * * * *"
+      }
+    }
+  },
   "dev": {
     "subreddit": "dev_insights_dev"
 

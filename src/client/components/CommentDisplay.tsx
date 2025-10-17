@@ -6,6 +6,7 @@ import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
+import { trackAnalytics } from '../lib/trackAnalytics';
 
 interface CommentDisplayProps {
   postId: string | null;
@@ -24,6 +25,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
   const visibleComments = comments.slice(currentPage * commentsPerView, (currentPage + 1) * commentsPerView);
 
   const handleCommentClick = (commentUrl: string) => {
+    trackAnalytics(); // Track user interaction
     navigateTo(commentUrl);
   };
 
@@ -31,6 +33,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
     e.stopPropagation(); // Prevent navigation when clicking delete
     if (deletingComments.has(commentId)) return; // Prevent multiple clicks
 
+    trackAnalytics(); // Track user interaction
     setDeletingComments(prev => new Set(prev).add(commentId));
     await deleteItem(commentId, 'comments', refreshComments);
     // Keep button disabled while refresh is in progress
@@ -45,6 +48,7 @@ export const CommentDisplay: React.FC<CommentDisplayProps> = ({ postId, currentP
 
   const handleUsernameClick = (username: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent comment card click
+    trackAnalytics(); // Track user interaction
     navigateTo(`https://www.reddit.com/user/${username}/`);
   };
 
