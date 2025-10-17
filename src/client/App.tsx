@@ -7,6 +7,7 @@ import { usePosts } from './hooks/usePosts';
 import { useComments } from './hooks/useComments';
 import { useState, useEffect } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
+import { Notification } from './lib/icons/Notification';
 
 export const App = () => {
   const { username, postId } = useInit();
@@ -84,29 +85,36 @@ export const App = () => {
       {/* Tabbed Interface */}
       <div className="w-full max-w-2xl flex-1">
         {/* Tab Buttons */}
-        <div className="flex gap-2 pb-2 mb-3 border-b border-gray-300 dark:border-gray-700">
-          <button
-            onClick={() => handleTabSwitch('posts')}
-            className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
-              activeTab === 'posts'
-                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
-                : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-            }`}
-            style={{ borderRadius: '18px' }}
-          >
-            Announcements
-          </button>
-          <button
-            onClick={() => handleTabSwitch('comments')}
-            className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
-              activeTab === 'comments'
-                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
-                : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-            }`}
-            style={{ borderRadius: '18px' }}
-          >
-            Official Replies
-          </button>
+        <div className="flex justify-between pb-2 mb-3 border-b border-gray-300 dark:border-gray-700">
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleTabSwitch('posts')}
+              className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
+                activeTab === 'posts'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+                  : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+              style={{ borderRadius: '18px' }}
+            >
+              Announcements
+            </button>
+            <button
+              onClick={() => handleTabSwitch('comments')}
+              className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
+                activeTab === 'comments'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+                  : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+              style={{ borderRadius: '18px' }}
+            >
+              Official Replies
+            </button>
+          </div>
+          <div>
+            <button className="flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+              <Notification color="currentColor" className="text-gray-900 dark:text-gray-200" />
+            </button>
+          </div>
         </div>
 
         {/* Tab Content */}
