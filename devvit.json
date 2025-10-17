@@ -15,6 +15,9 @@
     "entry": "index.cjs"
   },
   "media": {},
+  "forms": {
+    "postTitleForm": "/internal/form/post-title-submit"
+  },
   "menu": {
     "items": [
       {
@@ -102,7 +105,16 @@
           "helpText": "Enter flair text shown in subreddit flair settings, seperate flair text with a comma. (e.g. dev, community-manager, ea, respawn)",
           "placeholder": "Optional (but at least one text box should be filled).",
           "validationEndpoint": "/internal/settings/validate-cssclass"
+        },
+        "postTitle": {
+          "type": "string",
+          "label": "Default Post Title",
+          "defaultValue": "Game Announcements",
+          "helpText": "Title used on all post names (you can make custom one in post create menu action)",
+          "placeholder": "Max Length 300 characters.",
+          "validationEndpoint": "/internal/settings/validate-posttitle"
         }
+        
         
         
       }

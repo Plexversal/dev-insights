@@ -1,6 +1,19 @@
-import { context, reddit } from '@devvit/web/server';
+import { context, reddit, settings } from '@devvit/web/server';
 
-export const createPost = async () => {
+export const createPost = async (title?: string) => {
+  let postTitle: string;
+
+  if (title) {
+    // Use the provided title
+    postTitle = title;
+  } else {
+    // Fallback to settings if no title provided
+    const settingsTitle = await settings.get('postTitle');
+    postTitle = typeof settingsTitle === 'string' && settingsTitle.trim() !== ''
+      ? settingsTitle
+      : 'Game Announcements';
+  }
+
   const { subredditName } = context;
   if (!subredditName) {
     throw new Error('subredditName is required');
@@ -11,6 +24,6 @@ export const createPost = async () => {
       appDisplayName: 'Dev-Insights',
     },
     subredditName: subredditName,
-    title: 'Game Announcements',
+    title: `${postTitle}`, // should be string anyway but yeah.. safe
   });
 };

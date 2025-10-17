@@ -1,22 +1,41 @@
 import { Request, Response } from 'express';
-import { context } from '@devvit/web/server';
-import { createPost } from '../core/post';
+import { UiResponse } from '@devvit/web/shared';
+import { settings } from '@devvit/web/server';
 
 export const postCreateHandler = async (
   _req: Request,
-  res: Response
+  res: Response<UiResponse>
 ): Promise<void> => {
   try {
-    const post = await createPost();
+    // Get the default title from settings to pre-populate the form
+    const settingsTitle = await settings.get('postTitle');
+    const defaultTitle = typeof settingsTitle === 'string' && settingsTitle.trim() !== ''
+      ? settingsTitle
+      : 'Game Announcements';
 
     res.json({
-      navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`,
+      showForm: {
+        name: 'postTitleForm',
+        form: {
+          fields: [
+            {
+              type: 'string',
+              name: 'title',
+              label: 'Post Title',
+              required: true,
+              placeholder: 'Enter post title (max 300 characters)',
+              defaultValue: defaultTitle,
+
+            },
+          ],
+        },
+        data: { title: defaultTitle },
+      },
     });
   } catch (error) {
-    console.error(`Error creating post: ${error}`);
+    console.error(`Error showing post title form: ${error}`);
     res.status(400).json({
-      status: 'error',
-      message: 'Failed to create post',
+      showToast: 'Failed to show post title form',
     });
   }
 };
