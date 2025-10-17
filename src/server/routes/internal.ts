@@ -15,6 +15,8 @@ import { postAddManualComment } from '../controllers/menu/postAddManualComment';
 import { postAddManualPost } from '../controllers/menu/postAddManualPost';
 import { postOnAppUpgrade } from '../controllers/triggers/postOnAppUpgrade';
 import { schedulerLogAnalytics } from '../controllers/schedulerLogAnalytics';
+import { validatePostTitle } from '../controllers/validatePostTitle';
+import { postTitleFormSubmit } from '../controllers/postTitleFormSubmit';
 
 
 const router = Router();
@@ -45,6 +47,10 @@ router.post('/internal/scheduler/log-analytics', schedulerLogAnalytics);
 router.post('/internal/settings/validate-users', validateUsers);
 router.post('/internal/settings/validate-cssclass', validateCssClass);
 router.post('/internal/settings/validate-flairtext', validateFlairText);
+router.post('/internal/settings/validate-posttitle', validatePostTitle)
+
+// form submission routes
+router.post('/internal/form/post-title-submit', postTitleFormSubmit);
 
 
 export default router;
