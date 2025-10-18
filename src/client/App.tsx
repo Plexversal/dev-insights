@@ -8,6 +8,7 @@ import { useComments } from './hooks/useComments';
 import { useState, useEffect } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
 import { Notification } from './lib/icons/Notification';
+import { useNotifications } from './hooks/useNotifications';
 
 export const App = () => {
   const { username, postId } = useInit();
@@ -18,6 +19,7 @@ export const App = () => {
 
   const { posts, loadMorePosts, hasMore: postsHasMore, loading: postsLoading, loadingMore: postsLoadingMore } = usePosts();
   const { comments, loadMoreComments, hasMore: commentsHasMore, loading: commentsLoading, loadingMore: commentsLoadingMore } = useComments();
+  const { isEnabled: notificationsEnabled, loading: notificationsLoading, toggleNotifications } = useNotifications();
 
   // Track window resize for mobile detection
   useEffect(() => {
@@ -111,9 +113,20 @@ export const App = () => {
             </button>
           </div>
           <div>
-            <button className="flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-              <Notification color="currentColor" className="text-gray-900 dark:text-gray-200" />
+            {
+              !notificationsLoading && <button
+              onClick={toggleNotifications}
+              disabled={notificationsLoading}
+              className="flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              title={notificationsEnabled ? 'Notifications enabled - Click to disable' : 'Notifications disabled - Click to enable'}
+            >
+              <Notification
+                color="currentColor"
+                className="text-gray-900 dark:text-gray-200 transition-transform duration-200 hover:scale-110"
+                filled={notificationsEnabled}
+              />
             </button>
+            }
           </div>
         </div>
 
