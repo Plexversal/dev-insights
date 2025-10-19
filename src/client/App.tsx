@@ -5,11 +5,13 @@ import Footer from './components/Footer';
 import { ScrollButtons } from './components/ScrollButtons';
 import { usePosts } from './hooks/usePosts';
 import { useComments } from './hooks/useComments';
+import { useCustomLabels } from './hooks/useCustomLabels';
 import { useState, useEffect } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
 
 export const App = () => {
   const { username, postId } = useInit();
+  const { postsButtonName, commentsButtonName, bottomSubtitle } = useCustomLabels();
   const [activeTab, setActiveTab] = useState<'posts' | 'comments'>('posts');
   const [postsPage, setPostsPage] = useState(0);
   const [commentsPage, setCommentsPage] = useState(0);
@@ -94,7 +96,7 @@ export const App = () => {
             }`}
             style={{ borderRadius: '18px' }}
           >
-            Announcements
+            {postsButtonName}
           </button>
           <button
             onClick={() => handleTabSwitch('comments')}
@@ -105,7 +107,7 @@ export const App = () => {
             }`}
             style={{ borderRadius: '18px' }}
           >
-            Official Replies
+            {commentsButtonName}
           </button>
         </div>
 
@@ -128,7 +130,7 @@ export const App = () => {
         />
       </div>
 
-      <Footer />
+      <Footer subtitle={bottomSubtitle} />
 
     </div>
   );

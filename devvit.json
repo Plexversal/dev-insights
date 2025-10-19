@@ -113,10 +113,34 @@
           "helpText": "Title used on all post names (you can make custom one in post create menu action)",
           "placeholder": "Max Length 300 characters.",
           "validationEndpoint": "/internal/settings/validate-posttitle"
+        },
+        "postsButtonName": {
+          "type": "string",
+          "label": "Posts Tab Button Name",
+          "defaultValue": "Announcements",
+          "helpText": "Custom name for the posts tab button",
+          "placeholder": "Max Length 30 characters.",
+          "validationEndpoint": "/internal/settings/validate-buttonname"
+        },
+        "commentsButtonName": {
+          "type": "string",
+          "label": "Comments Tab Button Name",
+          "defaultValue": "Official Replies",
+          "helpText": "Custom name for the comments tab button",
+          "placeholder": "Max Length 30 characters.",
+          "validationEndpoint": "/internal/settings/validate-buttonname"
+        },
+        "bottomSubtitle": {
+          "type": "string",
+          "label": "Bottom Subtitle",
+          "defaultValue": "Recent Announcements",
+          "helpText": "Custom subtitle text for the bottom of the app",
+          "placeholder": "Max Length 30 characters.",
+          "validationEndpoint": "/internal/settings/validate-buttonname"
         }
-        
-        
-        
+
+
+
       }
   }
 }

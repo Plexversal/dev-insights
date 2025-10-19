@@ -8,6 +8,7 @@ import { deleteCommentHandler } from '../controllers/deleteCommentHandler';
 import { checkModHandler } from '../controllers/checkModHandler';
 import { postUserAnalytics } from '../controllers/postUserAnalytics';
 import { getAnalyticsHandler } from '../controllers/getAnalyticsHandler';
+import { getCustomLabels } from '../controllers/getCustomLabels';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.delete('/api/comments/:commentId', deleteCommentHandler);
 router.get('/api/debug/redis', debugRedisHandler);
 router.get('/api/analytics', getAnalyticsHandler);
 router.post('/api/analytics', postUserAnalytics);
+router.get('/api/custom-labels', getCustomLabels);
 
 export default router;
