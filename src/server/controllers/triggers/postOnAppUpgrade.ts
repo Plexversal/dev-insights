@@ -8,7 +8,11 @@ export const postOnAppUpgrade = async (
   res: Response
 ): Promise<void> => {
   try {
-
+    res.json({
+      status: 'success',
+      message: `App upgraded in subreddit ${context.subredditName}`,
+    });
+    return; // remove this and above code to wipe posts on upgrade
     const post: Post = await createPost();
     await afterAppCreate(post);
 

@@ -8,6 +8,7 @@ import { deleteCommentHandler } from '../controllers/deleteCommentHandler';
 import { checkModHandler } from '../controllers/checkModHandler';
 import { postUserAnalytics } from '../controllers/postUserAnalytics';
 import { getAnalyticsHandler } from '../controllers/getAnalyticsHandler';
+import { toggleNotificationsHandler, getNotificationStatusHandler } from '../controllers/toggleNotificationsHandler';
 
 const router = Router();
 
@@ -20,5 +21,7 @@ router.delete('/api/comments/:commentId', deleteCommentHandler);
 router.get('/api/debug/redis', debugRedisHandler);
 router.get('/api/analytics', getAnalyticsHandler);
 router.post('/api/analytics', postUserAnalytics);
+router.post('/api/notifications/toggle', toggleNotificationsHandler);
+router.get('/api/notifications/status', getNotificationStatusHandler);
 
 export default router;
