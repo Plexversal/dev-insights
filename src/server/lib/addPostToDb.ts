@@ -1,5 +1,6 @@
-import { redis, reddit } from '@devvit/web/server';
+import { redis, reddit, context } from '@devvit/web/server';
 import { PostData, PostDatRecord, RedditPost } from '../../shared/types/post';
+import { notificationService } from './notificationService';
 
 interface AddPostResult {
   success: boolean;
@@ -66,6 +67,19 @@ export async function addPostToDb(
     });
 
     console.log(`[addPostToDb] Successfully stored post ${post.id}`);
+
+    // Queue notification for this new post (non-blocking)
+    const subredditName = context.subredditName || 'unknown';
+    notificationService.queueNotification({
+      postId: post.id,
+      permalink: post.permalink,
+      authorName: authorName,
+      subredditName: subredditName,
+      timestamp: timestamp,
+    }).catch(error => {
+      console.error(`[addPostToDb] Error queuing notification for post ${post.id}:`, error);
+      // Don't fail the post addition if notification queueing fails
+    });
 
     return {
       success: true,

@@ -9,6 +9,7 @@ import { checkModHandler } from '../controllers/checkModHandler';
 import { postUserAnalytics } from '../controllers/postUserAnalytics';
 import { getAnalyticsHandler } from '../controllers/getAnalyticsHandler';
 import { getCustomLabels } from '../controllers/getCustomLabels';
+import { toggleNotificationsHandler, getNotificationStatusHandler } from '../controllers/toggleNotificationsHandler';
 
 const router = Router();
 
@@ -22,5 +23,7 @@ router.get('/api/debug/redis', debugRedisHandler);
 router.get('/api/analytics', getAnalyticsHandler);
 router.post('/api/analytics', postUserAnalytics);
 router.get('/api/custom-labels', getCustomLabels);
+router.post('/api/notifications/toggle', toggleNotificationsHandler);
+router.get('/api/notifications/status', getNotificationStatusHandler);
 
 export default router;

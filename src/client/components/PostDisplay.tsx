@@ -57,10 +57,15 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
   };
 
   const getPostMedia = (post: any) => {
-    // Priority: thumbnail > image > first gallery image
-    if (post.thumbnail && post.thumbnail !== '') {
-      return { type: 'image', url: post.thumbnail };
-    }
+    // Log all media sources for debugging
+    // if (post.image || post.galleryImages || post.thumbnail) {
+    //   console.log(`[Media Debug] Post ID: ${post.id}`);
+    //   console.log('  - post.image:', post.image || 'none');
+    //   console.log('  - post.thumbnail:', post.thumbnail || 'none');
+    //   console.log('  - post.galleryImages:', post.galleryImages || 'none');
+    // }
+
+    // Priority: image > gallery image > thumbnail (to get the largest/best quality)
     if (post.image && post.image !== '') {
       return { type: 'image', url: post.image };
     }
@@ -74,8 +79,12 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
         console.error('Failed to parse gallery images', e);
       }
     }
+    if (post.thumbnail && post.thumbnail !== '') {
+      return { type: 'image', url: post.thumbnail };
+    }
     return null;
   };
+
 
   const renderPost = (post: any, isLarge: boolean, isMostRecent: boolean = false) => {
     const media = getPostMedia(post);
