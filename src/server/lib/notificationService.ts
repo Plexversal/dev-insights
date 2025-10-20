@@ -1,4 +1,5 @@
 import { redis, reddit, context } from '@devvit/web/server';
+import { logCritical } from './criticalLogger';
 
 const NOTIFICATIONS_KEY = 'notifications:users';
 const NOTIFICATION_QUEUE_KEY = 'notifications:queue';
@@ -58,13 +59,14 @@ class NotificationService {
       queue.push(job);
       await redis.set(NOTIFICATION_QUEUE_KEY, JSON.stringify(queue));
 
-      console.log(`[NotificationService] Queued notification for post ${job.postId}`);
+      // console.log(`[NotificationService] Queued notification for post ${job.postId}`);
 
       // Ensure processing is running
       if (!this.processingInterval) {
         this.startProcessing();
       }
     } catch (error) {
+      logCritical(error)
       console.error('[NotificationService] Error queuing notification:', error);
     }
   }
@@ -77,7 +79,7 @@ class NotificationService {
       return; // Already processing
     }
 
-    console.log('[NotificationService] Starting notification processing');
+    // console.log('[NotificationService] Starting notification processing');
 
     // Process every second
     this.processingInterval = setInterval(async () => {
@@ -99,7 +101,7 @@ class NotificationService {
         const timeSinceWindowStart = now - state.windowStartTime;
         if (timeSinceWindowStart < this.WINDOW_DURATION_MS) {
           // Still in cooldown period
-          console.log('[NotificationService] Rate limit reached, cooling down...');
+          // console.log('[NotificationService] Rate limit reached, cooling down...');
           return;
         } else {
           // Reset window
@@ -140,7 +142,7 @@ class NotificationService {
         state.isProcessing = true;
         await this.saveState(state);
 
-        console.log(`[NotificationService] Starting new job for post ${job.postId}, ${users.length} users to notify`);
+        // console.log(`[NotificationService] Starting new job for post ${job.postId}, ${users.length} users to notify`);
       }
 
       // Send message to next user
@@ -151,8 +153,9 @@ class NotificationService {
           await this.sendNotification(username, state.currentJob!);
           state.messagesThisWindow++;
           state.lastSentTime = now;
-          console.log(`[NotificationService] Sent notification to u/${username} (${state.remainingUsers.length} remaining)`);
+          // console.log(`[NotificationService] Sent notification to u/${username} (${state.remainingUsers.length} remaining)`);
         } catch (error) {
+          logCritical(error)
           console.error(`[NotificationService] Failed to send to u/${username}:`, error);
           // Continue to next user even if this one fails
         }
@@ -162,12 +165,13 @@ class NotificationService {
 
       // Check if job is complete
       if (state.remainingUsers.length === 0 && state.currentJob) {
-        console.log(`[NotificationService] Completed job for post ${state.currentJob.postId}`);
+        // console.log(`[NotificationService] Completed job for post ${state.currentJob.postId}`);
         state.currentJob = null;
         await this.saveState(state);
       }
 
     } catch (error) {
+      logCritical(error)
       console.error('[NotificationService] Error processing notification:', error);
     }
   }
@@ -189,14 +193,15 @@ class NotificationService {
       for (const appPost of appPosts) {
         if (appPost.subredditName === subredditName) {
           const permalink = `https://www.reddit.com${appPost.permalink}`;
-          console.log(`[NotificationService] Found app post for r/${subredditName}: ${permalink}`);
+          // console.log(`[NotificationService] Found app post for r/${subredditName}: ${permalink}`);
           return permalink;
         }
       }
 
-      console.log(`[NotificationService] No app post found for r/${subredditName}`);
+      // console.log(`[NotificationService] No app post found for r/${subredditName}`);
       return '';
     } catch (error) {
+      logCritical(error)
       console.error(`[NotificationService] Error fetching app post for r/${subredditName}:`, error);
       return '';
     }
@@ -229,6 +234,7 @@ class NotificationService {
         return JSON.parse(stateJson);
       }
     } catch (error) {
+      logCritical(error)
       console.error('[NotificationService] Error loading state:', error);
     }
 
@@ -261,7 +267,7 @@ class NotificationService {
     if (this.processingInterval) {
       clearInterval(this.processingInterval);
       this.processingInterval = null;
-      console.log('[NotificationService] Stopped processing');
+      // console.log('[NotificationService] Stopped processing');
     }
   }
 }

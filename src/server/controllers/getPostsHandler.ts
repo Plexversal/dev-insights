@@ -12,7 +12,7 @@ export const getPostsHandler = async (
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 25;
 
-    console.log(`Fetching global posts from Redis (offset: ${offset}, limit: ${limit})`);
+    // console.log(`Fetching global posts from Redis (offset: ${offset}, limit: ${limit})`);
 
     // Get total count
     const totalCount = await redis.zCard('global_posts');
@@ -24,7 +24,7 @@ export const getPostsHandler = async (
     });
     const postIds = posts.map((p: any) => p.member);
 
-    console.log(`Found ${postIds.length} posts out of ${totalCount} total:`, postIds);
+    // console.log(`Found ${postIds.length} posts out of ${totalCount} total:`, postIds);
 
     // Cache for user flair data to avoid redundant API calls
     const userFlairCache = new Map<string, { text?: string | undefined; bgColor?: string | undefined; textColor?: string | undefined }>();
@@ -86,7 +86,7 @@ export const getPostsHandler = async (
       }
     }
 
-    console.log(`Returning ${postsWithData.length} posts with data`);
+    // console.log(`Returning ${postsWithData.length} posts with data`);
 
     // Update old Reddit fallback text (with rate limiting)
     updateOldReddit().catch(err => {

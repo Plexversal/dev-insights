@@ -5,12 +5,12 @@ const RATE_LIMIT_KEY = 'old_reddit_update_last_run';
 
 export const updateOldReddit = async () => {
   if(!context.postId) {
-    console.log('no post id in context')
+    // console.log('no post id in context')
     return;
   }
 
   // Check rate limit
-  console.log('running old reddit update function')
+  // console.log('running old reddit update function')
   const lastRun = await redis.get(RATE_LIMIT_KEY);
   const now = Date.now();
 
@@ -19,13 +19,13 @@ export const updateOldReddit = async () => {
     const timeSinceLastRun = now - lastRunTime;
 
     if (timeSinceLastRun < ONE_HOUR_MS) {
-      console.log(`[updateOldReddit] Skipping update - last run was ${Math.floor(timeSinceLastRun / 60000)} minutes ago`);
+      // console.log(`[updateOldReddit] Skipping update - last run was ${Math.floor(timeSinceLastRun / 60000)} minutes ago`);
       return;
     }
   }
 
   try {
-    console.log('[updateOldReddit] Fetching latest 25 posts for old Reddit fallback');
+    // console.log('[updateOldReddit] Fetching latest 25 posts for old Reddit fallback');
 
     // Get latest 25 post IDs from Redis sorted set
     const posts = await redis.zRange('global_posts', 0, 24, {
@@ -34,7 +34,7 @@ export const updateOldReddit = async () => {
     });
     const postIds = posts.map((p: any) => p.member);
 
-    console.log(`[updateOldReddit] Found ${postIds.length} posts`);
+    // console.log(`[updateOldReddit] Found ${postIds.length} posts`);
 
     // Fetch post data and build markdown list
     const markdownLines = ['## This post is made for new reddit... but here is a glimpse\n**Below is a list of posts by developers/community figures, this list updates automatically. Showing last 25 Posts**\n'];
@@ -66,7 +66,7 @@ export const updateOldReddit = async () => {
     // Update rate limit timestamp
     await redis.set(RATE_LIMIT_KEY, now.toString());
 
-    console.log(`[updateOldReddit] Successfully updated old Reddit fallback with ${postIds.length} posts`);
+    // console.log(`[updateOldReddit] Successfully updated old Reddit fallback with ${postIds.length} posts`);
   } catch (error) {
     console.error('[updateOldReddit] Error updating old Reddit fallback:', error);
   }

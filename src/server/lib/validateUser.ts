@@ -30,7 +30,7 @@ export const validateUser = async (userId: `t2_${string}`): Promise<ValidationRe
       .map(c => c.trim())
       .filter(c => c.length > 0);
 
-    console.log('Validation config >>', { usersArray, flairTextArray, cssClassArray });
+    // console.log('Validation config >>', { usersArray, flairTextArray, cssClassArray });
 
     // Fetch user data
     const user = await reddit.getUserById(userId);

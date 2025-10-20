@@ -8,11 +8,11 @@ export const postOnCommentDelete = async (
 ): Promise<void> => {
   try {
     const body: CommentDeleteBody = _req.body;
-    console.log(body)
+    // console.log(body)
 
     const commentId = body.commentId;
 
-    console.log(`Processing comment delete: ${commentId}`);
+    // console.log(`Processing comment delete: ${commentId}`);
 
     // Delete from sorted set
     const zRemResult = await redis.zRem('global_comments', [commentId]);
@@ -21,7 +21,7 @@ export const postOnCommentDelete = async (
     const dataKey = `comment_data:${commentId}`;
     await redis.del(dataKey);
 
-    console.log(`Comment ${commentId} deleted. zRem result: ${zRemResult}`);
+    // console.log(`Comment ${commentId} deleted. zRem result: ${zRemResult}`);
 
     res.json({
       status: 'success',

@@ -8,18 +8,18 @@ export const postOnPostUpdate = async (
 ): Promise<void> => {
   try {
     const body: PostUpdateBody = _req.body;
-    console.log(body)
+    // console.log(body)
 
     const post = body.post;
 
-    console.log(`Processing post update: ${post.id}`);
+    // console.log(`Processing post update: ${post.id}`);
 
     // Check if post exists in Redis
     const dataKey = `post_data:${post.id}`;
     const exists = await redis.exists(dataKey);
 
     if (!exists) {
-      console.log(`Post ${post.id} not found in Redis, skipping update`);
+      // console.log(`Post ${post.id} not found in Redis, skipping update`);
       res.json({
         status: 'skipped',
         message: 'Post not found in database',
@@ -34,7 +34,7 @@ export const postOnPostUpdate = async (
       body: post.selftext.substring(0, 200)
     });
 
-    console.log(`Post ${post.id} title and body updated successfully`);
+    // console.log(`Post ${post.id} title and body updated successfully`);
 
     res.json({
       status: 'success',

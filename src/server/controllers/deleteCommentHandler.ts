@@ -26,7 +26,7 @@ export const deleteCommentHandler = async (
       return;
     }
 
-    console.log(`Deleting comment: ${commentId}`);
+    // console.log(`Deleting comment: ${commentId}`);
 
     // Delete from sorted set
     const zRemResult = await redis.zRem('global_comments', [commentId]);
@@ -35,7 +35,7 @@ export const deleteCommentHandler = async (
     const dataKey = `comment_data:${commentId}`;
     await redis.del(dataKey);
 
-    console.log(`Comment ${commentId} deleted. zRem result: ${zRemResult}`);
+    // console.log(`Comment ${commentId} deleted. zRem result: ${zRemResult}`);
 
     res.json({
       status: 'success',

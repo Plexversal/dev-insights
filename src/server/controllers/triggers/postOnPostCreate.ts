@@ -15,12 +15,12 @@ export const postPostCreate = async (
     const user = body.author
     if (!user) throw new Error('Failed to fetch user in postPostCreate');
 
-    console.log(body)
+    // console.log(body)
     // Validate user
     const validationResult = await validateUser(post.authorId);
 
     if (!validationResult.isValid) {
-      console.log(`Post validation failed: ${validationResult.reason}`);
+      // console.log(`Post validation failed: ${validationResult.reason}`);
       res.json({
         status: 'skipped',
         message: `Post does not match validation criteria: ${validationResult.reason}`,
@@ -29,8 +29,8 @@ export const postPostCreate = async (
       return;
     }
 
-    console.log(`Post validated: ${validationResult.reason}`);
-    console.log(`Processing post: ${post.id}`);
+    // console.log(`Post validated: ${validationResult.reason}`);
+    // console.log(`Processing post: ${post.id}`);
 
     // Add post to database using lib function
     const dbResult = await addPostToDb(

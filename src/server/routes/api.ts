@@ -10,6 +10,7 @@ import { postUserAnalytics } from '../controllers/postUserAnalytics';
 import { getAnalyticsHandler } from '../controllers/getAnalyticsHandler';
 import { getCustomLabels } from '../controllers/getCustomLabels';
 import { toggleNotificationsHandler, getNotificationStatusHandler } from '../controllers/toggleNotificationsHandler';
+import { getCriticalLogsHandler } from '../controllers/getCriticalLogsHandler';
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.post('/api/analytics', postUserAnalytics);
 router.get('/api/custom-labels', getCustomLabels);
 router.post('/api/notifications/toggle', toggleNotificationsHandler);
 router.get('/api/notifications/status', getNotificationStatusHandler);
+router.get('/api/debug/critical-logs', getCriticalLogsHandler);
 
 export default router;

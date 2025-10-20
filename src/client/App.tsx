@@ -21,7 +21,7 @@ export const App = () => {
 
   const { posts, loadMorePosts, hasMore: postsHasMore, loading: postsLoading, loadingMore: postsLoadingMore } = usePosts();
   const { comments, loadMoreComments, hasMore: commentsHasMore, loading: commentsLoading, loadingMore: commentsLoadingMore } = useComments();
-  const { isEnabled: notificationsEnabled, loading: notificationsLoading, toggleNotifications } = useNotifications();
+  // const { isEnabled: notificationsEnabled, loading: notificationsLoading, toggleNotifications } = useNotifications();
 
   // Track window resize for mobile detection
   useEffect(() => {
@@ -114,7 +114,7 @@ export const App = () => {
                 {commentsButtonName}
               </button>
             </div>
-            <div>
+            {/* <div>
               {!notificationsLoading && (
                 <button
                   onClick={toggleNotifications}
@@ -129,7 +129,7 @@ export const App = () => {
                   />
                 </button>
               )}
-            </div>
+            </div> */}
           </div>
 
         {/* Tab Content */}

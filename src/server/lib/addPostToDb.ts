@@ -29,7 +29,7 @@ export async function addPostToDb(
     // Check if post already exists
     const exists = await redis.exists(dataKey);
     if (exists) {
-      console.log(`[addPostToDb] Post ${post.id} already exists, skipping`);
+      // console.log(`[addPostToDb] Post ${post.id} already exists, skipping`);
       return {
         success: false,
         postId: post.id,
@@ -55,7 +55,7 @@ export async function addPostToDb(
       postLink: post.type === 'link' ? post.url : ''
     };
 
-    console.log(`[addPostToDb] Storing post data:`, postData);
+    // console.log(`[addPostToDb] Storing post data:`, postData);
 
     // Store the detailed data in a hash
     await redis.hSet(dataKey, postData as unknown as PostDatRecord);
@@ -66,20 +66,20 @@ export async function addPostToDb(
       score: timestamp
     });
 
-    console.log(`[addPostToDb] Successfully stored post ${post.id}`);
+    // console.log(`[addPostToDb] Successfully stored post ${post.id}`);
 
     // Queue notification for this new post (non-blocking)
-    const subredditName = context.subredditName || 'unknown';
-    notificationService.queueNotification({
-      postId: post.id,
-      permalink: post.permalink,
-      authorName: authorName,
-      subredditName: subredditName,
-      timestamp: timestamp,
-    }).catch(error => {
-      console.error(`[addPostToDb] Error queuing notification for post ${post.id}:`, error);
-      // Don't fail the post addition if notification queueing fails
-    });
+    // const subredditName = context.subredditName || 'unknown';
+    // notificationService.queueNotification({
+    //   postId: post.id,
+    //   permalink: post.permalink,
+    //   authorName: authorName,
+    //   subredditName: subredditName,
+    //   timestamp: timestamp,
+    // }).catch(error => {
+    //   console.error(`[addPostToDb] Error queuing notification for post ${post.id}:`, error);
+    //   // Don't fail the post addition if notification queueing fails
+    // });
 
     return {
       success: true,

@@ -11,7 +11,7 @@ export const getCommentsHandler = async (
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 50;
 
-    console.log(`Fetching global comments from Redis (offset: ${offset}, limit: ${limit})`);
+    // console.log(`Fetching global comments from Redis (offset: ${offset}, limit: ${limit})`);
 
     // Get total count
     const totalCount = await redis.zCard('global_comments');
@@ -23,7 +23,7 @@ export const getCommentsHandler = async (
     });
     const commentIds = comments.map((c: any) => c.member);
 
-    console.log(`Found ${commentIds.length} comments out of ${totalCount} total:`, commentIds);
+    // console.log(`Found ${commentIds.length} comments out of ${totalCount} total:`, commentIds);
 
     // Cache for user flair data to avoid redundant API calls
     const userFlairCache = new Map<string, { text?: string | undefined; bgColor?: string | undefined; textColor?: string | undefined }>();
@@ -85,7 +85,7 @@ export const getCommentsHandler = async (
       }
     }
 
-    console.log(`Returning ${commentsWithData.length} comments with data`);
+    // console.log(`Returning ${commentsWithData.length} comments with data`);
 
     res.json({
       status: 'success',

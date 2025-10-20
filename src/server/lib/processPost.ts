@@ -23,7 +23,7 @@ export async function processPost(post: Post): Promise<void> {
     // Check if post already exists
     const exists = await redis.exists(dataKey);
     if (exists) {
-      console.log(`[processPost] Post ${postId} already exists, skipping`);
+      // console.log(`[processPost] Post ${postId} already exists, skipping`);
       throw new Error('Post already exists');
     }
 
@@ -96,7 +96,7 @@ export async function processPost(post: Post): Promise<void> {
       score: timestamp
     });
 
-    console.log(`[processPost] Stored post ${postId}`);
+    // console.log(`[processPost] Stored post ${postId}`);
   } catch (error) {
     console.error(`[processPost] Error processing post:`, error);
     throw error;

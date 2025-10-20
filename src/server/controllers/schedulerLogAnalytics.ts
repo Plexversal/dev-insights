@@ -12,14 +12,14 @@ export const schedulerLogAnalytics = async (
 ): Promise<void> => {
   try {
     const now = new Date().toISOString();
-    console.log(`[Scheduler] Running analytics log at ${now}`);
+    // console.log(`[Scheduler] Running analytics log at ${now}`);
 
     // Get analytics from Redis
     const analyticsKey = 'app:analytics:v2';
     const existingData = await redis.get(analyticsKey);
 
     if (!existingData) {
-      console.log('[Scheduler] No analytics data found');
+      // console.log('[Scheduler] No analytics data found');
       res.status(200).json({ status: 'ok', message: 'No analytics data' });
       return;
     }
@@ -50,17 +50,20 @@ export const schedulerLogAnalytics = async (
       .map(([username, clicks]) => ({ username, clicks }));
 
     // Log the statistics
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`[Analytics Report] ${now}`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`📊 Total Unique Users: ${uniqueUsers}`);
-    console.log(`🖱️  Total Clicks: ${totalClicks}`);
-    console.log(`📈 Average Clicks per User: ${(totalClicks / uniqueUsers).toFixed(2)}`);
-    console.log('\n🏆 Top 5 Most Active Users:');
-    topUsers.forEach((user, index) => {
-      console.log(`   ${index + 1}. ${user.username}: ${user.clicks} clicks`);
-    });
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    const topUsersList = topUsers.map((user, index) =>
+      `   ${index + 1}. ${user.username}: ${user.clicks} clicks`
+    ).join('\n');
+
+    console.log(
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `[Analytics Report] ${now}\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `📊 Total Unique Users: ${uniqueUsers}\n` +
+      `🖱️  Total Clicks: ${totalClicks}\n` +
+      `📈 Average Clicks per User: ${(totalClicks / uniqueUsers).toFixed(2)}\n\n` +
+      `🏆 Top 5 Most Active Users:\n${topUsersList}\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
+    );
 
     res.status(200).json({
       status: 'ok',

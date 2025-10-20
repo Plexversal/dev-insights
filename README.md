@@ -35,3 +35,30 @@ If matching flair text, ensure you are specific enough as to not match another g
 * The app does not automatically get previous dev comments, BUT if you specified any `users` in the app config from step 3 above, it will try fetch the last 30 comments/posts for that user and then populate the app if they were made in the subreddit.
 * Matching config options are independant from each other, so if you put something in all 3 options then a user which matches any of the options will be a match. It will match in order of users, flair text and then flair css class.
 * As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text, please report if you see issues.
+
+## 🖊️ Patch notes
+
+### V0.0.15
+
+* Implemented new settings based on user feedback:
+  * Added `Default Post Title` setting for post title + Title can also be changed when creating a new post manually.
+  * Added `Posts Tab Button Name` setting, default value is **Announcements**.
+  * Added `Comments Tab Button Name` setting, default value is **Official Replies**.
+  * Added `Bottom Subtitle` setting, default value is **Recent Announcements**.
+* Fixed an issue with low quality preview images, it will not try and fetch the actual post image first, then fetch the lower quality thumbnail if not available. (It was the other way around previously).
+* Fixed an issue with white background clipping on dark mode.
+
+
+### V0.0.14
+
+* Based on user feedback it was apparent the App may not have properly explained it's purpose and so a whole new redesign has been implemented. Thanks to u/Xenc for the inspiration and tips! Below are the changes:
+  * Separated posts and comments into their own tabs.
+  * Button names/subtitles are more appropriate: `Posts > Announcements`, `Comments > Official Replies`.
+  * Default title changed from `Community Figure Insights > Game Announcements`.
+  * Removed text from Posts as it was too overwhelming, now only showing post titles.
+  * Scrolling to see more posts/comments is more uniform and shows a set amount of posts/comments per page depending on if user is on mobile/desktop.
+  * Color scheme is more uniform with darker/lighter accents only. (In the future, color scheme settings will be available in App settings to change this).
+* Posts on Install will auto lock and a sticky comment provided to show the purpose of the App Post.
+
+### V0.0.13
+* Added support for old reddit, showing the last 25 Official posts. Updates automatically.

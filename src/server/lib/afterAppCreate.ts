@@ -11,7 +11,7 @@ export default async function afterAppCreate(post: Post) {
   });
 
   const appPosts = await appPostsListing.all();
-  console.log(`[afterAppCreate] Found ${appPosts.length} posts by ${context.appName}`);
+  // console.log(`[afterAppCreate] Found ${appPosts.length} posts by ${context.appName}`);
 
   // Delete all app posts from the current subreddit (excluding the current one)
   for (const appPost of appPosts) {
@@ -20,11 +20,11 @@ export default async function afterAppCreate(post: Post) {
       if (appPost.subredditName === context.subredditName) {
         // Don't delete the post we just created
         if (appPost.id !== post.id) {
-          console.log(`[afterAppCreate] Deleting old app post: ${appPost.id} from ${appPost.subredditName}`);
+          // console.log(`[afterAppCreate] Deleting old app post: ${appPost.id} from ${appPost.subredditName}`);
           await appPost.delete()
         }
       } else {
-        console.log(`[afterAppCreate] Skipping post ${appPost.id} from different subreddit: ${appPost.subredditName}`);
+        // console.log(`[afterAppCreate] Skipping post ${appPost.id} from different subreddit: ${appPost.subredditName}`);
       }
     } catch (error) {
       console.error(`[afterAppCreate] Error deleting post ${appPost.id}:`, error);

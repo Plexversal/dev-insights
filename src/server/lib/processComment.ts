@@ -23,7 +23,7 @@ export async function processComment(comment: Comment): Promise<void> {
     // Check if comment already exists
     const exists = await redis.exists(dataKey);
     if (exists) {
-      console.log(`[processComment] Comment ${commentId} already exists, skipping`);
+      // console.log(`[processComment] Comment ${commentId} already exists, skipping`);
       throw new Error('Comment already exists');
     }
 
@@ -78,7 +78,7 @@ export async function processComment(comment: Comment): Promise<void> {
       score: timestamp
     });
 
-    console.log(`[processComment] Stored comment ${commentId}`);
+    // console.log(`[processComment] Stored comment ${commentId}`);
   } catch (error) {
     console.error(`[processComment] Error processing comment:`, error);
     throw error;

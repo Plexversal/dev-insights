@@ -26,7 +26,7 @@ export const deletePostHandler = async (
       return;
     }
 
-    console.log(`Deleting post: ${postId}`);
+    // console.log(`Deleting post: ${postId}`);
 
     // Delete from sorted set
     const zRemResult = await redis.zRem('global_posts', [postId]);
@@ -35,7 +35,7 @@ export const deletePostHandler = async (
     const dataKey = `post_data:${postId}`;
     await redis.del(dataKey);
 
-    console.log(`Post ${postId} deleted. zRem result: ${zRemResult}`);
+    // console.log(`Post ${postId} deleted. zRem result: ${zRemResult}`);
 
     res.json({
       status: 'success',

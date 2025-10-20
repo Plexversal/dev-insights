@@ -42,7 +42,7 @@ export async function fetchUserContent(
       return result;
     }
 
-    console.log(`[fetchUserContent] Fetching content for user: ${sanitizedUsername}`);
+    // console.log(`[fetchUserContent] Fetching content for user: ${sanitizedUsername}`);
 
     // Fetch user's posts and comments
     const listing = await reddit.getCommentsAndPostsByUser({
@@ -53,8 +53,8 @@ export async function fetchUserContent(
     });
 
     const items = await listing.all();
-    console.log(items)
-    console.log(`[fetchUserContent] Found ${items.length} items for ${sanitizedUsername}`);
+    // console.log(items)
+    // console.log(`[fetchUserContent] Found ${items.length} items for ${sanitizedUsername}`);
 
     // Process each item
     for (const item of items) {
@@ -64,7 +64,7 @@ export async function fetchUserContent(
 
         // Only process items from the current subreddit
         if (subredditName !== context.subredditName) {
-          console.log(`[fetchUserContent] Skipping item ${itemId} from different subreddit: ${subredditName}`);
+          // console.log(`[fetchUserContent] Skipping item ${itemId} from different subreddit: ${subredditName}`);
           continue;
         }
 
@@ -77,7 +77,7 @@ export async function fetchUserContent(
           } catch (err: any) {
             if (err?.message?.includes('already exists')) {
               // Skip duplicates silently in bulk operations
-              console.log(`[fetchUserContent] Skipping duplicate post ${itemId}`);
+              // console.log(`[fetchUserContent] Skipping duplicate post ${itemId}`);
             } else {
               throw err;
             }
@@ -90,7 +90,7 @@ export async function fetchUserContent(
           } catch (err: any) {
             if (err?.message?.includes('already exists')) {
               // Skip duplicates silently in bulk operations
-              console.log(`[fetchUserContent] Skipping duplicate comment ${itemId}`);
+              // console.log(`[fetchUserContent] Skipping duplicate comment ${itemId}`);
             } else {
               throw err;
             }
@@ -105,7 +105,7 @@ export async function fetchUserContent(
     }
 
     result.success = true;
-    console.log(`[fetchUserContent] Successfully processed ${result.postsAdded} posts and ${result.commentsAdded} comments for ${sanitizedUsername}`);
+    // console.log(`[fetchUserContent] Successfully processed ${result.postsAdded} posts and ${result.commentsAdded} comments for ${sanitizedUsername}`);
 
   } catch (error: any) {
     console.error(`[fetchUserContent] Error fetching content for ${username}:`, error);

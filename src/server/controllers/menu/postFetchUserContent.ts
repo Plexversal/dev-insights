@@ -43,7 +43,7 @@ export const postFetchUserContent = async (
       return;
     }
 
-    console.log(`[postFetchUserContent] Fetching content for ${usersArray.length} users`);
+    // console.log(`[postFetchUserContent] Fetching content for ${usersArray.length} users`);
 
     // Update rate limit timestamp before starting (prevents concurrent executions)
     await redis.set(RATE_LIMIT_KEY, now.toString());
@@ -63,7 +63,7 @@ export const postFetchUserContent = async (
         successCount++;
         totalPosts += result.postsAdded;
         totalComments += result.commentsAdded;
-        console.log(`[postFetchUserContent] ✓ ${result.username}: ${result.postsAdded} posts, ${result.commentsAdded} comments`);
+        // console.log(`[postFetchUserContent] ✓ ${result.username}: ${result.postsAdded} posts, ${result.commentsAdded} comments`);
       } else {
         failCount++;
         errors.push(`${result.username}: ${result.error}`);
@@ -71,7 +71,7 @@ export const postFetchUserContent = async (
       }
     });
 
-    console.log(`[postFetchUserContent] Summary: ${successCount}/${usersArray.length} users successful, ${totalPosts} posts, ${totalComments} comments added`);
+    // console.log(`[postFetchUserContent] Summary: ${successCount}/${usersArray.length} users successful, ${totalPosts} posts, ${totalComments} comments added`);
 
     // Build response message
     let message = `✓ Fetched content from ${successCount}/${usersArray.length} users\n`;

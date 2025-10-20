@@ -14,7 +14,7 @@ export const postUserAnalytics = async (
     // Get current username, default to 'anonymous' if not logged in
     const username = await reddit.getCurrentUsername() ?? 'anonymous';
 
-    console.log(`[Analytics] Recording interaction for user: ${username}`);
+    // console.log(`[Analytics] Recording interaction for user: ${username}`);
 
     // Get existing analytics from Redis (using v2 key for new structure)
     const analyticsKey = 'app:analytics:v2';
@@ -42,7 +42,7 @@ export const postUserAnalytics = async (
     // Save updated analytics back to Redis
     await redis.set(analyticsKey, JSON.stringify(analytics));
 
-    console.log(`[Analytics] Recorded click for ${username} at ${new Date(newClick.timestamp).toISOString()}`);
+    // console.log(`[Analytics] Recorded click for ${username} at ${new Date(newClick.timestamp).toISOString()}`);
 
     // Send success response (non-blocking on client)
     res.status(200).json({

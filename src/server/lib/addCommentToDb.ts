@@ -30,7 +30,7 @@ export async function addCommentToDb(
     // Check if comment already exists
     const exists = await redis.exists(dataKey);
     if (exists) {
-      console.log(`[addCommentToDb] Comment ${comment.id} already exists, skipping`);
+      // console.log(`[addCommentToDb] Comment ${comment.id} already exists, skipping`);
       return {
         success: false,
         commentId: comment.id,
@@ -53,7 +53,7 @@ export async function addCommentToDb(
       parentPostTitle: parentPostTitle.substring(0, 50)
     };
 
-    console.log(`[addCommentToDb] Storing comment data:`, commentData);
+    // console.log(`[addCommentToDb] Storing comment data:`, commentData);
 
     // Store the detailed data in a hash
     await redis.hSet(dataKey, commentData as unknown as CommentDataRecord);
@@ -64,7 +64,7 @@ export async function addCommentToDb(
       score: timestamp
     });
 
-    console.log(`[addCommentToDb] Successfully stored comment ${comment.id}`);
+    // console.log(`[addCommentToDb] Successfully stored comment ${comment.id}`);
 
     return {
       success: true,

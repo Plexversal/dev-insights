@@ -17,7 +17,7 @@ export const postCommentCreate = async (
     const validationResult = await validateUser(comment.author);
 
     if (!validationResult.isValid) {
-      console.log(`Comment validation failed: ${validationResult.reason}`);
+      // console.log(`Comment validation failed: ${validationResult.reason}`);
       res.json({
         status: 'skipped',
         message: `Comment does not match validation criteria: ${validationResult.reason}`,
@@ -26,9 +26,9 @@ export const postCommentCreate = async (
       return;
     }
 
-    console.log(`Comment validated: ${validationResult.reason}`);
-    console.log('full comment obj >>>', comment);
-    console.log(`Processing comment: ${comment.id} for post: ${comment.postId}`);
+    // console.log(`Comment validated: ${validationResult.reason}`);
+    // console.log('full comment obj >>>', comment);
+    // console.log(`Processing comment: ${comment.id} for post: ${comment.postId}`);
 
     const user = body.author
     if (!user) throw new Error('Failed to fetch user in postCommentCreate');
