@@ -57,7 +57,7 @@ If matching flair text, ensure you are specific enough as to not match another g
   * Added `Posts Tab Button Name` setting, default value is **Announcements**.
   * Added `Comments Tab Button Name` setting, default value is **Official Replies**.
   * Added `Bottom Subtitle` setting, default value is **Recent Announcements**.
-* Fixed an issue with low quality preview images, it will not try and fetch the actual post image first, then fetch the lower quality thumbnail if not available. (It was the other way around previously).
+* Fixed an issue with low quality preview images, it will now try and fetch the actual post image first, then fetch the lower quality thumbnail if main image not available. (It was the other way around previously).
 * Fixed an issue with white background clipping on dark mode.
 
 
