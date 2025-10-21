@@ -22,7 +22,7 @@ export const useCustomLabels = () => {
         const res = await fetch('/api/custom-labels');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: CustomLabels = await res.json();
-        console.log(data)
+        // console.log(data)
         setLabels(data);
       } catch (err) {
         console.error('Failed to fetch custom labels, using defaults', err);

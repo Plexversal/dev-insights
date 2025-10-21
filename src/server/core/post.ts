@@ -1,5 +1,5 @@
 import { context, reddit, settings } from '@devvit/web/server';
-
+import additionalModActions from '../lib/postAppCreateAdditionalModActions';
 export const createPost = async (title?: string) => {
   let postTitle: string;
 
@@ -19,11 +19,14 @@ export const createPost = async (title?: string) => {
     throw new Error('subredditName is required');
   }
 
-  return await reddit.submitCustomPost({
+  let post = await reddit.submitCustomPost({
     splash: {
       appDisplayName: 'Dev-Insights',
     },
     subredditName: subredditName,
     title: `${postTitle}`, // should be string anyway but yeah.. safe
   });
+
+  return await additionalModActions(post)
+  
 };

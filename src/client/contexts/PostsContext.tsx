@@ -45,7 +45,7 @@ export const PostsProvider: React.FC<PostsProviderProps> = ({ children }) => {
 
   const fetchPosts = useCallback(async (appendMode = false) => {
     const currentOffset = appendMode ? offset : 0;
-    console.log(`[PostsContext] Fetching posts (offset: ${currentOffset})`);
+    // console.log(`[PostsContext] Fetching posts (offset: ${currentOffset})`);
 
     if (appendMode) {
       setLoadingMore(true);
@@ -58,7 +58,7 @@ export const PostsProvider: React.FC<PostsProviderProps> = ({ children }) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data: PostsResponse = await res.json();
-      console.log(`[PostsContext] Response:`, data);
+      // console.log(`[PostsContext] Response:`, data);
 
       if (data.status !== 'success') throw new Error('Unexpected response');
 

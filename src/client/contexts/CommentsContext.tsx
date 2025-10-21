@@ -45,7 +45,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
 
   const fetchComments = useCallback(async (appendMode = false) => {
     const currentOffset = appendMode ? offset : 0;
-    console.log(`[CommentsContext] Fetching comments (offset: ${currentOffset})`);
+    // console.log(`[CommentsContext] Fetching comments (offset: ${currentOffset})`);
 
     if (appendMode) {
       setLoadingMore(true);
@@ -58,7 +58,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data: CommentsResponse = await res.json();
-      console.log(`[CommentsContext] Response:`, data);
+      // console.log(`[CommentsContext] Response:`, data);
 
       if (data.status !== 'success') throw new Error('Unexpected response');
 

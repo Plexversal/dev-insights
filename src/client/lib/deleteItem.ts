@@ -11,7 +11,7 @@ export const deleteItem = async (
     });
 
     if (response.ok) {
-      console.log(`${type.slice(0, -1)} ${itemId} deleted`);
+      // console.log(`${type.slice(0, -1)} ${itemId} deleted`);
       refreshCallback(); // Refresh the list
       showToast({
         text: `${type == 'posts' ? 'Post' : 'Comment'} removed from app successfully!`,

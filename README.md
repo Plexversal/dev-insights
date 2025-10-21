@@ -13,10 +13,10 @@ Comments can also get lost over time once the posts age past a couple of days an
 * Backdate pinning items for users specified in the app config.
 * Automatic updates for edits/deletions for posts and comments.
 * Manually add any posts or comments to the App using mod-action button on the item.
-* Supports `includes` in flair text, e.g. "dev" will match "Devleoper" in a flair. Matching is NOT case sensitive.
+* Supports `includes` in flair text, e.g. "dev" will match "Developer" in a flair. Matching is NOT case sensitive.
 * Automatic light/dark theme.
 * Moderators can remove comments and posts from the App at any time.
-* Supports showing user flair in the App Post iself (beta*).
+* Supports showing user flair in the App Post itself (beta*).
 
 \* *Reddit does not support fetching a users exact flair and so it is based on a guess with their flair text. If you find the app is showing the wrong flair, please report it to me directly u/PlexversalHD.*
 
@@ -32,7 +32,7 @@ Comments can also get lost over time once the posts age past a couple of days an
 
 ## ⬇️ How to install
 
-1. Click `+ Add to this communuity` from the [App page](https://developers.reddit.com/apps/dev-insights) (if not already here)
+1. Click `+ Add to this community` from the [App page](https://developers.reddit.com/apps/dev-insights) (if not already here)
 2. Select your subreddit
 3. Configure the Flair text, users and flair css classes to match in [My Communities](https://developers.reddit.com/my/communities) > Click your subreddit you just added it to > Dev Insights (Settings) > Configure at least one option here for it to work.
 4. Optional: If you specified any `users` in the step above then you can use the fetch posts menu option: Navigate to your subreddit > click `•••` > Fetch previous user content. (does not apply to flair)
@@ -45,10 +45,15 @@ If matching flair text, ensure you are specific enough as to not match another g
 ## 🗒️ Things to note
 
 * The app does not automatically get previous dev comments, BUT if you specified any `users` in the app config from step 3 above, it will try fetch the last 30 comments/posts for that user and then populate the app if they were made in the subreddit.
-* Matching config options are independant from each other, so if you put something in all 3 options then a user which matches any of the options will be a match. It will match in order of users, flair text and then flair css class.
+* Matching config options are independent from each other, so if you put something in all 3 options then a user which matches any of the options will be a match. It will match in order of users, flair text and then flair css class.
 * As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text, please report if you see issues.
 
 ## 🖊️ Patch notes
+
+### v0.0.16
+
+* Minor bug fixes.
+* Additional Reddit development compliance.
 
 ### V0.0.15
 

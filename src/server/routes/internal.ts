@@ -18,7 +18,6 @@ import { schedulerLogAnalytics } from '../controllers/schedulerLogAnalytics';
 import { validatePostTitle } from '../controllers/validatePostTitle';
 import { postTitleFormSubmit } from '../controllers/postTitleFormSubmit';
 import { validateButtonName } from '../controllers/validateButtonName';
-import { getCustomLabels } from '../controllers/getCustomLabels';
 
 
 const router = Router();

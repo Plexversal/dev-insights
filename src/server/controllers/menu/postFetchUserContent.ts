@@ -74,15 +74,10 @@ export const postFetchUserContent = async (
     // console.log(`[postFetchUserContent] Summary: ${successCount}/${usersArray.length} users successful, ${totalPosts} posts, ${totalComments} comments added`);
 
     // Build response message
-    let message = `✓ Fetched content from ${successCount}/${usersArray.length} users\n`;
-    message += `Added ${totalPosts} posts and ${totalComments} comments`;
-
-    if (failCount > 0) {
-      message += `\n\nFailed users:\n${errors.join('\n')}`;
-    }
+    let message = `Fetched content from ${successCount}/${usersArray.length} users. Added ${totalPosts} posts & ${totalComments} comments`;
 
     res.json({
-      showToast: 'Posts and Comments being have been fetched from users configured in app settings. (this can only be done every hour.)'
+      showToast: `${message}`
     });
 
   } catch (error) {
