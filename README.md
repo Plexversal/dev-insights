@@ -4,7 +4,9 @@ Dev-Insights is a post-based app built with Reddit's Devvit library. It's purpos
 
 Comments can also get lost over time once the posts age past a couple of days and a dev comment may be extremely valuable for the community as a whole.
 
-<img width="875" height="640" alt="lightmode" src="https://github.com/user-attachments/assets/e443757e-28a7-4663-86a6-d486a66e6e4b" />
+<!-- <img width="875" height="640" alt="lightmode" src="https://github.com/user-attachments/assets/e443757e-28a7-4663-86a6-d486a66e6e4b" /> -->
+
+![](https://github.com/user-attachments/assets/e443757e-28a7-4663-86a6-d486a66e6e4b)
 
 ## 🔥 Key features
 
@@ -22,11 +24,15 @@ Comments can also get lost over time once the posts age past a couple of days an
 
 #### **Example r/Battlefield, uses for all game dev announcements**
 
-<img width="900" height="715" alt="BF-IMG" src="https://github.com/user-attachments/assets/7f326365-6eea-4214-af6d-ad740189bc4f" />
+<!-- <img width="900" height="715" alt="BF-IMG" src="https://github.com/user-attachments/assets/7f326365-6eea-4214-af6d-ad740189bc4f" /> -->
+
+![](https://github.com/user-attachments/assets/7f326365-6eea-4214-af6d-ad740189bc4f)
 
 #### **Commment view as Mod** - all mods can remove content from the post if required
 
-<img width="899" height="710" alt="Apex-comments" src="https://github.com/user-attachments/assets/d20610a8-6b91-4ce3-84e0-85ebe92adea8" />
+<!-- <img width="899" height="710" alt="Apex-comments" src="https://github.com/user-attachments/assets/d20610a8-6b91-4ce3-84e0-85ebe92adea8" /> -->
+
+![](https://github.com/user-attachments/assets/d20610a8-6b91-4ce3-84e0-85ebe92adea8)
 
 
 
