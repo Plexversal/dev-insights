@@ -64,7 +64,7 @@
     "tasks": {
       "log-analytics-every-5min": {
         "endpoint": "/internal/scheduler/log-analytics",
-        "cron": "*/5 * * * *"
+        "cron": "*/15 * * * *"
       }
     }
   },
@@ -137,6 +137,11 @@
           "helpText": "Custom subtitle text for the bottom of the app",
           "placeholder": "Max Length 30 characters.",
           "validationEndpoint": "/internal/settings/validate-buttonname"
+        },
+        "disableComments": {
+          "type": "boolean",
+          "label": "Disable Comments",
+          "helpText": "Disable viewing comments Button in the App post (i.e. If you only want to pin posts)"
         }
 
 

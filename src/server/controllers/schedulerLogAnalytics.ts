@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { redis } from '@devvit/web/server';
+import { sendDiscordLogs } from '../lib/sendDiscordLogs';
 
 interface AnalyticsClick {
   username: string;
@@ -64,6 +65,15 @@ export const schedulerLogAnalytics = async (
       `🏆 Top 5 Most Active Users:\n${topUsersList}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`
     );
+
+    // Send logs to Discord
+    try {
+      await sendDiscordLogs();
+      console.log('[Scheduler] Discord logs sent successfully');
+    } catch (discordError) {
+      console.error('[Scheduler] Failed to send Discord logs:', discordError);
+      // Don't fail the entire scheduler job if Discord fails
+    }
 
     res.status(200).json({
       status: 'ok',
