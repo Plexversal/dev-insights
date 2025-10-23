@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import { ScrollButtons } from './components/ScrollButtons';
 import { usePosts } from './hooks/usePosts';
 import { useComments } from './hooks/useComments';
-import { useCustomLabels } from './hooks/useCustomLabels';
+import { useSubredditSettings } from './contexts/SubredditSettingsContext';
 import { useState, useEffect } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
 import { Notification } from './lib/icons/Notification';
@@ -13,7 +13,7 @@ import { useNotifications } from './hooks/useNotifications';
 
 export const App = () => {
   const { username, postId } = useInit();
-  const { postsButtonName, commentsButtonName, bottomSubtitle, loading: labelsLoading } = useCustomLabels();
+  const { postsButtonName, commentsButtonName, bottomSubtitle, disabledComments, loading: settingsLoading } = useSubredditSettings();
   const [activeTab, setActiveTab] = useState<'posts' | 'comments'>('posts');
   const [postsPage, setPostsPage] = useState(0);
   const [commentsPage, setCommentsPage] = useState(0);
@@ -89,55 +89,59 @@ export const App = () => {
       {/* Tabbed Interface */}
       <div className="w-full max-w-2xl flex-1">
         {/* Tab Buttons */}
-          <div className="flex justify-between pb-2 mb-3 border-b border-gray-300 dark:border-gray-700">
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleTabSwitch('posts')}
-                className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
-                  activeTab === 'posts'
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
-                    : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-                style={{ borderRadius: '18px' }}
-              >
-                {postsButtonName}
-              </button>
-              <button
-                onClick={() => handleTabSwitch('comments')}
-                className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
-                  activeTab === 'comments'
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
-                    : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-                style={{ borderRadius: '18px' }}
-              >
-                {commentsButtonName}
-              </button>
-            </div>
-            {/* <div>
-              {!notificationsLoading && (
+          {!settingsLoading && (
+            <div className="flex justify-between pb-2 mb-3 border-b border-gray-300 dark:border-gray-700">
+              <div className="flex gap-2">
                 <button
-                  onClick={toggleNotifications}
-                  disabled={notificationsLoading}
-                  className="flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={notificationsEnabled ? 'Notifications enabled - Click to disable' : 'Notifications disabled - Click to enable'}
+                  onClick={() => handleTabSwitch('posts')}
+                  className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
+                    activeTab === 'posts'
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+                      : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                  style={{ borderRadius: '18px' }}
                 >
-                  <Notification
-                    color="currentColor"
-                    className="text-gray-900 dark:text-gray-200 transition-transform duration-200 hover:scale-110"
-                    filled={notificationsEnabled}
-                  />
+                  {postsButtonName}
                 </button>
-              )}
-            </div> */}
-          </div>
+                {!disabledComments && (
+                  <button
+                    onClick={() => handleTabSwitch('comments')}
+                    className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
+                      activeTab === 'comments'
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+                        : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                    style={{ borderRadius: '18px' }}
+                  >
+                    {commentsButtonName}
+                  </button>
+                )}
+              </div>
+              {/* <div>
+                {!notificationsLoading && (
+                  <button
+                    onClick={toggleNotifications}
+                    disabled={notificationsLoading}
+                    className="flex items-center justify-center w-10 h-10 rounded-full transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={notificationsEnabled ? 'Notifications enabled - Click to disable' : 'Notifications disabled - Click to enable'}
+                  >
+                    <Notification
+                      color="currentColor"
+                      className="text-gray-900 dark:text-gray-200 transition-transform duration-200 hover:scale-110"
+                      filled={notificationsEnabled}
+                    />
+                  </button>
+                )}
+              </div> */}
+            </div>
+          )}
 
         {/* Tab Content */}
         {activeTab === 'posts' ? (
           <PostDisplay postId={postId} currentPage={postsPage} onPageChange={setPostsPage} />
-        ) : (
+        ) : !disabledComments ? (
           <CommentDisplay postId={postId} currentPage={commentsPage} onPageChange={setCommentsPage} isMobile={isMobile} />
-        )}
+        ) : null}
       </div>
 
       {/* Navigation Buttons - positioned above footer */}
