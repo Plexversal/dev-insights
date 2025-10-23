@@ -58,7 +58,8 @@
     "onPostDelete": "/internal/on-post-delete",
     "onPostUpdate": "/internal/on-post-update",
     "onCommentDelete": "/internal/on-comment-delete",
-    "onCommentUpdate": "/internal/on-comment-update"
+    "onCommentUpdate": "/internal/on-comment-update",
+    "onPostFlairUpdate": "/internal/on-post-flair-update"
   },
   "scheduler": {
     "tasks": {
@@ -141,6 +142,7 @@
         "disableComments": {
           "type": "boolean",
           "label": "Disable Comments",
+          "defaultValue": false,
           "helpText": "Disable viewing comments Button in the App post (i.e. If you only want to pin posts)"
         }
 

@@ -56,6 +56,7 @@ export const getCommentsHandler = async (
 
                 if (userFlair?.flairText) {
                   userFlairText = userFlair.flairText;
+                  // if(process.env.environment == 'DEV') console.log(userFlair)
                   const flairColors = await getFlairColorsByText(userFlair.flairText);
                   flairBgColor = flairColors.backgroundColor;
                   flairTextColor = flairColors.textColor;

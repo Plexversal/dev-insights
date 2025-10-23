@@ -13,6 +13,8 @@ export const postPostCreate = async (
     const body: PostCreateBody = _req.body
     const post: RedditPost = body.post;
     const user = body.author
+    console.log(body, post)
+
     if (!user) throw new Error('Failed to fetch user in postPostCreate');
 
     // console.log(body)

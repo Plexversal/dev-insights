@@ -35,9 +35,11 @@ router.post('/internal/on-app-upgrade', postOnAppUpgrade);
 router.post('/internal/on-post-create', postPostCreate);
 router.post('/internal/on-post-delete', postOnPostDelete);
 router.post('/internal/on-post-update', postOnPostUpdate);
+// router.post('/internal/on-post-flair-update', postOnCommentDelete);
 router.post('/internal/on-comment-create', postCommentCreate);
 router.post('/internal/on-comment-update', postOnCommentUpdate);
 router.post('/internal/on-comment-delete', postOnCommentDelete);
+
 
 
 // scheduler tasks

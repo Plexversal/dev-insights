@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { reddit, context } from '@devvit/web/server';
-
 export interface FlairTemplate {
   id: string;
   text: string;
@@ -46,7 +45,7 @@ export const getFlairTemplatesHandler = async (
 export const getFlairColorsByText = async (flairText: string): Promise<{ backgroundColor?: string; textColor?: string }> => {
   try {
     const allFlairs = await reddit.getUserFlairTemplates(context.subredditName);
-    const matchedFlair = allFlairs.find((flair: any) => flair.text === flairText);
+    const matchedFlair = allFlairs.find((flair: any) => flairText.includes(flair.text));
 
 
     if (matchedFlair) {
