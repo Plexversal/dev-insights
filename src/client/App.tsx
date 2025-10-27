@@ -155,7 +155,7 @@ export const App = () => {
         />
       </div>
 
-      <Footer subtitle={bottomSubtitle} />
+      <Footer subtitle={bottomSubtitle} loading={settingsLoading} />
 
     </div>
   );

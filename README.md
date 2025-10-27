@@ -8,12 +8,14 @@ Comments can also get lost over time once the posts age past a couple of days an
 
 ## 🔥 Key features
 
-* Track comments and posts from any of `flair text`, `flair css class`, and/or `users`. (You can match all 3 if you like!)
+* Track comments and posts from any of `flair text`, `flair css class`, `post flair`, and/or `users`. (You can match multiple options!)
 * Infinite history of comments and posts - No more 6 pin highlights limit!
 * Backdate pinning items for users specified in the app config.
 * Automatic updates for edits/deletions for posts and comments.
 * Manually add any posts or comments to the App using mod-action button on the item.
-* Supports `includes` in flair text, e.g. "dev" will match "Developer" in a flair. Matching is NOT case sensitive.
+* Supports `includes` in flair text (both user and post flair), e.g. "dev" will match "Developer" in a flair. Matching is NOT case sensitive.
+* Post flair matching supports both flair text and template ID.
+* Bottom subtitle supports clickable markdown links to reddit, x.com, or twitter.com.
 * Automatic light/dark theme.
 * Moderators can remove comments and posts from the App at any time.
 * Supports showing user flair in the App Post itself (beta*).
@@ -39,7 +41,7 @@ Comments can also get lost over time once the posts age past a couple of days an
 
 ### ⚠️ Warning!
 
-If matching flair text, ensure you are specific enough as to not match another generic flair. It will be included in any word/text. E.g. if you configure it to match `dev` it will match `developer` but also words like `device`, `devious` etc. The other matches for users and css class are not like this and are exact.
+If matching flair text (both user flair and post flair), ensure you are specific enough as to not match another generic flair. It will be included in any word/text. E.g. if you configure it to match `dev` it will match `developer` but also words like `device`, `devious` etc. The matches for users and css class are exact, but flair text uses `includes` matching for better flexibility.
 
 ## 🗒️ Things to note
 
@@ -48,6 +50,36 @@ If matching flair text, ensure you are specific enough as to not match another g
 * As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text, please report if you see issues.
 
 ## 🖊️ Patch notes
+
+### v0.0.18
+
+* **New Post Flair Matching Feature:**
+  * Added `Match Post Flair Text or ID` setting that allows matching posts by their post flair.
+  * Supports matching by **flair text** (using includes, not exact match) or **flair template ID**.
+  * Example: "News" will match posts with flair text containing "Official News", or you can use the exact flair ID like "12ff3a4-66a7ff77-44f4f".
+  * **STRONGLY advised** to use mod-only post flairs to prevent abuse.
+  * **Note:** Flair text matching uses `includes` rather than exact matching for better flexibility. However, some matching issues may still occur if flair text is too generic. Be as specific as possible.
+
+* **Enhanced Bottom Subtitle Setting:**
+  * The `Bottom Subtitle` setting now supports **markdown links** in addition to plain text.
+  * Can use format `[text](url)` where text is max 30 characters and URL is max 1000 characters.
+  * **Domain restrictions:** Only `*.reddit.com`, `x.com`, or `twitter.com` domains are allowed for security.
+  * Examples:
+    * Plain text: `Recent Announcements`
+    * Markdown link: `[Visit Our Updates](https://reddit.com/r/example)`
+  * Links will appear as clickable blue text in the app footer.
+
+* **Improved Flair Color Matching:**
+  * User flair color matching now uses `includes` instead of exact matching for better accuracy.
+  * This improves the visual display of user flairs in the app, though some edge cases may still occur with duplicate or similar flair text.
+
+* Added setting to disable comments tab entirely for subreddits that only want to display posts.
+* Media handling improvements for text posts that contain embedded images.
+
+
+### v0.0.17
+
+* Minor bug fixes + readme
 
 ### v0.0.16
 

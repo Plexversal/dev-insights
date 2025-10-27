@@ -4,6 +4,7 @@ import { PostCreateBody } from '../../../shared/types/api';
 import { RedditPost } from '../../../shared/types/post';
 import { validateUser } from '../../lib/validateUser';
 import { addPostToDb } from '../../lib/addPostToDb';
+import { validatePostFlair } from '../../lib/validatePostFlair';
 
 export const postPostCreate = async (
   _req: Request,
@@ -13,20 +14,25 @@ export const postPostCreate = async (
     const body: PostCreateBody = _req.body
     const post: RedditPost = body.post;
     const user = body.author
-    console.log(body, post)
-
     if (!user) throw new Error('Failed to fetch user in postPostCreate');
 
     // console.log(body)
     // Validate user
-    const validationResult = await validateUser(post.authorId);
+    const [userValidationResult, postValidationResult] = await Promise.all([
+      validateUser(post.authorId),
+      validatePostFlair(post.linkFlair),
+    ]);
 
-    if (!validationResult.isValid) {
-      // console.log(`Post validation failed: ${validationResult.reason}`);
+
+    if (!userValidationResult.isValid && !postValidationResult.isValid) {
+      const reason = !userValidationResult.isValid
+        ? userValidationResult.reason
+        : postValidationResult.reason;
+
       res.json({
         status: 'skipped',
-        message: `Post does not match validation criteria: ${validationResult.reason}`,
-        post: post.id
+        message: `Post does not match validation criteria: ${reason}`,
+        post: post.id,
       });
       return;
     }

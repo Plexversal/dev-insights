@@ -30,6 +30,15 @@ export const validateUser = async (userId: `t2_${string}`): Promise<ValidationRe
       .map(c => c.trim())
       .filter(c => c.length > 0);
 
+
+    if (
+      !usersArray.length &&
+      !flairTextArray.length &&
+      !cssClassArray.length
+    ) {
+      return { isValid: false, reason: 'No validation settings configured' };
+    }
+
     // console.log('Validation config >>', { usersArray, flairTextArray, cssClassArray });
 
     // Fetch user data

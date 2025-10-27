@@ -37,6 +37,13 @@ export const sendDiscordLogs = async (): Promise<void> => {
       return;
     }
 
+    // Calculate today's UTC midnight boundaries
+    const now = new Date();
+    const todayStartUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
+    const todayEndUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
+    const startTimestamp = todayStartUTC.getTime();
+    const endTimestamp = todayEndUTC.getTime();
+
     // Fetch unique users from analytics
     const analyticsKey = 'app:analytics:v2';
     const existingData = await redis.get(analyticsKey);
@@ -48,13 +55,19 @@ export const sendDiscordLogs = async (): Promise<void> => {
     if (existingData) {
       try {
         const allClicks: AnalyticsClick[] = JSON.parse(existingData);
-        uniqueUsers = new Set(allClicks.map(click => click.username)).size;
-        totalClicks = allClicks.length;
+
+        // Filter clicks to only today (UTC midnight to midnight)
+        const todaysClicks = allClicks.filter(click =>
+          click.timestamp >= startTimestamp && click.timestamp <= endTimestamp
+        );
+
+        uniqueUsers = new Set(todaysClicks.map(click => click.username)).size;
+        totalClicks = todaysClicks.length;
         avgClicksPerUser = uniqueUsers > 0 ? totalClicks / uniqueUsers : 0;
 
         // Count clicks per user
         const userClickCounts: Record<string, number> = {};
-        allClicks.forEach(click => {
+        todaysClicks.forEach(click => {
           userClickCounts[click.username] = (userClickCounts[click.username] || 0) + 1;
         });
 
@@ -101,6 +114,8 @@ export const sendDiscordLogs = async (): Promise<void> => {
       settings.get('subredditUsers'),
       settings.get('subredditFlairText'),
       settings.get('subredditFlairCssclass'),
+      settings.get('subredditPostFlairText'),
+      settings.get('disableComments'),
       reddit.getPostById(latestAppPostId as `t3_${string}`).then(p => ({
         userReportReasons: p.userReportReasons,
         removedBy: p.removedBy,
@@ -116,6 +131,8 @@ export const sendDiscordLogs = async (): Promise<void> => {
       subredditUsers,
       subredditFlairText,
       subredditFlairCssclass,
+      subredditPostFlairText,
+      disableComments,
       appModLogsResult
     ] = results.map(r => (r.status === 'fulfilled' ? r.value : null));
 
@@ -132,10 +149,12 @@ export const sendDiscordLogs = async (): Promise<void> => {
       `**Post Title:** ${postTitle || 'Not set'}`,
       `**Posts Button Name:** ${postsButtonName || 'Announcements (default)'}`,
       `**Comments Button Name:** ${commentsButtonName || 'Official Replies (default)'}`,
-      `**Bottom Subtitle:** ${bottomSubtitle || 'Official Replies (default)'}`,
+      `**Bottom Subtitle:** ${bottomSubtitle || 'Recent Announcements (default)'}`,
+      `**Disable Comments:** ${disableComments ? 'Yes' : 'No'}`,
       `**Subreddit Users:** ${subredditUsers || 'None'}`,
-      `**Flair Text:** ${subredditFlairText || 'None'}`,
-      `**Flair CSS Class:** ${subredditFlairCssclass || 'None'}`
+      `**User Flair Text:** ${subredditFlairText || 'None'}`,
+      `**User Flair CSS Class:** ${subredditFlairCssclass || 'None'}`,
+      `**Post Flair Text/ID:** ${subredditPostFlairText || 'None'}`
     ].join('\n');
     
 
@@ -154,10 +173,10 @@ export const sendDiscordLogs = async (): Promise<void> => {
 
     // Format analytics display
     const analyticsDisplay = [
-      `**Total Unique Users:** ${uniqueUsers}`,
-      `**Total Clicks:** ${totalClicks}`,
+      `**Today's Unique Users (UTC):** ${uniqueUsers}`,
+      `**Today's Total Clicks (UTC):** ${totalClicks}`,
       `**Average Clicks per User:** ${avgClicksPerUser.toFixed(2)}`,
-      `\n**Top 5 Most Active Users:**\n${topUsersDisplay}`
+      `\n**Top 5 Most Active Users Today:**\n${topUsersDisplay}`
     ].join('\n');
 
     // Prepare Discord webhook payload
@@ -169,7 +188,7 @@ export const sendDiscordLogs = async (): Promise<void> => {
         color: 15105570,
         fields: [
           {
-            name: 'Analytics Summary',
+            name: 'Analytics Summary (Today UTC)',
             value: analyticsDisplay.length > 1024
               ? analyticsDisplay.substring(0, 1021) + '...'
               : analyticsDisplay

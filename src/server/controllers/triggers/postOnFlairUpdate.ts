@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { context, redis, reddit } from '@devvit/web/server';
+import { context, redis, reddit, settings } from '@devvit/web/server';
 import { PostCreateBody } from '../../../shared/types/api';
 import { RedditPost } from '../../../shared/types/post';
-import { validateUser } from '../../lib/validateUser';
+import { validatePostFlair } from '../../lib/validatePostFlair';
 import { addPostToDb } from '../../lib/addPostToDb';
 
-export const postPostCreate = async (
+export const postOnFlairUpdate = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
@@ -13,56 +13,51 @@ export const postPostCreate = async (
     const body: PostCreateBody = _req.body
     const post: RedditPost = body.post;
     const user = body.author
-    console.log(body, post, user)
 
+    if (!user) throw new Error('Failed to fetch user in postOnFlairUpdate');
 
-    // if (!user) throw new Error('Failed to fetch user in postPostCreate');
+    // Validate post flair
+    const postValidationResult = await validatePostFlair(post.linkFlair);
 
-    // // console.log(body)
-    // // Validate user
-    // const validationResult = await validateUser(post.authorId);
+    if (!postValidationResult.isValid) {
+      res.json({
+        status: 'skipped',
+        message: `Post flair does not match validation criteria: ${postValidationResult.reason}`,
+        post: post.id,
+      });
+      return;
+    }
 
-    // if (!validationResult.isValid) {
-    //   // console.log(`Post validation failed: ${validationResult.reason}`);
-    //   res.json({
-    //     status: 'skipped',
-    //     message: `Post does not match validation criteria: ${validationResult.reason}`,
-    //     post: post.id
-    //   });
-    //   return;
-    // }
+    // Add post to database using lib function
+    const dbResult = await addPostToDb(
+      post,
+      user.name,
+      user.snoovatarImage,
+      user.url
+    );
 
-    // // console.log(`Post validated: ${validationResult.reason}`);
-    // // console.log(`Processing post: ${post.id}`);
+    if (!dbResult.success) {
+      res.json({
+        status: 'skipped',
+        message: dbResult.error || 'Failed to add post to database',
+        post: post.id
+      });
+      return;
+    }
 
-    // // Add post to database using lib function
-    // const dbResult = await addPostToDb(
-    //   post,
-    //   user.name,
-    //   user.snoovatarImage,
-    //   user.url
-    // );
-
-    // if (!dbResult.success) {
-    //   res.json({
-    //     status: 'skipped',
-    //     message: dbResult.error || 'Failed to add post to database',
-    //     post: post.id
-    //   });
-    //   return;
-    // }
-
-    // const correctUrl = `https://www.reddit.com${post.permalink}`;
+    const correctUrl = `https://www.reddit.com${post.permalink}`;
 
     res.json({
       status: 'success',
-      message: 'Post processed successfully',
+      message: 'Post processed successfully after flair update',
+      navigateTo: correctUrl,
+      post: post.id
     });
   } catch (error) {
-    console.error(`Error handling comment creation: ${error}`);
+    console.error(`Error handling flair update: ${error}`);
     res.status(400).json({
       status: 'error',
-      message: 'Failed to handle comment creation',
+      message: 'Failed to handle flair update',
       error: error
     });
   }
