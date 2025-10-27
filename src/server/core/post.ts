@@ -11,7 +11,7 @@ export const createPost = async (title?: string) => {
     const settingsTitle = await settings.get('postTitle');
     postTitle = typeof settingsTitle === 'string' && settingsTitle.trim() !== ''
       ? settingsTitle
-      : 'Game Announcements';
+      : 'Official Announcements';
   }
 
   const { subredditName } = context;
