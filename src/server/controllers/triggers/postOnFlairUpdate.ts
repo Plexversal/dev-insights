@@ -3,6 +3,7 @@ import { context, redis, reddit, settings } from '@devvit/web/server';
 import { PostCreateBody } from '../../../shared/types/api';
 import { RedditPost } from '../../../shared/types/post';
 import { validatePostFlair } from '../../lib/validatePostFlair';
+import { validateUser } from '../../lib/validateUser';
 import { addPostToDb } from '../../lib/addPostToDb';
 
 export const postOnFlairUpdate = async (
@@ -16,13 +17,38 @@ export const postOnFlairUpdate = async (
 
     if (!user) throw new Error('Failed to fetch user in postOnFlairUpdate');
 
-    // Validate post flair
-    const postValidationResult = await validatePostFlair(post.linkFlair);
+    const dependantFlairMatches = await settings.get('dependantFlairMatches') as boolean;
 
-    if (!postValidationResult.isValid) {
+    // Validate user and post flair
+    const [userValidationResult, postValidationResult] = await Promise.all([
+      validateUser(post.authorId),
+      validatePostFlair(post.linkFlair),
+    ]);
+
+    // Check validation based on dependant setting
+    let shouldSkip = false;
+    let skipReason = '';
+
+    if (dependantFlairMatches) {
+      // Both user AND post flair must match
+      if (!userValidationResult.isValid || !postValidationResult.isValid) {
+        shouldSkip = true;
+        skipReason = !userValidationResult.isValid
+          ? userValidationResult.reason || 'User validation failed'
+          : postValidationResult.reason || 'Post flair validation failed';
+      }
+    } else {
+      // Either user OR post flair must match (default behavior)
+      if (!userValidationResult.isValid && !postValidationResult.isValid) {
+        shouldSkip = true;
+        skipReason = `Neither user nor post flair matched: ${userValidationResult.reason || 'unknown'}, ${postValidationResult.reason || 'unknown'}`;
+      }
+    }
+
+    if (shouldSkip) {
       res.json({
         status: 'skipped',
-        message: `Post flair does not match validation criteria: ${postValidationResult.reason}`,
+        message: `Post does not match validation criteria: ${skipReason}`,
         post: post.id,
       });
       return;

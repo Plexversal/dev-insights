@@ -82,7 +82,6 @@ export const App = () => {
     setActiveTab(tab);
   };
 
-  console.log(`[App] Current postId: ${postId}`);
   return (
     <div className="flex relative flex-col items-center min-h-screen gap-4 p-2">
 

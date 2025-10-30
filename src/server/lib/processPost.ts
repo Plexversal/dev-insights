@@ -24,7 +24,7 @@ export async function processPost(post: Post): Promise<void> {
     const exists = await redis.exists(dataKey);
     if (exists) {
       // console.log(`[processPost] Post ${postId} already exists, skipping`);
-      throw new Error('Post already exists');
+      return console.log('[processPost] Post already exists', post.id);
     }
 
     const timestamp = post.createdAt?.getTime() || Date.now();

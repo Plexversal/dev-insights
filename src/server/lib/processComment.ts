@@ -24,7 +24,7 @@ export async function processComment(comment: Comment): Promise<void> {
     const exists = await redis.exists(dataKey);
     if (exists) {
       // console.log(`[processComment] Comment ${commentId} already exists, skipping`);
-      throw new Error('Comment already exists');
+      console.log('[processComment] Comment already exists', commentId);
     }
 
     const timestamp = comment.createdAt?.getTime() || Date.now();

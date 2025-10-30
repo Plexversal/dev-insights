@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UiResponse } from '@devvit/web/shared';
-import { context } from '@devvit/web/server';
+import { context, reddit } from '@devvit/web/server';
 import { createPost } from '../core/post';
 
 export const postTitleFormSubmit = async (
@@ -24,7 +24,28 @@ export const postTitleFormSubmit = async (
     }
 
     // Create the post with the user's custom title
-    const post = await createPost(title);
+    const post = await createPost(title)
+
+    // unsticky code - not sure if i should keep this or not, needs to be done before additional mod actions but only applies when post created in this file due to manual creation
+
+    // if (post.id) {
+    //   try {
+    //     let hot = await reddit.getHotPosts({
+    //       subredditName: context.subredditName,
+    //       limit: 5,
+    //       pageSize: 1,
+    //     });
+    //     let resolvedHot = await hot.all();
+    //     resolvedHot.forEach(async post => {
+    //       if(post.authorName == context.appName) {
+    //         await post.unsticky();
+    //       }
+    //     })
+    //   } catch (err) {
+    //     console.error(`failed to unsticky existing stuck posts`, err)
+    //   }
+    // }
+
 
     res.json({
       navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`,

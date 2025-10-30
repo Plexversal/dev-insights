@@ -1,4 +1,4 @@
-import { settings } from '@devvit/web/server';
+import { settings, Post } from '@devvit/web/server';
 import { PostCreateBody } from '../../shared/types/api';
 
 interface ValidationResult {
@@ -7,7 +7,7 @@ interface ValidationResult {
 }
 
 export const validatePostFlair = async (
-  linkFlair: PostCreateBody["post"]["linkFlair"]
+  linkFlair: PostCreateBody["post"]["linkFlair"]|Post['flair']
 ): Promise<ValidationResult> => {
   try {
     const flairSetting = await settings.get('subredditPostFlairText');

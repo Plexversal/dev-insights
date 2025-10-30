@@ -46,8 +46,8 @@ If matching flair text (both user flair and post flair), ensure you are specific
 ## 🗒️ Things to note
 
 * The app does not automatically get previous dev comments, BUT if you specified any `users` in the app config from step 3 above, it will try fetch the last 30 comments/posts for that user and then populate the app if they were made in the subreddit.
-* Matching config options are independent from each other, so if you put something in all 3 options then a user which matches any of the options will be a match. It will match in order of users, flair text and then flair css class.
-* As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text, please report if you see issues.
+* Matching config options are independent from each other, so if you put something in all 3 options then a user which matches any of the options will be a match. It will match in order of users, flair text and then flair css class. Post flair has an option to make it dependant on users, so this is the only dependant setting available.
+* As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text or do not specify exact flair text, please report if you see issues.
 
 ## 🖊️ Patch notes
 
