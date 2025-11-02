@@ -53,7 +53,9 @@ export async function addPostToDb(
       image: post.type === 'image' ? post.url :
         (post.type !== 'gallery' && post.type !== 'link' && post.mediaUrls?.length > 0 ? post.mediaUrls[0] ?? '' : ''),
       galleryImages: post.type === 'gallery' ? JSON.stringify(post.galleryImages) : '',
-      postLink: post.type === 'link' ? post.url : ''
+      postLink: post.type === 'link' ? post.url : '',
+      postFlairText: post.linkFlair?.text || '',
+      postFlairTemplateId: post.linkFlair?.templateId || ''
     };
 
     // console.log(`[addPostToDb] Storing post data:`, postData);

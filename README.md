@@ -9,6 +9,7 @@ Comments can also get lost over time once the posts age past a couple of days an
 ## 🔥 Key features
 
 * Track comments and posts from any of `flair text`, `flair css class`, `post flair`, and/or `users`. (You can match multiple options!)
+* **Separate tab feature** - Create a third tab to organize posts with a specific post flair separately from other posts.
 * Infinite history of comments and posts - No more 6 pin highlights limit!
 * Backdate pinning items for users specified in the app config.
 * Automatic updates for edits/deletions for posts and comments.
@@ -50,6 +51,29 @@ If matching flair text (both user flair and post flair), ensure you are specific
 * As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text or do not specify exact flair text, please report if you see issues.
 
 ## 🖊️ Patch notes
+
+### v0.0.19
+
+* **New Separate Tab Feature:**
+  * Added `Separate Posts Tab for a specific post flair` setting that allows creating a dedicated third tab for posts with a specific post flair.
+  * Format: `[Tab Button Name](exact flair text OR template ID)` where tab name is max 30 characters and flair identifier is max 64 characters.
+  * Example: `[Official News](Announcement)` or `[Esports](12ff3a4-66a7ff77-44f4f)`.
+  * When configured, posts matching the specified flair will **only** appear in the separate tab, while all other posts appear in the default posts tab.
+  * Works with both **flair text** (exact match) and **flair template ID** for maximum flexibility.
+  * The separate tab appears between the default posts tab and the comments tab.
+  * Supports **real-time flair updates** - if a post's flair changes, it automatically moves to the correct tab.
+  * Leave blank to keep all posts in one tab (default behavior).
+
+* **Improved User Flair Display:**
+  * Fixed visual overflow issues where long user flair text would push usernames out of view or overflow the container.
+  * Username and flair now properly share space within the container - username can use remaining space while flair is capped at 50% width maximum.
+  * Both username and flair will truncate with ellipsis (...) when too long, ensuring nothing overflows the container.
+  * Flair stays directly next to the username (left-aligned) instead of being pushed to the right when there's available space.
+  * Applied to both post cards and comment cards for consistent display.
+
+* **Database Enhancements:**
+  * All posts now store both `postFlairText` and `postFlairTemplateId` for better flair matching capabilities.
+  * Any post flair changes on an existing post will redo checks to see if there is a match. E.g. you forgot to flair a post after creating but flairing after now matches the `Post Flair` match in your settings.
 
 ### v0.0.18
 

@@ -28,6 +28,7 @@ export const postOnFlairUpdate = async (
     // Check validation based on dependant setting
     let shouldSkip = false;
     let skipReason = '';
+    console.log(userValidationResult, postValidationResult)
 
     if (dependantFlairMatches) {
       // Both user AND post flair must match
@@ -45,6 +46,41 @@ export const postOnFlairUpdate = async (
       }
     }
 
+    // Check if post already exists in database
+    const dataKey = `post_data:${post.id}`;
+    const postExists = await redis.exists(dataKey);
+
+    if (postExists) {
+      // Post exists - check if validation still passes
+      if (shouldSkip) {
+        // Post no longer matches criteria after flair update - remove it
+        await redis.del(dataKey);
+        await redis.zRem('global_posts', [post.id]);
+
+        res.json({
+          status: 'removed',
+          message: `Post removed from app: ${skipReason}`,
+          post: post.id,
+        });
+        return;
+      }
+
+      // Post still matches - update the flair text and template ID in database
+      console.log('updating with flair:', post.linkFlair?.templateId)
+      await redis.hSet(dataKey, {
+        postFlairText: post.linkFlair?.text || '',
+        postFlairTemplateId: post.linkFlair?.templateId || ''
+      });
+
+      res.json({
+        status: 'updated',
+        message: 'Post flair updated successfully in database',
+        post: post.id
+      });
+      return;
+    }
+
+    // Post doesn't exist yet
     if (shouldSkip) {
       res.json({
         status: 'skipped',
@@ -54,7 +90,7 @@ export const postOnFlairUpdate = async (
       return;
     }
 
-    // Add post to database using lib function
+    // Add new post to database using lib function
     const dbResult = await addPostToDb(
       post,
       user.name,
@@ -75,7 +111,7 @@ export const postOnFlairUpdate = async (
 
     res.json({
       status: 'success',
-      message: 'Post processed successfully after flair update',
+      message: 'Post added successfully after flair update',
       navigateTo: correctUrl,
       post: post.id
     });

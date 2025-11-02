@@ -114,6 +114,20 @@
           "placeholder": "Be specific. (Optional match)",
           "validationEndpoint": "/internal/settings/validate-flairtext"
         },
+        "dependantFlairMatches": {
+          "type": "boolean",
+          "label": "Post Flair matches depend on User?",
+          "defaultValue": false,
+          "helpText": "Enable this if you only want to match posts based on post flair from users specified in the \"Match Users\" setting above. (comments are not affected)"
+        },
+        "separateTabPostFlair1": {
+          "type": "string",
+          "label": "Separate Posts Tab for a specific post flair",
+          "helpText": "Format is: [Tab Button Name](exact flair text OR template ID). You can use the flair text (e.g. :esports: Esports Official) or the flair template ID (e.g. 12ff3a4-66a7ff77-44f4f). Only one is allowed.",
+          "placeholder": "Leave blank to keep all posts in one tab.",
+          "validationEndpoint": "/internal/settings/validate-separate-tab"
+        },
+        
         "postTitle": {
           "type": "string",
           "label": "Default Post Title",
@@ -152,6 +166,7 @@
           "defaultValue": false,
           "helpText": "Disable viewing comments Button in the App post (i.e. If you only want to pin posts)"
         }
+
 
       }
   }

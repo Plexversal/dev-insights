@@ -11,6 +11,7 @@ interface SubredditSettings {
   commentsButtonName: string;
   bottomSubtitle: string;
   disabledComments: boolean;
+  separateTabPostFlair1: string | null;
   loading: boolean;
 }
 
@@ -25,15 +26,17 @@ const SubredditSettingsContext = createContext<SubredditSettings | undefined>(un
 export const SubredditSettingsProvider = ({ children }: { children: ReactNode }) => {
   const [labels, setLabels] = useState<CustomLabels>(DEFAULT_LABELS);
   const [disabledComments, setDisabledComments] = useState<boolean>(false);
+  const [separateTabPostFlair1, setSeparateTabPostFlair1] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        // Fetch custom labels and disabled comments in parallel
-        const [labelsRes, disabledCommentsRes] = await Promise.all([
+        // Fetch custom labels, disabled comments, and separate tab setting in parallel
+        const [labelsRes, disabledCommentsRes, separateTabRes] = await Promise.all([
           fetch('/api/custom-labels'),
-          fetch('/api/disabled-comments')
+          fetch('/api/disabled-comments'),
+          fetch('/api/separate-tab-setting')
         ]);
 
         // Handle custom labels
@@ -53,10 +56,20 @@ export const SubredditSettingsProvider = ({ children }: { children: ReactNode })
           console.error('Failed to fetch disabled comments setting');
           setDisabledComments(false);
         }
+
+        // Handle separate tab setting
+        if (separateTabRes.ok) {
+          const separateTabData = await separateTabRes.json();
+          setSeparateTabPostFlair1(separateTabData.separateTabPostFlair1);
+        } else {
+          console.error('Failed to fetch separate tab setting');
+          setSeparateTabPostFlair1(null);
+        }
       } catch (err) {
         console.error('Failed to fetch subreddit settings', err);
         setLabels(DEFAULT_LABELS);
         setDisabledComments(false);
+        setSeparateTabPostFlair1(null);
       } finally {
         setLoading(false);
       }
@@ -68,6 +81,7 @@ export const SubredditSettingsProvider = ({ children }: { children: ReactNode })
   const value: SubredditSettings = {
     ...labels,
     disabledComments,
+    separateTabPostFlair1,
     loading,
   };
 

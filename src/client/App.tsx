@@ -6,22 +6,58 @@ import { ScrollButtons } from './components/ScrollButtons';
 import { usePosts } from './hooks/usePosts';
 import { useComments } from './hooks/useComments';
 import { useSubredditSettings } from './contexts/SubredditSettingsContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
 import { Notification } from './lib/icons/Notification';
 import { useNotifications } from './hooks/useNotifications';
+import { parseSeparateTabFormat } from './lib/parseSeparateTabFormat';
 
 export const App = () => {
   const { username, postId } = useInit();
-  const { postsButtonName, commentsButtonName, bottomSubtitle, disabledComments, loading: settingsLoading } = useSubredditSettings();
-  const [activeTab, setActiveTab] = useState<'posts' | 'comments'>('posts');
+  const { postsButtonName, commentsButtonName, bottomSubtitle, disabledComments, separateTabPostFlair1, loading: settingsLoading } = useSubredditSettings();
+  const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'separateTab'>('posts');
   const [postsPage, setPostsPage] = useState(0);
   const [commentsPage, setCommentsPage] = useState(0);
+  const [separateTabPage, setSeparateTabPage] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+
+  // Parse separate tab setting
+  const separateTabConfig = parseSeparateTabFormat(separateTabPostFlair1);
 
   const { posts, loadMorePosts, hasMore: postsHasMore, loading: postsLoading, loadingMore: postsLoadingMore } = usePosts();
   const { comments, loadMoreComments, hasMore: commentsHasMore, loading: commentsLoading, loadingMore: commentsLoadingMore } = useComments();
   // const { isEnabled: notificationsEnabled, loading: notificationsLoading, toggleNotifications } = useNotifications();
+
+  // Filter posts for default tab (exclude posts matching the separate tab flair)
+  const defaultTabPosts = useMemo(() => {
+    if (!separateTabConfig) {
+      return posts;
+    }
+    return posts.filter(post => {
+      const postFlairText = post.postFlairText || '';
+      const postFlairTemplateId = post.postFlairTemplateId || '';
+      const configValue = separateTabConfig.flairText;
+
+      // Check if either the text or template ID matches
+      const matches = postFlairText === configValue || postFlairTemplateId === configValue;
+      return !matches; // Exclude matching posts from default tab
+    });
+  }, [posts, separateTabConfig]);
+
+  // Filter posts for separate tab (only posts matching the flair)
+  const separateTabPosts = useMemo(() => {
+    if (!separateTabConfig) {
+      return [];
+    }
+    return posts.filter(post => {
+      const postFlairText = post.postFlairText || '';
+      const postFlairTemplateId = post.postFlairTemplateId || '';
+      const configValue = separateTabConfig.flairText;
+
+      // Check if either the text or template ID matches
+      return postFlairText === configValue || postFlairTemplateId === configValue;
+    });
+  }, [posts, separateTabConfig]);
 
   // Track window resize for mobile detection
   useEffect(() => {
@@ -35,7 +71,7 @@ export const App = () => {
   // Navigation handlers for posts
   const handlePostsNext = async () => {
     const postsPerView = 3;
-    const totalPages = Math.ceil(posts.length / postsPerView);
+    const totalPages = Math.ceil(defaultTabPosts.length / postsPerView);
 
     if (postsPage >= totalPages - 1 && postsHasMore) {
       await loadMorePosts();
@@ -62,22 +98,59 @@ export const App = () => {
     setCommentsPage(prev => Math.max(0, prev - 1));
   };
 
+  // Navigation handlers for separate tab
+  const handleSeparateTabNext = async () => {
+    const postsPerView = 3;
+    const totalPages = Math.ceil(separateTabPosts.length / postsPerView);
+
+    if (separateTabPage >= totalPages - 1 && postsHasMore) {
+      await loadMorePosts();
+    }
+    setSeparateTabPage(prev => prev + 1);
+  };
+
+  const handleSeparateTabPrev = () => {
+    setSeparateTabPage(prev => Math.max(0, prev - 1));
+  };
+
   // Calculate navigation state for current tab
   const postsPerView = 3;
   const commentsPerView = isMobile ? 2 : 4;
-  const postsTotalPages = Math.ceil(posts.length / postsPerView);
+  const postsTotalPages = Math.ceil(defaultTabPosts.length / postsPerView);
   const commentsTotalPages = Math.ceil(comments.length / commentsPerView);
+  const separateTabTotalPages = Math.ceil(separateTabPosts.length / postsPerView);
 
-  const canGoPrev = activeTab === 'posts' ? postsPage > 0 : commentsPage > 0;
+  const canGoPrev = activeTab === 'posts'
+    ? postsPage > 0
+    : activeTab === 'comments'
+    ? commentsPage > 0
+    : separateTabPage > 0;
+
   const canGoNext = activeTab === 'posts'
     ? (postsPage < postsTotalPages - 1 || postsHasMore)
-    : (commentsPage < commentsTotalPages - 1 || commentsHasMore);
-  const loading = activeTab === 'posts' ? postsLoadingMore : commentsLoadingMore;
+    : activeTab === 'comments'
+    ? (commentsPage < commentsTotalPages - 1 || commentsHasMore)
+    : (separateTabPage < separateTabTotalPages - 1 || postsHasMore);
 
-  const handleNext = activeTab === 'posts' ? handlePostsNext : handleCommentsNext;
-  const handlePrev = activeTab === 'posts' ? handlePostsPrev : handleCommentsPrev;
+  const loading = activeTab === 'posts'
+    ? postsLoadingMore
+    : activeTab === 'comments'
+    ? commentsLoadingMore
+    : postsLoadingMore;
 
-  const handleTabSwitch = (tab: 'posts' | 'comments') => {
+  const handleNext = activeTab === 'posts'
+    ? handlePostsNext
+    : activeTab === 'comments'
+    ? handleCommentsNext
+    : handleSeparateTabNext;
+
+  const handlePrev = activeTab === 'posts'
+    ? handlePostsPrev
+    : activeTab === 'comments'
+    ? handleCommentsPrev
+    : handleSeparateTabPrev;
+
+  const handleTabSwitch = (tab: 'posts' | 'comments' | 'separateTab') => {
     trackAnalytics(); // Track user interaction
     setActiveTab(tab);
   };
@@ -102,6 +175,19 @@ export const App = () => {
                 >
                   {postsButtonName}
                 </button>
+                {separateTabConfig && (
+                  <button
+                    onClick={() => handleTabSwitch('separateTab')}
+                    className={`py-2 px-4 text-sm font-semibold transition-colors cursor-pointer ${
+                      activeTab === 'separateTab'
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+                        : 'bg-transparent text-gray-900 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                    style={{ borderRadius: '18px' }}
+                  >
+                    {separateTabConfig.tabName}
+                  </button>
+                )}
                 {!disabledComments && (
                   <button
                     onClick={() => handleTabSwitch('comments')}
@@ -137,7 +223,17 @@ export const App = () => {
 
         {/* Tab Content */}
         {activeTab === 'posts' ? (
-          <PostDisplay postId={postId} currentPage={postsPage} onPageChange={setPostsPage} />
+          <PostDisplay
+            currentPage={postsPage}
+            filterByFlairText={separateTabConfig?.flairText}
+            excludeMatchingFlair={true}
+          />
+        ) : activeTab === 'separateTab' ? (
+          <PostDisplay
+            currentPage={separateTabPage}
+            filterByFlairText={separateTabConfig?.flairText}
+            excludeMatchingFlair={false}
+          />
         ) : !disabledComments ? (
           <CommentDisplay postId={postId} currentPage={commentsPage} onPageChange={setCommentsPage} isMobile={isMobile} />
         ) : null}

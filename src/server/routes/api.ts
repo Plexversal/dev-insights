@@ -13,6 +13,7 @@ import { toggleNotificationsHandler, getNotificationStatusHandler } from '../con
 import { getCriticalLogsHandler } from '../controllers/getCriticalLogsHandler';
 import { postDiscordLogsHandler } from '../controllers/postDiscordLogsHandler';
 import { getDisabledComments } from '../controllers/getDisabledComments';
+import { getSeparateTabSetting } from '../controllers/getSeparateTabSetting';
 
 const router = Router();
 
@@ -30,6 +31,7 @@ router.post('/api/notifications/toggle', toggleNotificationsHandler);
 router.get('/api/notifications/status', getNotificationStatusHandler);
 router.get('/api/debug/critical-logs', getCriticalLogsHandler);
 router.get('/api/disabled-comments', getDisabledComments);
+router.get('/api/separate-tab-setting', getSeparateTabSetting);
 
 // router.post('/api/logs/discord', postDiscordLogsHandler); make sure to add mod checks before enabling this as a route, currently only done be cron.
 
