@@ -1,51 +1,34 @@
 import React from 'react';
 import { navigateTo } from '@devvit/web/client';
-import { usePosts } from '../hooks/usePosts';
+import { PostData } from '../../shared/types/post';
 import { cleanFlairText } from '../lib/cleanFlairText';
 import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
 import { trackAnalytics } from '../lib/trackAnalytics';
+import { useSubredditSettings } from '../contexts/SubredditSettingsContext';
 
 interface PostDisplayProps {
   currentPage: number;
-  filterByFlairText?: string | undefined;
-  excludeMatchingFlair?: boolean;
+  posts: PostData[];
+  loading: boolean;
+  refreshPosts: () => void;
 }
 
 export const PostDisplay: React.FC<PostDisplayProps> = ({
   currentPage,
-  filterByFlairText,
-  excludeMatchingFlair = false
+  posts,
+  loading,
+  refreshPosts
 }) => {
-  const { posts, loading, refreshPosts } = usePosts();
   const { isMod } = useMod()
   const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
   const [deletingPosts, setDeletingPosts] = React.useState<Set<string>>(new Set());
-
-  // Filter posts based on flair if filterByFlairText is provided
-  const filteredPosts = React.useMemo(() => {
-    if (!filterByFlairText) {
-      return posts;
-    }
-
-    return posts.filter(post => {
-      const postFlairText = post.postFlairText?.toLowerCase() || '';
-      const postFlairTemplateId = post.postFlairTemplateId || '';
-
-      // Check if either the text or template ID matches the configured value
-      const matches = postFlairText === filterByFlairText?.toLowerCase() || postFlairTemplateId === filterByFlairText;
-
-      // If excludeMatchingFlair is true, show posts that DON'T match
-      // If excludeMatchingFlair is false, show posts that DO match
-      return excludeMatchingFlair ? !matches : matches;
-    });
-  }, [posts, filterByFlairText, excludeMatchingFlair]);
-
+  const { subredditStyle }= useSubredditSettings()
   // Show 3 posts at a time (1 large + 2 small)
   const postsPerView = 3;
-  const visiblePosts = filteredPosts.slice(currentPage * postsPerView, (currentPage + 1) * postsPerView);
+  const visiblePosts = posts.slice(currentPage * postsPerView, (currentPage + 1) * postsPerView);
 
   const handlePostClick = (permalink: string) => {
     trackAnalytics(); // Track user interaction
@@ -448,12 +431,12 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({
       </div> */}
 
       {/* Content */}
-      {loading && filteredPosts.length === 0 ? (
+      {loading && posts.length === 0 ? (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <div className="text-lg mb-2">⏳</div>
           <div>Loading posts...</div>
         </div>
-      ) : filteredPosts.length === 0 ? (
+      ) : posts.length === 0 ? (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           <div className="text-lg mb-2">📝</div>
           <div>No posts yet.</div>

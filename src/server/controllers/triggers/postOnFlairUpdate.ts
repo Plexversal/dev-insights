@@ -28,7 +28,6 @@ export const postOnFlairUpdate = async (
     // Check validation based on dependant setting
     let shouldSkip = false;
     let skipReason = '';
-    console.log(userValidationResult, postValidationResult)
 
     if (dependantFlairMatches) {
       // Both user AND post flair must match

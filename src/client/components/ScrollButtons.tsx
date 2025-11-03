@@ -1,30 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { trackAnalytics } from '../lib/trackAnalytics';
 
 interface ScrollButtonsProps {
-  onPrevious?: () => void;
-  onNext?: () => void;
-  canGoPrev?: boolean;
-  canGoNext?: boolean;
-  loading?: boolean;
+  currentPage: number;
+  setPage: (page: number) => void;
+  totalItems: number;
+  itemsPerPage: number;
+  hasMoreToLoad: boolean;
+  loadMore: () => Promise<void>;
+  loadingMore: boolean;
 }
 
 export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
-  onPrevious,
-  onNext,
-  canGoPrev = true,
-  canGoNext = true,
-  loading = false
+  currentPage,
+  setPage,
+  totalItems,
+  itemsPerPage,
+  hasMoreToLoad,
+  loadMore,
+  loadingMore
 }) => {
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // Calculate total pages based on actual items we have
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+  // Determine if we can navigate
+  const canGoPrev = currentPage > 0;
+  const hasNextPage = currentPage < totalPages - 1;
+  const canGoNext = hasNextPage || hasMoreToLoad;
 
   const handlePrevious = () => {
-    trackAnalytics(); // Track user interaction
-    onPrevious?.();
+    trackAnalytics();
+    if (canGoPrev) {
+      setPage(currentPage - 1);
+    }
   };
 
-  const handleNext = () => {
-    trackAnalytics(); // Track user interaction
-    onNext?.();
+  const handleNext = async () => {
+    trackAnalytics();
+
+    if (hasNextPage) {
+      // We have another page of existing items, just navigate
+      setPage(currentPage + 1);
+    } else if (hasMoreToLoad && !isLoadingMore && !loadingMore) {
+      // We're at the end, need to load more
+      setIsLoadingMore(true);
+      try {
+        await loadMore();
+        // After loading, advance to the next page if new items were added
+        setPage(currentPage + 1);
+      } catch (error) {
+        console.error('Error loading more items:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
   };
 
   return (
@@ -56,7 +87,7 @@ export const ScrollButtons: React.FC<ScrollButtonsProps> = ({
       {canGoNext && (
         <button
           onClick={handleNext}
-          disabled={!canGoNext || loading}
+          disabled={!canGoNext || isLoadingMore || loadingMore}
           className="absolute right-1 bottom-1 z-20 w-8 h-8 flex items-center justify-center bg-gray-800/50 hover:bg-gray-800/70 dark:bg-gray-200/50 dark:hover:bg-gray-200/70 text-white dark:text-gray-900 rounded-full shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Next"
         >

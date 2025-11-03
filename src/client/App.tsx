@@ -3,10 +3,11 @@ import { PostDisplay } from './components/PostDisplay';
 import { CommentDisplay } from './components/CommentDisplay';
 import Footer from './components/Footer';
 import { ScrollButtons } from './components/ScrollButtons';
-import { usePosts } from './hooks/usePosts';
+import { useMainPosts } from './contexts/MainPostsContext';
+import { useSeparatePosts } from './contexts/SeparatePostsContext';
 import { useComments } from './hooks/useComments';
 import { useSubredditSettings } from './contexts/SubredditSettingsContext';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
 import { Notification } from './lib/icons/Notification';
 import { useNotifications } from './hooks/useNotifications';
@@ -24,40 +25,19 @@ export const App = () => {
   // Parse separate tab setting
   const separateTabConfig = parseSeparateTabFormat(separateTabPostFlair1);
 
-  const { posts, loadMorePosts, hasMore: postsHasMore, loading: postsLoading, loadingMore: postsLoadingMore } = usePosts();
+  // Use separate hooks for main and separate tab posts
+  const mainPosts = useMainPosts();
+  const separatePosts = useSeparatePosts();
   const { comments, loadMoreComments, hasMore: commentsHasMore, loading: commentsLoading, loadingMore: commentsLoadingMore } = useComments();
   // const { isEnabled: notificationsEnabled, loading: notificationsLoading, toggleNotifications } = useNotifications();
 
-  // Filter posts for default tab (exclude posts matching the separate tab flair)
-  const defaultTabPosts = useMemo(() => {
-    if (!separateTabConfig) {
-      return posts;
-    }
-    return posts.filter(post => {
-      const postFlairText = post.postFlairText || '';
-      const postFlairTemplateId = post.postFlairTemplateId || '';
-      const configValue = separateTabConfig.flairText;
-
-      // Check if either the text or template ID matches
-      const matches = postFlairText === configValue || postFlairTemplateId === configValue;
-      return !matches; // Exclude matching posts from default tab
-    });
-  }, [posts, separateTabConfig]);
-
-  // Filter posts for separate tab (only posts matching the flair)
-  const separateTabPosts = useMemo(() => {
-    if (!separateTabConfig) {
-      return [];
-    }
-    return posts.filter(post => {
-      const postFlairText = post.postFlairText || '';
-      const postFlairTemplateId = post.postFlairTemplateId || '';
-      const configValue = separateTabConfig.flairText;
-
-      // Check if either the text or template ID matches
-      return postFlairText === configValue || postFlairTemplateId === configValue;
-    });
-  }, [posts, separateTabConfig]);
+  // Update filters when separate tab config changes
+  useEffect(() => {
+    const flairFilter = separateTabConfig?.flairText;
+    mainPosts.setFlairFilter(flairFilter);
+    separatePosts.setFlairFilter(flairFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [separateTabConfig?.flairText]);
 
   // Track window resize for mobile detection
   useEffect(() => {
@@ -67,88 +47,6 @@ export const App = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  // Navigation handlers for posts
-  const handlePostsNext = async () => {
-    const postsPerView = 3;
-    const totalPages = Math.ceil(defaultTabPosts.length / postsPerView);
-
-    if (postsPage >= totalPages - 1 && postsHasMore) {
-      await loadMorePosts();
-    }
-    setPostsPage(prev => prev + 1);
-  };
-
-  const handlePostsPrev = () => {
-    setPostsPage(prev => Math.max(0, prev - 1));
-  };
-
-  // Navigation handlers for comments
-  const handleCommentsNext = async () => {
-    const commentsPerView = isMobile ? 2 : 4;
-    const totalPages = Math.ceil(comments.length / commentsPerView);
-
-    if (commentsPage >= totalPages - 1 && commentsHasMore) {
-      await loadMoreComments();
-    }
-    setCommentsPage(prev => prev + 1);
-  };
-
-  const handleCommentsPrev = () => {
-    setCommentsPage(prev => Math.max(0, prev - 1));
-  };
-
-  // Navigation handlers for separate tab
-  const handleSeparateTabNext = async () => {
-    const postsPerView = 3;
-    const totalPages = Math.ceil(separateTabPosts.length / postsPerView);
-
-    if (separateTabPage >= totalPages - 1 && postsHasMore) {
-      await loadMorePosts();
-    }
-    setSeparateTabPage(prev => prev + 1);
-  };
-
-  const handleSeparateTabPrev = () => {
-    setSeparateTabPage(prev => Math.max(0, prev - 1));
-  };
-
-  // Calculate navigation state for current tab
-  const postsPerView = 3;
-  const commentsPerView = isMobile ? 2 : 4;
-  const postsTotalPages = Math.ceil(defaultTabPosts.length / postsPerView);
-  const commentsTotalPages = Math.ceil(comments.length / commentsPerView);
-  const separateTabTotalPages = Math.ceil(separateTabPosts.length / postsPerView);
-
-  const canGoPrev = activeTab === 'posts'
-    ? postsPage > 0
-    : activeTab === 'comments'
-    ? commentsPage > 0
-    : separateTabPage > 0;
-
-  const canGoNext = activeTab === 'posts'
-    ? (postsPage < postsTotalPages - 1 || postsHasMore)
-    : activeTab === 'comments'
-    ? (commentsPage < commentsTotalPages - 1 || commentsHasMore)
-    : (separateTabPage < separateTabTotalPages - 1 || postsHasMore);
-
-  const loading = activeTab === 'posts'
-    ? postsLoadingMore
-    : activeTab === 'comments'
-    ? commentsLoadingMore
-    : postsLoadingMore;
-
-  const handleNext = activeTab === 'posts'
-    ? handlePostsNext
-    : activeTab === 'comments'
-    ? handleCommentsNext
-    : handleSeparateTabNext;
-
-  const handlePrev = activeTab === 'posts'
-    ? handlePostsPrev
-    : activeTab === 'comments'
-    ? handleCommentsPrev
-    : handleSeparateTabPrev;
 
   const handleTabSwitch = (tab: 'posts' | 'comments' | 'separateTab') => {
     trackAnalytics(); // Track user interaction
@@ -225,14 +123,16 @@ export const App = () => {
         {activeTab === 'posts' ? (
           <PostDisplay
             currentPage={postsPage}
-            filterByFlairText={separateTabConfig?.flairText}
-            excludeMatchingFlair={true}
+            posts={mainPosts.posts}
+            loading={mainPosts.loading}
+            refreshPosts={mainPosts.refreshPosts}
           />
         ) : activeTab === 'separateTab' ? (
           <PostDisplay
             currentPage={separateTabPage}
-            filterByFlairText={separateTabConfig?.flairText}
-            excludeMatchingFlair={false}
+            posts={separatePosts.posts}
+            loading={separatePosts.loading}
+            refreshPosts={separatePosts.refreshPosts}
           />
         ) : !disabledComments ? (
           <CommentDisplay postId={postId} currentPage={commentsPage} onPageChange={setCommentsPage} isMobile={isMobile} />
@@ -241,13 +141,37 @@ export const App = () => {
 
       {/* Navigation Buttons - positioned above footer */}
       <div className="w-full max-w-2xl relative">
-        <ScrollButtons
-          onPrevious={handlePrev}
-          onNext={handleNext}
-          canGoPrev={canGoPrev}
-          canGoNext={canGoNext}
-          loading={loading}
-        />
+        {activeTab === 'posts' ? (
+          <ScrollButtons
+            currentPage={postsPage}
+            setPage={setPostsPage}
+            totalItems={mainPosts.posts.length}
+            itemsPerPage={3}
+            hasMoreToLoad={mainPosts.hasMore}
+            loadMore={mainPosts.loadMorePosts}
+            loadingMore={mainPosts.loadingMore}
+          />
+        ) : activeTab === 'separateTab' ? (
+          <ScrollButtons
+            currentPage={separateTabPage}
+            setPage={setSeparateTabPage}
+            totalItems={separatePosts.posts.length}
+            itemsPerPage={3}
+            hasMoreToLoad={separatePosts.hasMore}
+            loadMore={separatePosts.loadMorePosts}
+            loadingMore={separatePosts.loadingMore}
+          />
+        ) : (
+          <ScrollButtons
+            currentPage={commentsPage}
+            setPage={setCommentsPage}
+            totalItems={comments.length}
+            itemsPerPage={isMobile ? 2 : 4}
+            hasMoreToLoad={commentsHasMore}
+            loadMore={loadMoreComments}
+            loadingMore={commentsLoadingMore}
+          />
+        )}
       </div>
 
       <Footer subtitle={bottomSubtitle} loading={settingsLoading} />

@@ -12,6 +12,10 @@ interface SubredditSettings {
   bottomSubtitle: string;
   disabledComments: boolean;
   separateTabPostFlair1: string | null;
+  subredditStyle: {
+    primaryColor: string,
+    secondaryColor: string
+  } | null
   loading: boolean;
 }
 
@@ -27,16 +31,18 @@ export const SubredditSettingsProvider = ({ children }: { children: ReactNode })
   const [labels, setLabels] = useState<CustomLabels>(DEFAULT_LABELS);
   const [disabledComments, setDisabledComments] = useState<boolean>(false);
   const [separateTabPostFlair1, setSeparateTabPostFlair1] = useState<string | null>(null);
+  const [subredditStyle, setSubredditStyle] = useState<SubredditSettings['subredditStyle'] | null>(null)
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         // Fetch custom labels, disabled comments, and separate tab setting in parallel
-        const [labelsRes, disabledCommentsRes, separateTabRes] = await Promise.all([
+        const [labelsRes, disabledCommentsRes, separateTabRes, subStyle] = await Promise.all([
           fetch('/api/custom-labels'),
           fetch('/api/disabled-comments'),
-          fetch('/api/separate-tab-setting')
+          fetch('/api/separate-tab-setting'),
+          fetch('/api/subreddit-style')
         ]);
 
         // Handle custom labels
@@ -65,6 +71,14 @@ export const SubredditSettingsProvider = ({ children }: { children: ReactNode })
           console.error('Failed to fetch separate tab setting');
           setSeparateTabPostFlair1(null);
         }
+
+        if (subStyle.ok) {
+          const subStyleData = await subStyle.json();
+          setSubredditStyle(subStyleData);
+        } else {
+          console.error('Failed to fetch separate tab setting');
+          setSubredditStyle(null);
+        }
       } catch (err) {
         console.error('Failed to fetch subreddit settings', err);
         setLabels(DEFAULT_LABELS);
@@ -82,6 +96,7 @@ export const SubredditSettingsProvider = ({ children }: { children: ReactNode })
     ...labels,
     disabledComments,
     separateTabPostFlair1,
+    subredditStyle,
     loading,
   };
 
