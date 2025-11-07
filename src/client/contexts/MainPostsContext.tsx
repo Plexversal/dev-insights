@@ -63,8 +63,22 @@ export const MainPostsProvider: React.FC<MainPostsProviderProps> = ({ children }
   }, []);
 
   const fetchPosts = useCallback(async (appendMode = false) => {
-    // Don't fetch if filter hasn't been set yet
+    // DEBUG: Log fetch attempt
+    console.log('[MainPosts] fetchPosts called with:', {
+      flairFilter,
+      initialized,
+      appendMode,
+      flairFilterType: typeof flairFilter,
+      isNull: flairFilter === null,
+      isUndefined: flairFilter === undefined
+    });
+
+    // Don't fetch if filter hasn't been explicitly set yet
+    // flairFilter starts as null, then gets set to either:
+    // - undefined (no separate tab configured)
+    // - string (flair ID/text for filtering)
     if (flairFilter === null) {
+      console.log('[MainPosts] Skipping fetch - flairFilter is null (not initialized)');
       return;
     }
 
@@ -86,6 +100,12 @@ export const MainPostsProvider: React.FC<MainPostsProviderProps> = ({ children }
         params.append('flairFilter', flairFilter);
         params.append('excludeFlair', 'true'); // Main tab excludes the separator flair
       }
+
+      console.log('[MainPosts] Fetching with params:', {
+        flairFilter,
+        hasFilter: !!flairFilter,
+        url: `/api/posts?${params.toString()}`
+      });
 
       const res = await fetch(`/api/posts?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

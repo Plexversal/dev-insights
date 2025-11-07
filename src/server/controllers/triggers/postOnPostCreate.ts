@@ -13,8 +13,18 @@ export const postPostCreate = async (
   try {
     const body: PostCreateBody = _req.body
     const post: RedditPost = body.post;
-    const user = body.author
-    if (!user) throw new Error('Failed to fetch user in postPostCreate');
+
+    // Fetch the actual post author
+    const user = await reddit.getUserById(post.authorId);
+
+    if (!user) {
+      res.json({
+        status: 'failed',
+        message: 'User does not exist in post create.'
+      });
+      return;
+    }
+
     const dependantFlairMatches = await settings.get('dependantFlairMatches') as boolean;
     // console.log(body)
     // Validate user
@@ -58,8 +68,8 @@ export const postPostCreate = async (
     // Add post to database using lib function
     const dbResult = await addPostToDb(
       post,
-      user.name,
-      user.snoovatarImage,
+      user.username,
+      await user.getSnoovatarUrl(),
       user.url
     );
 

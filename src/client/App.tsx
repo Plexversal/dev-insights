@@ -31,13 +31,30 @@ export const App = () => {
   const { comments, loadMoreComments, hasMore: commentsHasMore, loading: commentsLoading, loadingMore: commentsLoadingMore } = useComments();
   // const { isEnabled: notificationsEnabled, loading: notificationsLoading, toggleNotifications } = useNotifications();
 
+  // DEBUG: Log state changes to track race condition
+  useEffect(() => {
+    console.log('[App Debug] Config/Filter State:', {
+      separateTabConfig,
+      flairText: separateTabConfig?.flairText,
+      mainFilter: mainPosts.flairFilter,
+      separateFilter: separatePosts.flairFilter,
+      mainInitialized: mainPosts.initialized,
+      separateInitialized: separatePosts.initialized
+    });
+  }, [separateTabConfig, mainPosts.flairFilter, separatePosts.flairFilter, mainPosts.initialized, separatePosts.initialized]);
+
   // Update filters when separate tab config changes
   useEffect(() => {
-    const flairFilter = separateTabConfig?.flairText;
-    mainPosts.setFlairFilter(flairFilter);
-    separatePosts.setFlairFilter(flairFilter);
+    // Only set filters after settings have loaded
+    // This prevents the initial fetch with undefined before config is ready
+    if (!settingsLoading) {
+      const flairFilter = separateTabConfig?.flairText;
+      console.log('[App] Setting flairFilter:', { flairFilter, settingsLoading });
+      mainPosts.setFlairFilter(flairFilter);
+      separatePosts.setFlairFilter(flairFilter);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [separateTabConfig?.flairText]);
+  }, [separateTabConfig?.flairText, settingsLoading]);
 
   // Track window resize for mobile detection
   useEffect(() => {

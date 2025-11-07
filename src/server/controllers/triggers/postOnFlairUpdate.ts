@@ -13,10 +13,17 @@ export const postOnFlairUpdate = async (
   try {
     const body: PostCreateBody = _req.body
     const post: RedditPost = body.post;
-    const user = body.author
 
-    if (!user) throw new Error('Failed to fetch user in postOnFlairUpdate');
-
+    // Fetch the actual post author (not the person who changed the flair)
+    const user = await reddit.getUserById(post.authorId);
+    if(!user) {
+        res.json({
+        status: 'failed',
+        message: 'User does not exist in post flair update.'
+      });
+      return;
+    } 
+    
     const dependantFlairMatches = await settings.get('dependantFlairMatches') as boolean;
 
     // Validate user and post flair
@@ -63,9 +70,6 @@ export const postOnFlairUpdate = async (
         });
         return;
       }
-
-      // Post still matches - update the flair text and template ID in database
-      console.log('updating with flair:', post.linkFlair?.templateId)
       await redis.hSet(dataKey, {
         postFlairText: post.linkFlair?.text || '',
         postFlairTemplateId: post.linkFlair?.templateId || ''
@@ -92,8 +96,8 @@ export const postOnFlairUpdate = async (
     // Add new post to database using lib function
     const dbResult = await addPostToDb(
       post,
-      user.name,
-      user.snoovatarImage,
+      user.username,
+      await user.getSnoovatarUrl(),
       user.url
     );
 
