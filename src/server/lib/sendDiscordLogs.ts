@@ -16,7 +16,7 @@ interface ModLogs {
 export const sendDiscordLogs = async (): Promise<void> => {
   try {
     const subname = context.subredditName;
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '');
 
     // Fetch latest app post ID for this subreddit
     let latestAppPostId: string | null = null;
@@ -115,6 +115,8 @@ export const sendDiscordLogs = async (): Promise<void> => {
       settings.get('subredditFlairText'),
       settings.get('subredditFlairCssclass'),
       settings.get('subredditPostFlairText'),
+      settings.get('dependantFlairMatches'),
+      settings.get('separateTabPostFlair1'),
       settings.get('disableComments'),
       reddit.getPostById(latestAppPostId as `t3_${string}`).then(p => ({
         userReportReasons: p.userReportReasons,
@@ -132,6 +134,8 @@ export const sendDiscordLogs = async (): Promise<void> => {
       subredditFlairText,
       subredditFlairCssclass,
       subredditPostFlairText,
+      dependantFlairMatches,
+      separateTabPostFlair1,
       disableComments,
       appModLogsResult
     ] = results.map(r => (r.status === 'fulfilled' ? r.value : null));
@@ -146,15 +150,17 @@ export const sendDiscordLogs = async (): Promise<void> => {
 
     // Format settings for display
     const settingsDisplay = [
-      `**Post Title:** ${postTitle || 'Not set'}`,
-      `**Posts Button Name:** ${postsButtonName || 'Announcements (default)'}`,
-      `**Comments Button Name:** ${commentsButtonName || 'Official Replies (default)'}`,
-      `**Bottom Subtitle:** ${bottomSubtitle || 'Recent Announcements (default)'}`,
-      `**Disable Comments:** ${disableComments ? 'Yes' : 'No'}`,
-      `**Subreddit Users:** ${subredditUsers || 'None'}`,
-      `**User Flair Text:** ${subredditFlairText || 'None'}`,
-      `**User Flair CSS Class:** ${subredditFlairCssclass || 'None'}`,
-      `**Post Flair Text/ID:** ${subredditPostFlairText || 'None'}`
+      `**Post Title:** \`${postTitle || 'Not set'}\``,
+      `**Posts Button Name:** \`${postsButtonName || 'Announcements (default)'}\``,
+      `**Comments Button Name:** \`${commentsButtonName || 'Official Replies (default)'}\``,
+      `**Bottom Subtitle:** \`${bottomSubtitle || 'Recent Announcements (default)'}\``,
+      `**Disable Comments:** \`${disableComments}\``,
+      `**Subreddit Users:** \`${subredditUsers || 'None'}\``,
+      `**User Flair Text:** \`${subredditFlairText || 'None'}\``,
+      `**User Flair CSS Class:** \`${subredditFlairCssclass || 'None'}\``,
+      `**Post Flair Text/ID:** \`${subredditPostFlairText || 'None'}\``,
+      `**Post Flair Depends on User:** \`${dependantFlairMatches}\``,
+      `**Separate Tab Post Flair:** \`${separateTabPostFlair1 || 'None'}\``
     ].join('\n');
     
 
@@ -179,16 +185,19 @@ export const sendDiscordLogs = async (): Promise<void> => {
       `\n**Top 5 Most Active Users Today:**\n${topUsersDisplay}`
     ].join('\n');
 
+    // Format time range for analytics
+    const startTimeFormatted = todayStartUTC.toISOString().substring(11, 16); // HH:MM
+    const nowTimeFormatted = now.toISOString().substring(11, 16); // HH:MM
+
     // Prepare Discord webhook payload
     const webhookPayload = {
       username: 'Dev-insights logs',
       embeds: [{
         title: `Devvit logs: r/${subname} time: ${timestamp}`,
-        description: `Devvit logs: ${subname} time: ${timestamp}`,
         color: 15105570,
         fields: [
           {
-            name: 'Analytics Summary (Today UTC)',
+            name: `Analytics Summary (Today UTC) ${startTimeFormatted} - ${nowTimeFormatted}`,
             value: analyticsDisplay.length > 1024
               ? analyticsDisplay.substring(0, 1021) + '...'
               : analyticsDisplay

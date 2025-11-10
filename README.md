@@ -50,7 +50,24 @@ If matching flair text (both user flair and post flair), ensure you are specific
 * Matching config options are independent from each other, so if you put something in all 3 options then a user which matches any of the options will be a match. It will match in order of users, flair text and then flair css class. Post flair has an option to make it dependant on users, so this is the only dependant setting available.
 * As mentioned before flair may be visually wrong in the app, this may happen if you have duplicate flair text or do not specify exact flair text, please report if you see issues.
 
+## 🏆 Early supporters 
+Any sub that installed and used this app in 2025 will be classed as an early supporter. Thank you to the below Subreddits for their early feedback and install:
+
+* **[r/Battlefield](https://www.reddit.com/r/Battlefield)**
+* **[r/Battlefield6](https://www.reddit.com/r/Battlefield6)**
+* **[r/Battlefield_REDSEC](https://www.reddit.com/r/Battlefield_REDSEC/)**
+* **[r/Minecraft](https://www.reddit.com/r/Minecraft/)**
+* **[r/gwent](https://www.reddit.com/r/gwent/)**
+* **[r/ApexLegends](https://www.reddit.com/r/ApexLegends)**
+* **[r/TheWeeknd](https://www.reddit.com/r/TheWeeknd/)**
+
 ## 🖊️ Patch notes
+
+### v0.0.20
+
+* Bug fixes relating to separate posts tab loading and separation logic
+* Fixed an issue with username displayed in app being incorrect when post flair changes. 
+* Other small bug fixes.
 
 ### v0.0.19
 
@@ -74,6 +91,7 @@ If matching flair text (both user flair and post flair), ensure you are specific
 * **Database Enhancements:**
   * All posts now store both `postFlairText` and `postFlairTemplateId` for better flair matching capabilities.
   * Any post flair changes on an existing post will redo checks to see if there is a match. E.g. you forgot to flair a post after creating but flairing after now matches the `Post Flair` match in your settings.
+
 
 ### v0.0.18
 
