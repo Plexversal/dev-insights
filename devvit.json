@@ -18,6 +18,9 @@
   "forms": {
     "postTitleForm": "/internal/form/post-title-submit"
   },
+  "marketingAssets": {
+    "icon": "assets/dev-insights-logo.png"
+  },
   "menu": {
     "items": [
       {

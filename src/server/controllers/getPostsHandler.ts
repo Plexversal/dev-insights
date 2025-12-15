@@ -111,15 +111,16 @@ export const getPostsHandler = async (
                     flairBgColor = flairColors.backgroundColor;
                     flairTextColor = flairColors.textColor;
                   }
-
-                  // Store in cache
+                } catch (err) {
+                  console.error(`Error fetching user flair for ${postData.authorId}:`, err);
+                  // Cache will store undefined values to prevent retrying
+                } finally {
+                  // Always cache the result (even if undefined) to avoid retrying failed requests
                   userFlairCache.set(postData.authorId, {
                     text: userFlairText,
                     bgColor: flairBgColor,
                     textColor: flairTextColor
                   });
-                } catch (err) {
-                  console.error(`Error fetching user flair for ${postData.authorId}:`, err);
                 }
               }
             }

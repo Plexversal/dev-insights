@@ -84,7 +84,8 @@ export async function fetchUserContent(
           await processPost(post);
           result.postsAdded++;
         } catch (err: any) {
-          if (err?.message?.includes('already exists')) {
+          const errMessage = typeof err === 'string' ? err : err?.message || '';
+          if (errMessage.includes('already exists')) {
             // Skip duplicates silently in bulk operations
             // console.log(`[fetchUserContent] Skipping duplicate post ${postId}`);
           } else {
@@ -124,7 +125,8 @@ export async function fetchUserContent(
           await processComment(comment);
           result.commentsAdded++;
         } catch (err: any) {
-          if (err?.message?.includes('already exists')) {
+          const errMessage = typeof err === 'string' ? err : err?.message || '';
+          if (errMessage.includes('already exists')) {
             // Skip duplicates silently in bulk operations
             // console.log(`[fetchUserContent] Skipping duplicate comment ${commentId}`);
           } else {
@@ -144,14 +146,16 @@ export async function fetchUserContent(
     console.error(`[fetchUserContent] Error fetching content for ${username}:`, error);
 
     // Handle specific error types
-    if (error?.message?.includes('USER_DOESNT_EXIST')) {
+    const errorMessage = typeof error === 'string' ? error : error?.message || '';
+
+    if (errorMessage.includes('USER_DOESNT_EXIST')) {
       result.error = `User not found: ${username}`;
-    } else if (error?.message?.includes('FORBIDDEN')) {
+    } else if (errorMessage.includes('FORBIDDEN')) {
       result.error = `Access forbidden for user: ${username}`;
-    } else if (error?.message?.includes('SUSPENDED')) {
+    } else if (errorMessage.includes('SUSPENDED')) {
       result.error = `User is suspended: ${username}`;
     } else {
-      result.error = error?.message || 'Unknown error';
+      result.error = errorMessage || 'Unknown error';
     }
   }
 

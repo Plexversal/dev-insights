@@ -37,7 +37,7 @@ export const updateOldReddit = async () => {
     // console.log(`[updateOldReddit] Found ${postIds.length} posts`);
 
     // Fetch post data and build markdown list
-    const markdownLines = ['## This post is made for new reddit... but here is a glimpse\n**Below is a list of posts by developers/community figures, this list updates automatically. Showing last 25 Posts**\n'];
+    const markdownLines = ['## This post is made for new reddit... but here is a glimpse\n**Below is a list of prominent posts for this community, this list updates automatically. Showing last 25 Posts**\n'];
 
     for (const postId of postIds) {
       try {

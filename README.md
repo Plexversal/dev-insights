@@ -63,6 +63,12 @@ Any sub that installed and used this app in 2025 will be classed as an early sup
 
 ## 🖊️ Patch notes
 
+### v0.0.21
+
+* Added custom app icon for better branding and visual identity.
+* Improved error handling across various features for better reliability.
+* General bug fixes and performance improvements.
+
 ### v0.0.20
 
 * Bug fixes relating to separate posts tab loading and separation logic

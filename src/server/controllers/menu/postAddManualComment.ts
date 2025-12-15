@@ -40,7 +40,9 @@ export const postAddManualComment = async (
     console.error(`[postAddManualComment] Error:`, error);
 
     // Handle specific error cases
-    if (error?.message?.includes('already exists')) {
+    const errorMessage = typeof error === 'string' ? error : error?.message || '';
+
+    if (errorMessage.includes('already exists')) {
       res.status(400).json({
         showToast: 'Comment already exists in the app'
       });
