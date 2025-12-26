@@ -18,6 +18,9 @@ import { schedulerLogAnalytics } from '../controllers/schedulerLogAnalytics';
 import { validatePostTitle } from '../controllers/validatePostTitle';
 import { postTitleFormSubmit } from '../controllers/postTitleFormSubmit';
 import { validateButtonName } from '../controllers/validateButtonName';
+import { validateBottomSubtitle } from '../controllers/validateBottomSubtitle';
+import { postOnFlairUpdate } from '../controllers/triggers/postOnFlairUpdate';
+import { validateSeparateTab } from '../controllers/validateSeparateTab';
 
 
 const router = Router();
@@ -35,9 +38,11 @@ router.post('/internal/on-app-upgrade', postOnAppUpgrade);
 router.post('/internal/on-post-create', postPostCreate);
 router.post('/internal/on-post-delete', postOnPostDelete);
 router.post('/internal/on-post-update', postOnPostUpdate);
+router.post('/internal/on-post-flair-update', postOnFlairUpdate);
 router.post('/internal/on-comment-create', postCommentCreate);
 router.post('/internal/on-comment-update', postOnCommentUpdate);
 router.post('/internal/on-comment-delete', postOnCommentDelete);
+
 
 
 // scheduler tasks
@@ -49,7 +54,9 @@ router.post('/internal/settings/validate-users', validateUsers);
 router.post('/internal/settings/validate-cssclass', validateCssClass);
 router.post('/internal/settings/validate-flairtext', validateFlairText);
 router.post('/internal/settings/validate-posttitle', validatePostTitle);
-router.post('/internal/settings/validate-buttonname', validateButtonName)
+router.post('/internal/settings/validate-buttonname', validateButtonName);
+router.post('/internal/settings/validate-bottomsubtitle', validateBottomSubtitle);
+router.post('/internal/settings/validate-separate-tab', validateSeparateTab)
 
 // form submission routes
 router.post('/internal/form/post-title-submit', postTitleFormSubmit);

@@ -1,6 +1,6 @@
 import { redis, reddit, context } from '@devvit/web/server';
 import { PostData, PostDatRecord, RedditPost } from '../../shared/types/post';
-import { notificationService } from './notificationService';
+// import { notificationService } from './notificationService';
 
 interface AddPostResult {
   success: boolean;
@@ -50,9 +50,12 @@ export async function addPostToDb(
       score: post.score.toString(),
       permalink: post.permalink,
       timestamp: timestamp.toString(),
-      image: post.type === 'image' ? post.url : '',
+      image: post.type === 'image' ? post.url :
+        (post.type !== 'gallery' && post.type !== 'link' && post.mediaUrls?.length > 0 ? post.mediaUrls[0] ?? '' : ''),
       galleryImages: post.type === 'gallery' ? JSON.stringify(post.galleryImages) : '',
-      postLink: post.type === 'link' ? post.url : ''
+      postLink: post.type === 'link' ? post.url : '',
+      postFlairText: post.linkFlair?.text || '',
+      postFlairTemplateId: post.linkFlair?.templateId || ''
     };
 
     // console.log(`[addPostToDb] Storing post data:`, postData);

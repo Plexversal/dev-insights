@@ -4,6 +4,7 @@ import { useInit } from "../hooks/useInit";
 
 interface FooterProps {
   subtitle?: string;
+  loading?: boolean;
 }
 
 interface LogEntry {
@@ -11,8 +12,40 @@ interface LogEntry {
   message: string;
 }
 
-export default function Footer({ subtitle = 'Recent Announcements' }: FooterProps) {
-  const {username} = useInit()
+interface ParsedSubtitle {
+  isLink: boolean;
+  text: string;
+  url?: string;
+}
+
+function parseSubtitle(subtitle: string): ParsedSubtitle {
+  // Check if it's a markdown link format [text](link)
+  const markdownLinkRegex = /^\[([^\]]+)\]\(([^)]+)\)$/;
+  const match = subtitle.match(markdownLinkRegex);
+
+  if (match && match[1] && match[2]) {
+    return {
+      isLink: true,
+      text: match[1],
+      url: match[2]
+    };
+  }
+
+  return {
+    isLink: false,
+    text: subtitle
+  };
+}
+
+export default function Footer({ subtitle = 'Recent Announcements', loading = false }: FooterProps) {
+  const {username} = useInit();
+
+  // Use default if subtitle is empty or undefined after loading
+  const displaySubtitle = (!loading && (!subtitle || subtitle.trim() === ''))
+    ? 'Recent Announcements'
+    : subtitle;
+
+  const parsedSubtitle = parseSubtitle(displaySubtitle || 'Recent Announcements');
 
   const handleAddToSubreddit = () => {
     trackAnalytics(); // Track user interaction
@@ -22,6 +55,13 @@ export default function Footer({ subtitle = 'Recent Announcements' }: FooterProp
   const handleReportIssue = () => {
     trackAnalytics(); // Track user interaction
     navigateTo(`https://www.reddit.com/message/compose/?to=PlexversalHD&subject=${encodeURIComponent('Report issue with Dev-Insights app')}`);
+  };
+
+  const handleSubtitleClick = () => {
+    if (parsedSubtitle.isLink && parsedSubtitle.url) {
+      trackAnalytics(); // Track user interaction
+      navigateTo(parsedSubtitle.url);
+    }
   };
 
   const handleDebugLogs = async () => {
@@ -65,35 +105,68 @@ export default function Footer({ subtitle = 'Recent Announcements' }: FooterProp
 
   return (
       <header className="w-full max-w-2xl flex max-[600px]:flex-col max-[600px]:justify-center justify-between items-center text-[0.75em] text-gray-600 max-[600px]:gap-2">
-        <p className="max-[600px]:hidden">
-          <strong>{subtitle}</strong>
-        </p>
-        <div className="flex gap-3 items-center transition-colors">
-          <p className="min-[601px]:hidden">
-            <strong>{subtitle}</strong>
+        {!loading && (
+          <p className="max-[600px]:hidden">
+            {parsedSubtitle.isLink ? (
+              <button
+                onClick={handleSubtitleClick}
+                className="cursor-pointer underline dark:hover:text-gray-100 transition-colors font-bold"
+                style={{ ['--hover-color' as any]: '#5695cc' }}
+                onMouseEnter={(e) => !document.documentElement.classList.contains('dark') && (e.currentTarget.style.color = '#5695cc')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '')}
+              >
+                {parsedSubtitle.text}
+              </button>
+            ) : (
+              <strong>{parsedSubtitle.text}</strong>
+            )}
           </p>
-          <span className="min-[601px]:hidden text-gray-300">|</span>
+        )}
+        <div className="flex gap-3 items-center transition-colors">
+          {!loading && (
+            <p className="min-[601px]:hidden">
+              {parsedSubtitle.isLink ? (
+                <button
+                  onClick={handleSubtitleClick}
+                  className="cursor-pointer underline dark:hover:text-gray-100 transition-colors font-bold"
+                  onMouseEnter={(e) => !document.documentElement.classList.contains('dark') && (e.currentTarget.style.color = '#5695cc')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '')}
+                >
+                  {parsedSubtitle.text}
+                </button>
+              ) : (
+                <strong>{parsedSubtitle.text}</strong>
+              )}
+            </p>
+          )}
+          {!loading && <span className="min-[601px]:hidden text-gray-300">|</span>}
           {username && username == 'PlexversalHD' && <>
           <button
-            className="cursor-pointer hover:underline hover:text-gray-700"
+            className="cursor-pointer underline dark:hover:text-gray-100 transition-colors"
             onClick={handleDebugLogs}
+            onMouseEnter={(e) => !document.documentElement.classList.contains('dark') && (e.currentTarget.style.color = '#5695cc')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '')}
           >
             Debug logs
           </button>
           <span className="text-gray-300">|</span>
           </>
           }
-          
+
           <button
-            className="cursor-pointer hover:underline hover:text-gray-700"
+            className="cursor-pointer underline dark:hover:text-gray-100 transition-colors"
             onClick={handleAddToSubreddit}
+            onMouseEnter={(e) => !document.documentElement.classList.contains('dark') && (e.currentTarget.style.color = '#5695cc')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '')}
           >
             Add to subreddit
           </button>
           <span className="text-gray-300">|</span>
           <button
-            className="cursor-pointer hover:underline hover:text-gray-700"
+            className="cursor-pointer underline dark:hover:text-gray-100 transition-colors"
             onClick={handleReportIssue}
+            onMouseEnter={(e) => !document.documentElement.classList.contains('dark') && (e.currentTarget.style.color = '#5695cc')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '')}
           >
             Report issue
           </button>

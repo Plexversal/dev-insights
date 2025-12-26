@@ -12,7 +12,7 @@ interface PostsResponse {
   limit: number;
 }
 
-export interface PostsContextType {
+export interface SeparatePostsContextType {
   posts: PostData[];
   loading: boolean;
   loadingMore: boolean;
@@ -21,21 +21,21 @@ export interface PostsContextType {
   postCount: number;
   postsPerPage: number;
   refreshPosts: () => void;
-  loadMorePosts: () => void;
+  loadMorePosts: () => Promise<void>;
   initialized: boolean;
+  flairFilter: string | undefined;
+  setFlairFilter: (filter: string | undefined) => void;
 }
 
-const PostsContext = createContext<PostsContextType | undefined>(undefined);
+const SeparatePostsContext = createContext<SeparatePostsContextType | undefined>(undefined);
 
 const POSTS_PER_PAGE = 25;
 
-interface PostsProviderProps {
+interface SeparatePostsProviderProps {
   children: ReactNode;
-  flairFilter?: string;
-  excludeFlair?: boolean;
 }
 
-export const PostsProvider: React.FC<PostsProviderProps> = ({ children, flairFilter, excludeFlair = false }) => {
+export const SeparatePostsProvider: React.FC<SeparatePostsProviderProps> = ({ children }) => {
   const [posts, setPosts] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -44,10 +44,30 @@ export const PostsProvider: React.FC<PostsProviderProps> = ({ children, flairFil
   const [totalCount, setTotalCount] = useState(0);
   const [offset, setOffset] = useState(0);
   const [initialized, setInitialized] = useState(false);
+  const [flairFilter, setFlairFilterState] = useState<string | undefined>(undefined);
+
+  const setFlairFilter = useCallback((filter: string | undefined) => {
+    // Use a functional update to check if filter changed
+    setFlairFilterState(prevFilter => {
+      if (prevFilter === filter) {
+        // Filter hasn't changed, don't reset anything
+        return prevFilter;
+      }
+      // Filter changed, schedule resets
+      setOffset(0);
+      setPosts([]);
+      setInitialized(false);
+      return filter;
+    });
+  }, []);
 
   const fetchPosts = useCallback(async (appendMode = false) => {
+    // Don't fetch if no filter is set (separate tab is disabled)
+    if (!flairFilter) {
+      return;
+    }
+
     const currentOffset = appendMode ? offset : 0;
-    // console.log(`[PostsContext] Fetching posts (offset: ${currentOffset}, filter: ${flairFilter}, exclude: ${excludeFlair})`);
 
     if (appendMode) {
       setLoadingMore(true);
@@ -58,22 +78,17 @@ export const PostsProvider: React.FC<PostsProviderProps> = ({ children, flairFil
     try {
       const params = new URLSearchParams({
         offset: currentOffset.toString(),
-        limit: POSTS_PER_PAGE.toString()
+        limit: POSTS_PER_PAGE.toString(),
+        flairFilter: flairFilter,
+        excludeFlair: 'false' // Separate tab includes only matching flair
       });
-
-      if (flairFilter) {
-        params.append('flairFilter', flairFilter);
-        params.append('excludeFlair', excludeFlair.toString());
-      }
 
       const res = await fetch(`/api/posts?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data: PostsResponse = await res.json();
-      // console.log(`[PostsContext] Response:`, data);
 
       if (data.status !== 'success') throw new Error('Unexpected response');
-
       if (appendMode) {
         setPosts(prev => [...prev, ...data.posts]);
       } else {
@@ -83,35 +98,35 @@ export const PostsProvider: React.FC<PostsProviderProps> = ({ children, flairFil
       setSubredditName(data.subredditName);
       setHasMore(data.hasMore);
       setTotalCount(data.totalCount);
-      setOffset(currentOffset + data.count); // Increment by the number of filtered posts returned
+      setOffset(currentOffset + data.count);
       setInitialized(true);
     } catch (err) {
-      console.error('Failed to fetch posts', err);
+      console.error('[SeparatePosts] Failed to fetch posts', err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [offset, flairFilter, excludeFlair]);
+  }, [offset, flairFilter]);
 
   const refreshPosts = useCallback(() => {
     setOffset(0);
     fetchPosts(false);
   }, [fetchPosts]);
 
-  const loadMorePosts = useCallback(() => {
+  const loadMorePosts = useCallback(async () => {
     if (!loadingMore && hasMore) {
-      fetchPosts(true);
+      await fetchPosts(true);
     }
   }, [fetchPosts, loadingMore, hasMore]);
 
-  // Initialize data on first mount
+  // Initialize data when filter is set
   React.useEffect(() => {
-    if (!initialized) {
+    if (flairFilter && !initialized) {
       fetchPosts(false);
     }
-  }, [initialized, fetchPosts]);
+  }, [initialized, fetchPosts, flairFilter]);
 
-  const value: PostsContextType = {
+  const value: SeparatePostsContextType = {
     posts,
     loading,
     loadingMore,
@@ -121,20 +136,22 @@ export const PostsProvider: React.FC<PostsProviderProps> = ({ children, flairFil
     postsPerPage: POSTS_PER_PAGE,
     refreshPosts,
     loadMorePosts,
-    initialized
+    initialized,
+    flairFilter,
+    setFlairFilter
   };
 
   return (
-    <PostsContext.Provider value={value}>
+    <SeparatePostsContext.Provider value={value}>
       {children}
-    </PostsContext.Provider>
+    </SeparatePostsContext.Provider>
   );
 };
 
-export const usePostsContext = (): PostsContextType => {
-  const context = useContext(PostsContext);
+export const useSeparatePosts = (): SeparatePostsContextType => {
+  const context = useContext(SeparatePostsContext);
   if (context === undefined) {
-    throw new Error('usePostsContext must be used within a PostsProvider');
+    throw new Error('useSeparatePosts must be used within a SeparatePostsProvider');
   }
   return context;
 };

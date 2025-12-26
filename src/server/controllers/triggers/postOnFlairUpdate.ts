@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import { context, redis, reddit, settings } from '@devvit/web/server';
 import { PostCreateBody } from '../../../shared/types/api';
 import { RedditPost } from '../../../shared/types/post';
+import { validatePostFlair } from '../../lib/validatePostFlair';
 import { validateUser } from '../../lib/validateUser';
 import { addPostToDb } from '../../lib/addPostToDb';
-import { validatePostFlair } from '../../lib/validatePostFlair';
 
-export const postPostCreate = async (
+export const postOnFlairUpdate = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
@@ -14,20 +14,19 @@ export const postPostCreate = async (
     const body: PostCreateBody = _req.body
     const post: RedditPost = body.post;
 
-    // Fetch the actual post author
+    // Fetch the actual post author (not the person who changed the flair)
     const user = await reddit.getUserById(post.authorId);
-
-    if (!user) {
-      res.json({
+    if(!user) {
+        res.json({
         status: 'failed',
-        message: 'User does not exist in post create.'
+        message: 'User does not exist in post flair update.'
       });
       return;
-    }
-
+    } 
+    
     const dependantFlairMatches = await settings.get('dependantFlairMatches') as boolean;
-    // console.log(body)
-    // Validate user
+
+    // Validate user and post flair
     const [userValidationResult, postValidationResult] = await Promise.all([
       validateUser(post.authorId),
       validatePostFlair(post.linkFlair),
@@ -53,6 +52,38 @@ export const postPostCreate = async (
       }
     }
 
+    // Check if post already exists in database
+    const dataKey = `post_data:${post.id}`;
+    const postExists = await redis.exists(dataKey);
+
+    if (postExists) {
+      // Post exists - check if validation still passes
+      if (shouldSkip) {
+        // Post no longer matches criteria after flair update - remove it
+        await redis.del(dataKey);
+        await redis.zRem('global_posts', [post.id]);
+
+        res.json({
+          status: 'removed',
+          message: `Post removed from app: ${skipReason}`,
+          post: post.id,
+        });
+        return;
+      }
+      await redis.hSet(dataKey, {
+        postFlairText: post.linkFlair?.text || '',
+        postFlairTemplateId: post.linkFlair?.templateId || ''
+      });
+
+      res.json({
+        status: 'updated',
+        message: 'Post flair updated successfully in database',
+        post: post.id
+      });
+      return;
+    }
+
+    // Post doesn't exist yet
     if (shouldSkip) {
       res.json({
         status: 'skipped',
@@ -62,10 +93,7 @@ export const postPostCreate = async (
       return;
     }
 
-    // console.log(`Post validated: ${validationResult.reason}`);
-    // console.log(`Processing post: ${post.id}`);
-
-    // Add post to database using lib function
+    // Add new post to database using lib function
     const dbResult = await addPostToDb(
       post,
       user.username,
@@ -86,15 +114,15 @@ export const postPostCreate = async (
 
     res.json({
       status: 'success',
-      message: 'Post processed successfully',
+      message: 'Post added successfully after flair update',
       navigateTo: correctUrl,
       post: post.id
     });
   } catch (error) {
-    console.error(`Error handling comment creation: ${error}`);
+    console.error(`Error handling flair update: ${error}`);
     res.status(400).json({
       status: 'error',
-      message: 'Failed to handle comment creation',
+      message: 'Failed to handle flair update',
       error: error
     });
   }

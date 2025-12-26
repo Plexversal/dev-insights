@@ -1,6 +1,7 @@
-import { reddit, redis, context, Post, Comment } from '@devvit/web/server';
+import { reddit, redis, context, Post, Comment, settings } from '@devvit/web/server';
 import { processPost } from './processPost';
 import { processComment } from './processComment';
+import { validatePostFlair } from './validatePostFlair';
 
 interface FetchUserContentResult {
   success: boolean;
@@ -18,7 +19,7 @@ interface FetchUserContentResult {
  */
 export async function fetchUserContent(
   username: string,
-  limit: number = 7
+  limit: number = 100
 ): Promise<FetchUserContentResult> {
   const result: FetchUserContentResult = {
     success: false,
@@ -44,62 +45,96 @@ export async function fetchUserContent(
 
     // console.log(`[fetchUserContent] Fetching content for user: ${sanitizedUsername}`);
 
-    // Fetch user's posts and comments
-    const listing = await reddit.getCommentsAndPostsByUser({
+    // Get the dependant flair matches setting
+    const dependantFlairMatches = await settings.get('dependantFlairMatches') as boolean;
+
+    // Fetch user's posts
+    const postsListing = await reddit.getPostsByUser({
       username: sanitizedUsername,
       limit,
-      pageSize: Math.min(100, limit),
+      pageSize: 100,
       sort: 'new'
     });
 
-    const items = await listing.all();
-    // console.log(items)
-    // console.log(`[fetchUserContent] Found ${items.length} items for ${sanitizedUsername}`);
-
-    // Process each item
-    for (const item of items) {
+    const posts: Post[] = await postsListing.all();
+    // console.log(`[fetchUserContent] Found ${posts.length} posts for ${sanitizedUsername}`);
+    console.log(posts.length)
+    // Process each post
+    for (const post of posts) {
       try {
-        const itemId = item.id;
-        const subredditName = item.subredditName;
+        const postId = post.id;
+        const subredditId = post.subredditId;
 
         // Only process items from the current subreddit
-        if (subredditName !== context.subredditName) {
-          // console.log(`[fetchUserContent] Skipping item ${itemId} from different subreddit: ${subredditName}`);
+        if (subredditId !== context.subredditId) {
+          // console.log(`[fetchUserContent] Skipping post ${postId} from different subreddit: ${subredditName}`);
           continue;
         }
 
-        // Type guard: Posts have 'title' property, Comments have 'parentId'
-        if ('title' in item) {
-          // It's a post
-          try {
-            await processPost(item as Post);
-            result.postsAdded++;
-          } catch (err: any) {
-            if (err?.message?.includes('already exists')) {
-              // Skip duplicates silently in bulk operations
-              // console.log(`[fetchUserContent] Skipping duplicate post ${itemId}`);
-            } else {
-              throw err;
-            }
+        // If dependant flair matching is enabled, validate the post flair
+        if (dependantFlairMatches) {
+          const flairValidation = await validatePostFlair(post.flair);
+          if (!flairValidation.isValid) {
+            // console.log(`[fetchUserContent] Skipping post ${postId} - flair validation failed: ${flairValidation.reason}`);
+            continue;
           }
-        } else if ('parentId' in item) {
-          // It's a comment
-          try {
-            await processComment(item as Comment);
-            result.commentsAdded++;
-          } catch (err: any) {
-            if (err?.message?.includes('already exists')) {
-              // Skip duplicates silently in bulk operations
-              // console.log(`[fetchUserContent] Skipping duplicate comment ${itemId}`);
-            } else {
-              throw err;
-            }
+        }
+
+        try {
+          await processPost(post);
+          result.postsAdded++;
+        } catch (err: any) {
+          const errMessage = typeof err === 'string' ? err : err?.message || '';
+          if (errMessage.includes('already exists')) {
+            // Skip duplicates silently in bulk operations
+            // console.log(`[fetchUserContent] Skipping duplicate post ${postId}`);
+          } else {
+            throw err;
           }
-        } else {
-          console.warn(`[fetchUserContent] Unknown item type for ${itemId}`);
         }
       } catch (itemError) {
-        console.error(`[fetchUserContent] Error processing item:`, itemError);
+        console.error(`[fetchUserContent] Error processing post:`, itemError);
+        // Continue processing other items
+      }
+    }
+
+    // Fetch user's comments
+    const commentsListing = await reddit.getCommentsByUser({
+      username: sanitizedUsername,
+      limit,
+      pageSize: 100,
+      sort: 'new'
+    });
+
+    const comments = await commentsListing.all();
+    // console.log(`[fetchUserContent] Found ${comments.length} comments for ${sanitizedUsername}`);
+
+    // Process each comment
+    for (const comment of comments) {
+      try {
+        const commentId = comment.id;
+        const subredditName = comment.subredditName;
+
+        // Only process items from the current subreddit
+        if (subredditName !== context.subredditName) {
+          // console.log(`[fetchUserContent] Skipping comment ${commentId} from different subreddit: ${subredditName}`);
+          continue;
+        }
+
+        try {
+          await processComment(comment);
+          result.commentsAdded++;
+        } catch (err: any) {
+          const errMessage = typeof err === 'string' ? err : err?.message || '';
+          if (errMessage.includes('already exists')) {
+            // Skip duplicates silently in bulk operations
+            // console.log(`[fetchUserContent] Skipping duplicate comment ${commentId}`);
+          } else {
+            throw err;
+          }
+        }
+      } catch (itemError) {
+        console.error(`[fetchUserContent] Error processing comment:`, itemError);
         // Continue processing other items
       }
     }
@@ -111,14 +146,16 @@ export async function fetchUserContent(
     console.error(`[fetchUserContent] Error fetching content for ${username}:`, error);
 
     // Handle specific error types
-    if (error?.message?.includes('USER_DOESNT_EXIST')) {
+    const errorMessage = typeof error === 'string' ? error : error?.message || '';
+
+    if (errorMessage.includes('USER_DOESNT_EXIST')) {
       result.error = `User not found: ${username}`;
-    } else if (error?.message?.includes('FORBIDDEN')) {
+    } else if (errorMessage.includes('FORBIDDEN')) {
       result.error = `Access forbidden for user: ${username}`;
-    } else if (error?.message?.includes('SUSPENDED')) {
+    } else if (errorMessage.includes('SUSPENDED')) {
       result.error = `User is suspended: ${username}`;
     } else {
-      result.error = error?.message || 'Unknown error';
+      result.error = errorMessage || 'Unknown error';
     }
   }
 

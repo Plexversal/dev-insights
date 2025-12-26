@@ -56,19 +56,21 @@ export const getCommentsHandler = async (
 
                 if (userFlair?.flairText) {
                   userFlairText = userFlair.flairText;
+                  // if(process.env.environment == 'DEV') console.log(userFlair)
                   const flairColors = await getFlairColorsByText(userFlair.flairText);
                   flairBgColor = flairColors.backgroundColor;
                   flairTextColor = flairColors.textColor;
                 }
-
-                // Store in cache
+              } catch (err) {
+                console.error(`Error fetching user flair for ${commentData.authorId}:`, err);
+                // Cache will store undefined values to prevent retrying
+              } finally {
+                // Always cache the result (even if undefined) to avoid retrying failed requests
                 userFlairCache.set(commentData.authorId, {
                   text: userFlairText,
                   bgColor: flairBgColor,
                   textColor: flairTextColor
                 });
-              } catch (err) {
-                console.error(`Error fetching user flair for ${commentData.authorId}:`, err);
               }
             }
           }

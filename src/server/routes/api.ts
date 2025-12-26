@@ -11,6 +11,10 @@ import { getAnalyticsHandler } from '../controllers/getAnalyticsHandler';
 import { getCustomLabels } from '../controllers/getCustomLabels';
 import { toggleNotificationsHandler, getNotificationStatusHandler } from '../controllers/toggleNotificationsHandler';
 import { getCriticalLogsHandler } from '../controllers/getCriticalLogsHandler';
+import { postDiscordLogsHandler } from '../controllers/postDiscordLogsHandler';
+import { getDisabledComments } from '../controllers/getDisabledComments';
+import { getSeparateTabSetting } from '../controllers/getSeparateTabSetting';
+import { getSubredditStyle } from '../controllers/getSubredditStyle';
 
 const router = Router();
 
@@ -27,5 +31,11 @@ router.get('/api/custom-labels', getCustomLabels);
 router.post('/api/notifications/toggle', toggleNotificationsHandler);
 router.get('/api/notifications/status', getNotificationStatusHandler);
 router.get('/api/debug/critical-logs', getCriticalLogsHandler);
+router.get('/api/disabled-comments', getDisabledComments);
+router.get('/api/separate-tab-setting', getSeparateTabSetting);
+router.get('/api/subreddit-style', getSubredditStyle);
+
+
+// router.post('/api/logs/discord', postDiscordLogsHandler); make sure to add mod checks before enabling this as a route, currently only done be cron.
 
 export default router;

@@ -24,7 +24,7 @@ export const getCustomLabels = async (
 
     const subtitle = typeof bottomSubtitle === 'string' && bottomSubtitle.trim() !== ''
       ? bottomSubtitle
-      : 'Official Replies';
+      : 'Recent Announcements';
 
     res.json({
       postsButtonName: postsLabel,

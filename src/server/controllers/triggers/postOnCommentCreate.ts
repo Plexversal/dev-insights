@@ -30,8 +30,16 @@ export const postCommentCreate = async (
     // console.log('full comment obj >>>', comment);
     // console.log(`Processing comment: ${comment.id} for post: ${comment.postId}`);
 
-    const user = body.author
-    if (!user) throw new Error('Failed to fetch user in postCommentCreate');
+    // Fetch the actual comment author using their ID
+    const user = await reddit.getUserById(comment.author);
+
+    if (!user) {
+      res.json({
+        status: 'failed',
+        message: 'User does not exist in comment create.'
+      });
+      return;
+    }
 
     const repliedToUser = await reddit.getUserById(body.post.authorId);
     const correctUrl = `https://www.reddit.com${comment.permalink}`;
@@ -39,7 +47,7 @@ export const postCommentCreate = async (
     // Add comment to database using lib function
     const dbResult = await addCommentToDb(
       comment,
-      user.name,
+      user.username,
       repliedToUser?.username || '',
       body.post.title
     );

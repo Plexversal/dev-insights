@@ -78,6 +78,10 @@ export interface PostData {
   image: string;
   galleryImages: string;
   postLink: string;
+  // Post flair fields - required (can be empty string if no flair)
+  postFlairText: string;
+  postFlairTemplateId: string;
+  // User flair fields - optional as they're fetched separately in getPostsHandler
   userFlairText?: string;
   flairBgColor?: string;
   flairTextColor?: string;

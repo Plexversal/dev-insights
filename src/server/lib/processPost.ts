@@ -24,7 +24,7 @@ export async function processPost(post: Post): Promise<void> {
     const exists = await redis.exists(dataKey);
     if (exists) {
       // console.log(`[processPost] Post ${postId} already exists, skipping`);
-      throw new Error('Post already exists');
+      return console.log('[processPost] Post already exists', post.id);
     }
 
     const timestamp = post.createdAt?.getTime() || Date.now();
@@ -70,6 +70,10 @@ export async function processPost(post: Post): Promise<void> {
     // Thumbnail is always an object or undefined in the official Post type
     const thumbnailUrl = post.thumbnail?.url || '';
 
+    // Extract flair data
+    const postFlairText = post.flair?.text || '';
+    const postFlairTemplateId = post.flair?.templateId || '';
+
     const postData: PostData = {
       id: postId,
       authorId: authorId || '',
@@ -84,7 +88,9 @@ export async function processPost(post: Post): Promise<void> {
       timestamp: timestamp.toString(),
       image: image || '',
       galleryImages: galleryImages || '',
-      postLink: postLink || ''
+      postLink: postLink || '',
+      postFlairText: postFlairText,
+      postFlairTemplateId: postFlairTemplateId
     };
 
     // Store the detailed data in a hash

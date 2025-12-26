@@ -30,6 +30,15 @@ export const validateUser = async (userId: `t2_${string}`): Promise<ValidationRe
       .map(c => c.trim())
       .filter(c => c.length > 0);
 
+
+    if (
+      !usersArray.length &&
+      !flairTextArray.length &&
+      !cssClassArray.length
+    ) {
+      return { isValid: false, reason: 'No validation settings configured' };
+    }
+
     // console.log('Validation config >>', { usersArray, flairTextArray, cssClassArray });
 
     // Fetch user data
@@ -38,7 +47,13 @@ export const validateUser = async (userId: `t2_${string}`): Promise<ValidationRe
       return { isValid: false, reason: 'User not found' };
     }
 
-    const userFlair = await user.getUserFlairBySubreddit(context.subredditName);
+    let userFlair;
+    try {
+      userFlair = await user.getUserFlairBySubreddit(context.subredditName);
+    } catch (err) {
+      console.error(`Error fetching user flair for ${userId}:`, err);
+      // Continue with undefined userFlair
+    }
 
     // Validation checks (case-insensitive username match)
     const isUserMatch = usersArray.some(u => u.toLowerCase() === user.username.toLowerCase());

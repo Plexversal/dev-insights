@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { CommentData } from '../../shared/types/comment';
+import { useSubredditSettings } from './SubredditSettingsContext';
 
 interface CommentsResponse {
   status: string;
@@ -21,7 +22,7 @@ export interface CommentsContextType {
   commentCount: number;
   commentsPerPage: number;
   refreshComments: () => void;
-  loadMoreComments: () => void;
+  loadMoreComments: () => Promise<void>;
   initialized: boolean;
 }
 
@@ -42,6 +43,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
   const [totalCount, setTotalCount] = useState(0);
   const [offset, setOffset] = useState(0);
   const [initialized, setInitialized] = useState(false);
+  const { disabledComments } = useSubredditSettings();
 
   const fetchComments = useCallback(async (appendMode = false) => {
     const currentOffset = appendMode ? offset : 0;
@@ -54,6 +56,10 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
     }
 
     try {
+
+      // don't fetch if comments disabled, waste of time.
+      if(disabledComments) return setInitialized(true);
+
       const res = await fetch(`/api/comments?offset=${currentOffset}&limit=${COMMENTS_PER_PAGE}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -86,9 +92,9 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
     fetchComments(false);
   }, [fetchComments]);
 
-  const loadMoreComments = useCallback(() => {
+  const loadMoreComments = useCallback(async () => {
     if (!loadingMore && hasMore) {
-      fetchComments(true);
+      await fetchComments(true);
     }
   }, [fetchComments, loadingMore, hasMore]);
 

@@ -18,21 +18,24 @@
   "forms": {
     "postTitleForm": "/internal/form/post-title-submit"
   },
+  "marketingAssets": {
+    "icon": "assets/dev-insights-logo.png"
+  },
   "menu": {
     "items": [
-      {
-        "label": "Create a new post",
-        "description": "dev-insights",
-        "location": "subreddit",
-        "forUserType": "moderator",
-        "endpoint": "/internal/menu/post-create"
-      },
       {
         "label": "Fetch previous user content",
         "description": "dev-insights",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/fetch-user-content"
+      },
+      {
+        "label": "Create a new post",
+        "description": "dev-insights",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/post-create"
       },
       {
         "label": "Pin to Insights",
@@ -58,13 +61,14 @@
     "onPostDelete": "/internal/on-post-delete",
     "onPostUpdate": "/internal/on-post-update",
     "onCommentDelete": "/internal/on-comment-delete",
-    "onCommentUpdate": "/internal/on-comment-update"
+    "onCommentUpdate": "/internal/on-comment-update",
+    "onPostFlairUpdate": "/internal/on-post-flair-update"
   },
   "scheduler": {
     "tasks": {
-      "log-analytics-every-5min": {
+      "log-analytics-cron": {
         "endpoint": "/internal/scheduler/log-analytics",
-        "cron": "*/5 * * * *"
+        "cron": "*/15 * * * *"
       }
     }
   },
@@ -88,28 +92,49 @@
         "subredditUsers": {
           "type": "string",
           "label": "Match Users",
-          "helpText": "Enter users to match, seperate users with a comma. (e.g. PlexversalHD, u/dev-insights, u/spez)",
-          "placeholder": "Optional (but at least one text box should be filled).",
+          "helpText": "Enter users to match, separate users with a comma. (e.g. PlexversalHD, u/dev-insights, u/spez)",
+          "placeholder": "Be specific. (Optional match)",
           "validationEndpoint": "/internal/settings/validate-users"
         },
         "subredditFlairText": {
           "type": "string",
-          "label": "Match Flair Text",
-          "helpText": "Enter flair text to match, seperate flair text with a comma. (e.g. Dev, Community manager, :YT: YouTuber, EA, Respawn)",
-          "placeholder": "Optional (but at least one text box should be filled).",
+          "label": "Match User Flair Text",
+          "helpText": "Enter flair text to match, separate flair text with a comma. (e.g. Dev, Community manager, :YT: YouTuber, EA, Respawn)",
+          "placeholder": "Be specific. (Optional match)",
           "validationEndpoint": "/internal/settings/validate-flairtext"
         },
          "subredditFlairCssclass": {
           "type": "string",
           "label": "Match Flair CSS",
-          "helpText": "Enter flair text shown in subreddit flair settings, seperate flair text with a comma. (e.g. dev, community-manager, ea, respawn)",
-          "placeholder": "Optional (but at least one text box should be filled).",
+          "helpText": "Enter flair text shown in subreddit flair settings, separate flair text with a comma. (e.g. dev, community-manager, ea, respawn)",
+          "placeholder": "Be specific. (Optional match)",
           "validationEndpoint": "/internal/settings/validate-cssclass"
         },
+        "subredditPostFlairText": {
+          "type": "string",
+          "label": "Match Post Flair Text or ID",
+          "helpText": "STRONGLY advise they are mod only post flairs, separate flair text with a comma. (e.g. Official News, Updates, 12ff3a4-66a7ff77-44f4f)",
+          "placeholder": "Be specific. (Optional match)",
+          "validationEndpoint": "/internal/settings/validate-flairtext"
+        },
+        "dependantFlairMatches": {
+          "type": "boolean",
+          "label": "Post Flair matches depend on User?",
+          "defaultValue": false,
+          "helpText": "Enable this if you only want to match posts based on post flair from users specified in the \"Match Users\" setting above. (comments are not affected)"
+        },
+        "separateTabPostFlair1": {
+          "type": "string",
+          "label": "Separate Posts Tab for a specific post flair",
+          "helpText": "Format is: [Tab Button Name](exact flair text OR template ID). You can use the flair text (e.g. :esports: Esports Official) or the flair template ID (e.g. 12ff3a4-66a7ff77-44f4f). Only one is allowed.",
+          "placeholder": "Leave blank to keep all posts in one tab.",
+          "validationEndpoint": "/internal/settings/validate-separate-tab"
+        },
+        
         "postTitle": {
           "type": "string",
           "label": "Default Post Title",
-          "defaultValue": "Game Announcements",
+          "defaultValue": "Official Announcements",
           "helpText": "Title used on all post names (you can make custom one in post create menu action)",
           "placeholder": "Max Length 300 characters.",
           "validationEndpoint": "/internal/settings/validate-posttitle"
@@ -134,11 +159,16 @@
           "type": "string",
           "label": "Bottom Subtitle",
           "defaultValue": "Recent Announcements",
-          "helpText": "Custom subtitle text for the bottom of the app",
-          "placeholder": "Max Length 30 characters.",
-          "validationEndpoint": "/internal/settings/validate-buttonname"
+          "helpText": "Custom subtitle text for the bottom of the app. Can be plain text (max 30 chars) or a markdown link [text](url) where text is max 30 chars and url is max 1000 chars. Only *.reddit.com, x.com, or twitter.com domains allowed.",
+          "placeholder": "e.g. 'Recent Announcements' or '[Visit r/example](https://reddit.com/r/example)'",
+          "validationEndpoint": "/internal/settings/validate-bottomsubtitle"
+        },
+        "disableComments": {
+          "type": "boolean",
+          "label": "Disable Comments",
+          "defaultValue": false,
+          "helpText": "Disable viewing comments Button in the App post (i.e. If you only want to pin posts)"
         }
-
 
 
       }

@@ -1,25 +1,31 @@
 import React from 'react';
 import { navigateTo } from '@devvit/web/client';
-import { usePosts } from '../hooks/usePosts';
+import { PostData } from '../../shared/types/post';
 import { cleanFlairText } from '../lib/cleanFlairText';
 import { formatTimeAgo } from '../lib/formatTimeAgo';
 import { deleteItem } from '../lib/deleteItem';
 import { TrashCanIcon } from '../lib/icons/TrashCanIcon';
 import { useMod } from '../contexts/ModContext';
 import { trackAnalytics } from '../lib/trackAnalytics';
+import { useSubredditSettings } from '../contexts/SubredditSettingsContext';
 
 interface PostDisplayProps {
-  postId: string | null;
   currentPage: number;
-  onPageChange: (page: number) => void;
+  posts: PostData[];
+  loading: boolean;
+  refreshPosts: () => void;
 }
 
-export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, onPageChange }) => {
-  const { posts, loading, loadingMore, subredditName, refreshPosts, loadMorePosts, hasMore, postCount, postsPerPage } = usePosts();
-  const { isMod, loading: modLoading } = useMod()
+export const PostDisplay: React.FC<PostDisplayProps> = ({
+  currentPage,
+  posts,
+  loading,
+  refreshPosts
+}) => {
+  const { isMod } = useMod()
   const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set());
   const [deletingPosts, setDeletingPosts] = React.useState<Set<string>>(new Set());
-
+  const { subredditStyle }= useSubredditSettings()
   // Show 3 posts at a time (1 large + 2 small)
   const postsPerView = 3;
   const visiblePosts = posts.slice(currentPage * postsPerView, (currentPage + 1) * postsPerView);
@@ -105,19 +111,20 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
           {/* Mobile: Wrap username, title, and media together */}
           <div className="flex min-[600px]:hidden flex-col gap-2 flex-1">
             {/* Username - shown on mobile for all posts at the very top */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0 overflow-hidden min-w-0">
               <span
-                className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+                className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 min-w-0 flex-shrink"
                 onClick={(e) => handleUsernameClick(post.authorName, e)}
               >
                 {post.authorName}
               </span>
               {post.userFlairText && cleanFlairText(post.userFlairText) && (
                 <span
-                  className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
+                  className="text-[10px] px-1.5 rounded-[1.25rem] truncate flex-shrink-0"
                   style={{
                     backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
-                    color: post.flairTextColor || '#000000'
+                    color: post.flairTextColor || '#000000',
+                    maxWidth: '50%'
                   }}
                 >
                   {cleanFlairText(post.userFlairText)}
@@ -163,19 +170,20 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
           {/* Content on top (mobile) or right (desktop) - only shown on desktop */}
           <div className="hidden min-[600px]:flex flex-col min-h-0 overflow-hidden min-[600px]:order-2 flex-1">
             {/* Username - shown on desktop only */}
-            <div className="flex items-center gap-1.5 mb-1 flex-shrink-0">
+            <div className="flex items-center gap-1.5 mb-1 flex-shrink-0 overflow-hidden min-w-0">
               <span
-                className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+                className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 min-w-0 flex-shrink"
                 onClick={(e) => handleUsernameClick(post.authorName, e)}
               >
                 {post.authorName}
               </span>
               {post.userFlairText && cleanFlairText(post.userFlairText) && (
                 <span
-                  className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
+                  className="text-[10px] px-1.5 rounded-[1.25rem] truncate flex-shrink-0"
                   style={{
                     backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
-                    color: post.flairTextColor || '#000000'
+                    color: post.flairTextColor || '#000000',
+                    maxWidth: '50%'
                   }}
                 >
                   {cleanFlairText(post.userFlairText)}
@@ -252,19 +260,20 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
           style={{ maxHeight: '100%', overflow: 'hidden' }}
         >
           {/* Username - at top on mobile */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1.5 flex-shrink-0 overflow-hidden min-w-0">
             <span
-              className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+              className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 min-w-0 flex-shrink"
               onClick={(e) => handleUsernameClick(post.authorName, e)}
             >
               {post.authorName}
             </span>
             {post.userFlairText && cleanFlairText(post.userFlairText) && (
               <span
-                className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
+                className="text-[10px] px-1.5 rounded-[1.25rem] truncate flex-shrink-0"
                 style={{
                   backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
-                  color: post.flairTextColor || '#000000'
+                  color: post.flairTextColor || '#000000',
+                  maxWidth: '50%'
                 }}
               >
                 {cleanFlairText(post.userFlairText)}
@@ -336,19 +345,20 @@ export const PostDisplay: React.FC<PostDisplayProps> = ({ postId, currentPage, o
         onClick={() => handlePostClick(post.permalink)}
         style={{ maxHeight: '100%', overflow: 'hidden' }}
       >
-        <div className="flex items-center gap-1.5 mb-1 flex-shrink-0">
+        <div className="flex items-center gap-1.5 mb-1 flex-shrink-0 overflow-hidden min-w-0">
           <span
-            className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200"
+            className="font-medium text-gray-600 dark:text-gray-400 text-xs text-[14px] truncate underline cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 min-w-0 flex-shrink"
             onClick={(e) => handleUsernameClick(post.authorName, e)}
           >
             {post.authorName}
           </span>
           {post.userFlairText && cleanFlairText(post.userFlairText) && (
             <span
-              className="text-[10px] px-1.5 rounded-[1.25rem] flex-shrink-0"
+              className="text-[10px] px-1.5 rounded-[1.25rem] truncate flex-shrink-0"
               style={{
                 backgroundColor: post.flairBgColor === 'transparent' ? '#E4E4E4' : (post.flairBgColor || '#E4E4E4'),
-                color: post.flairTextColor || '#000000'
+                color: post.flairTextColor || '#000000',
+                maxWidth: '50%'
               }}
             >
               {cleanFlairText(post.userFlairText)}

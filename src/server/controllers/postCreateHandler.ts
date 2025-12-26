@@ -11,7 +11,7 @@ export const postCreateHandler = async (
     const settingsTitle = await settings.get('postTitle');
     const defaultTitle = typeof settingsTitle === 'string' && settingsTitle.trim() !== ''
       ? settingsTitle
-      : 'Game Announcements';
+      : 'Official Announcements';
 
     res.json({
       showForm: {
