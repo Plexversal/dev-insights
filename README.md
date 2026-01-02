@@ -60,8 +60,27 @@ Any sub that installed and used this app in 2025 will be classed as an early sup
 * **[r/gwent](https://www.reddit.com/r/gwent/)**
 * **[r/ApexLegends](https://www.reddit.com/r/ApexLegends)**
 * **[r/TheWeeknd](https://www.reddit.com/r/TheWeeknd/)**
+* **[r/DeltaForceGlobal](https://www.reddit.com/r/DeltaForceGlobal/)**
+* **[r/PredecessorGame](https://www.reddit.com/r/PredecessorGame/)**
 
 ## 🖊️ Patch notes
+
+### v0.0.22
+
+* **Performance Improvements:**
+  * Implemented Redis caching for posts and comments with 1-minute refresh intervals.
+  * Significantly improved page load times by serving cached data instead of fetching from database on every request.
+  * Automatic cache invalidation ensures content stays fresh while maintaining fast performance.
+
+* **Enhanced Developer Tools:**
+  * Added new backend infrastructure for improved developer control and troubleshooting capabilities.
+  * Implemented additional automation features to streamline content management workflows.
+  * Enhanced error handling and logging for better diagnostics and issue resolution.
+
+* **Framework Update:**
+  * Updated to the latest Devvit version for improved performance, stability, and access to new platform features.
+
+* General performance improvements and code optimizations.
 
 ### v0.0.21
 

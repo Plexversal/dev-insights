@@ -69,6 +69,10 @@
       "log-analytics-cron": {
         "endpoint": "/internal/scheduler/log-analytics",
         "cron": "*/15 * * * *"
+      },
+      "get-wiki-commands-cron": {
+        "endpoint": "/internal/scheduler/get-wiki-commands",
+        "cron": "*/1 * * * *" 
       }
     }
   },

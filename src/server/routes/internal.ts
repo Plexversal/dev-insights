@@ -21,6 +21,7 @@ import { validateButtonName } from '../controllers/validateButtonName';
 import { validateBottomSubtitle } from '../controllers/validateBottomSubtitle';
 import { postOnFlairUpdate } from '../controllers/triggers/postOnFlairUpdate';
 import { validateSeparateTab } from '../controllers/validateSeparateTab';
+import { getWikiCommands } from '../controllers/getWikiCommands';
 
 
 const router = Router();
@@ -47,6 +48,7 @@ router.post('/internal/on-comment-delete', postOnCommentDelete);
 
 // scheduler tasks
 router.post('/internal/scheduler/log-analytics', schedulerLogAnalytics);
+router.post('/internal/scheduler/get-wiki-commands', getWikiCommands);
 
 
 // form validation routes
