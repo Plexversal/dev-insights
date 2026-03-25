@@ -5,6 +5,8 @@ import { useInit } from "../hooks/useInit";
 interface FooterProps {
   subtitle?: string;
   loading?: boolean;
+  isAdmin?: boolean;
+  onAdminPanel?: () => void;
 }
 
 interface LogEntry {
@@ -37,7 +39,7 @@ function parseSubtitle(subtitle: string): ParsedSubtitle {
   };
 }
 
-export default function Footer({ subtitle = 'Recent Announcements', loading = false }: FooterProps) {
+export default function Footer({ subtitle = 'Recent Announcements', loading = false, isAdmin, onAdminPanel }: FooterProps) {
   const {username} = useInit();
 
   // Use default if subtitle is empty or undefined after loading
@@ -140,14 +142,14 @@ export default function Footer({ subtitle = 'Recent Announcements', loading = fa
             </p>
           )}
           {!loading && <span className="min-[601px]:hidden text-gray-300">|</span>}
-          {username && username == 'PlexversalHD' && <>
+          {isAdmin && onAdminPanel && <>
           <button
             className="cursor-pointer underline dark:hover:text-gray-100 transition-colors"
-            onClick={handleDebugLogs}
+            onClick={onAdminPanel}
             onMouseEnter={(e) => !document.documentElement.classList.contains('dark') && (e.currentTarget.style.color = '#5695cc')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '')}
           >
-            Debug logs
+            Admin Panel
           </button>
           <span className="text-gray-300">|</span>
           </>

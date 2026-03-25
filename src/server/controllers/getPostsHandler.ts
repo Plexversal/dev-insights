@@ -54,6 +54,18 @@ export const getPostsHandler = async (
               const postData = await redis.hGetAll(dataKey);
 
               if (Object.keys(postData).length > 0) {
+                // Read-time subreddit validation: filter out cross-subreddit data
+                const permalinkSub = postData.permalink ? postData.permalink.match(/\/r\/([^/]+)/)?.[1] : undefined;
+                const expectedSub = context.subredditName;
+                if (permalinkSub && expectedSub && permalinkSub.toLowerCase() !== expectedSub.toLowerCase()) {
+                  console.warn(`[getPostsHandler] Filtered cross-subreddit post: ${postId} (r/${permalinkSub} != r/${expectedSub})`);
+                  continue;
+                }
+                if (postData.subredditName && expectedSub && postData.subredditName.toLowerCase() !== expectedSub.toLowerCase()) {
+                  console.warn(`[getPostsHandler] Filtered cross-subreddit post: ${postId} (stored: r/${postData.subredditName} != r/${expectedSub})`);
+                  continue;
+                }
+
                 // Apply flair filter if specified
                 let passesFilter = true;
                 if (flairFilter) {

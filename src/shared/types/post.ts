@@ -81,6 +81,7 @@ export interface PostData {
   // Post flair fields - required (can be empty string if no flair)
   postFlairText: string;
   postFlairTemplateId: string;
+  subredditName: string;
   // User flair fields - optional as they're fetched separately in getPostsHandler
   userFlairText?: string;
   flairBgColor?: string;

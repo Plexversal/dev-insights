@@ -1,4 +1,4 @@
-import { redis, reddit, Comment } from '@devvit/web/server';
+import { redis, reddit, context, Comment } from '@devvit/web/server';
 import { CommentData, CommentDataRecord } from '../../shared/types/comment';
 
 /**
@@ -17,14 +17,28 @@ export async function processComment(comment: Comment): Promise<void> {
       return;
     }
 
+    // Subreddit validation
+    const expectedSubreddit = context.subredditName;
+    const commentSubreddit = comment.subredditName;
+    const permalinkSubreddit = comment.permalink ? extractSubredditFromPermalink(comment.permalink) : undefined;
+
+    if (commentSubreddit && expectedSubreddit && commentSubreddit.toLowerCase() !== expectedSubreddit.toLowerCase()) {
+      console.warn(`[processComment] BLOCKED cross-subreddit comment ${commentId}: comment.subredditName=${commentSubreddit} expected=${expectedSubreddit}`);
+      throw new Error(`Cross-subreddit comment blocked: ${commentSubreddit} !== ${expectedSubreddit}`);
+    }
+
+    if (permalinkSubreddit && expectedSubreddit && permalinkSubreddit.toLowerCase() !== expectedSubreddit.toLowerCase()) {
+      console.warn(`[processComment] BLOCKED cross-subreddit comment ${commentId}: permalink r/${permalinkSubreddit} != expected r/${expectedSubreddit}`);
+      throw new Error(`Cross-subreddit comment blocked: permalink mismatch`);
+    }
+
     const key = 'global_comments';
     const dataKey = `comment_data:${commentId}`;
 
     // Check if comment already exists
     const exists = await redis.exists(dataKey);
     if (exists) {
-      // console.log(`[processComment] Comment ${commentId} already exists, skipping`);
-      console.log('[processComment] Comment already exists', commentId);
+      return;
     }
 
     const timestamp = comment.createdAt?.getTime() || Date.now();
@@ -66,7 +80,8 @@ export async function processComment(comment: Comment): Promise<void> {
       timestamp: timestamp.toString(),
       url: correctUrl || '',
       repliedToUser: repliedToUser || '',
-      parentPostTitle: parentPostTitle || 'Unknown Post'
+      parentPostTitle: parentPostTitle || 'Unknown Post',
+      subredditName: commentSubreddit || expectedSubreddit || ''
     };
 
     // Store the detailed data in a hash
@@ -83,4 +98,9 @@ export async function processComment(comment: Comment): Promise<void> {
     console.error(`[processComment] Error processing comment:`, error);
     throw error;
   }
+}
+
+function extractSubredditFromPermalink(permalink: string): string | undefined {
+  const match = permalink.match(/\/r\/([^/]+)/);
+  return match ? match[1] : undefined;
 }

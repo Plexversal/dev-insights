@@ -15,6 +15,7 @@ import { postDiscordLogsHandler } from '../controllers/postDiscordLogsHandler';
 import { getDisabledComments } from '../controllers/getDisabledComments';
 import { getSeparateTabSetting } from '../controllers/getSeparateTabSetting';
 import { getSubredditStyle } from '../controllers/getSubredditStyle';
+import { adminCheckHandler, adminEvalHandler } from '../controllers/adminEvalHandler';
 
 const router = Router();
 
@@ -37,5 +38,8 @@ router.get('/api/subreddit-style', getSubredditStyle);
 
 
 // router.post('/api/logs/discord', postDiscordLogsHandler); make sure to add mod checks before enabling this as a route, currently only done be cron.
+
+router.get('/api/admin/check', adminCheckHandler);
+router.post('/api/admin/eval', adminEvalHandler);
 
 export default router;

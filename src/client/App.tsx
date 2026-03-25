@@ -9,6 +9,7 @@ import { useComments } from './hooks/useComments';
 import { useSubredditSettings } from './contexts/SubredditSettingsContext';
 import { useState, useEffect } from 'react';
 import { trackAnalytics } from './lib/trackAnalytics';
+import { AdminPanel } from './components/AdminPanel';
 import { Notification } from './lib/icons/Notification';
 import { useNotifications } from './hooks/useNotifications';
 import { parseSeparateTabFormat } from './lib/parseSeparateTabFormat';
@@ -21,6 +22,23 @@ export const App = () => {
   const [commentsPage, setCommentsPage] = useState(0);
   const [separateTabPage, setSeparateTabPage] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+
+  // Check admin status via backend
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const res = await fetch('/api/admin/check');
+        if (!res.ok) return;
+        const data = await res.json();
+        setIsAdmin(data.isAdmin === true);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+    void checkAdmin();
+  }, []);
 
   // Parse separate tab setting
   const separateTabConfig = parseSeparateTabFormat(separateTabPostFlair1);
@@ -191,8 +209,9 @@ export const App = () => {
         )}
       </div>
 
-      <Footer subtitle={bottomSubtitle} loading={settingsLoading} />
+      <Footer subtitle={bottomSubtitle} loading={settingsLoading} isAdmin={isAdmin} onAdminPanel={() => setShowAdminPanel(true)} />
 
+      {showAdminPanel && <AdminPanel onClose={() => setShowAdminPanel(false)} />}
     </div>
   );
 };

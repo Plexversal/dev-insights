@@ -65,12 +65,14 @@ export const postPostCreate = async (
     // console.log(`Post validated: ${validationResult.reason}`);
     // console.log(`Processing post: ${post.id}`);
 
-    // Add post to database using lib function
+    // Add post to database using lib function (pass subreddit name from trigger for validation)
+    const sourceSubredditName = body.subreddit?.name;
     const dbResult = await addPostToDb(
       post,
       user.username,
       await user.getSnoovatarUrl(),
-      user.url
+      user.url,
+      sourceSubredditName
     );
 
     if (!dbResult.success) {

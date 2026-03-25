@@ -38,6 +38,18 @@ export const getCommentsHandler = async (
             const commentData = await redis.hGetAll(dataKey);
 
             if (Object.keys(commentData).length > 0) {
+              // Read-time subreddit validation: filter out cross-subreddit data
+              const permalinkSub = commentData.permalink ? commentData.permalink.match(/\/r\/([^/]+)/)?.[1] : undefined;
+              const expectedSub = context.subredditName;
+              if (permalinkSub && expectedSub && permalinkSub.toLowerCase() !== expectedSub.toLowerCase()) {
+                console.warn(`[getCommentsHandler] Filtered cross-subreddit comment: ${commentId} (r/${permalinkSub} != r/${expectedSub})`);
+                continue;
+              }
+              if (commentData.subredditName && expectedSub && commentData.subredditName.toLowerCase() !== expectedSub.toLowerCase()) {
+                console.warn(`[getCommentsHandler] Filtered cross-subreddit comment: ${commentId} (stored: r/${commentData.subredditName} != r/${expectedSub})`);
+                continue;
+              }
+
               // Dynamically fetch current user flair
               let userFlairText: string | null = null;
               let flairBgColor: string | null = null;

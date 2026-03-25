@@ -19,12 +19,28 @@ export async function addPostToDb(
   post: RedditPost,
   authorName: string,
   userSnoovatarImage?: string,
-  userProfileLink?: string
+  userProfileLink?: string,
+  sourceSubredditName?: string
 ): Promise<AddPostResult> {
   try {
     const key = 'global_posts';
     const dataKey = `post_data:${post.id}`;
     const timestamp = post.createdAt;
+    const expectedSubreddit = context.subredditName;
+
+    // Subreddit validation: extract subreddit from permalink as cross-check
+    const permalinkSubreddit = post.permalink ? extractSubredditFromPermalink(post.permalink) : undefined;
+
+    // Validate subreddit matches - reject cross-subreddit data
+    if (sourceSubredditName && expectedSubreddit && sourceSubredditName !== expectedSubreddit) {
+      console.warn(`[addPostToDb] BLOCKED cross-subreddit post ${post.id}: source=${sourceSubredditName} expected=${expectedSubreddit}`);
+      return { success: false, postId: post.id, error: `Cross-subreddit post blocked` };
+    }
+
+    if (permalinkSubreddit && expectedSubreddit && permalinkSubreddit.toLowerCase() !== expectedSubreddit.toLowerCase()) {
+      console.warn(`[addPostToDb] BLOCKED cross-subreddit post ${post.id}: permalink r/${permalinkSubreddit} != expected r/${expectedSubreddit}`);
+      return { success: false, postId: post.id, error: `Cross-subreddit post blocked: permalink mismatch` };
+    }
 
     // Check if post already exists
     const exists = await redis.exists(dataKey);
@@ -55,7 +71,8 @@ export async function addPostToDb(
       galleryImages: post.type === 'gallery' ? JSON.stringify(post.galleryImages) : '',
       postLink: post.type === 'link' ? post.url : '',
       postFlairText: post.linkFlair?.text || '',
-      postFlairTemplateId: post.linkFlair?.templateId || ''
+      postFlairTemplateId: post.linkFlair?.templateId || '',
+      subredditName: sourceSubredditName || expectedSubreddit || ''
     };
 
     // console.log(`[addPostToDb] Storing post data:`, postData);
@@ -96,4 +113,9 @@ export async function addPostToDb(
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
+}
+
+function extractSubredditFromPermalink(permalink: string): string | undefined {
+  const match = permalink.match(/\/r\/([^/]+)/);
+  return match ? match[1] : undefined;
 }

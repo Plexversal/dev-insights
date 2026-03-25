@@ -58,17 +58,23 @@ export async function fetchUserContent(
 
     const posts: Post[] = await postsListing.all();
     // console.log(`[fetchUserContent] Found ${posts.length} posts for ${sanitizedUsername}`);
-    console.log(posts.length)
+    // console.log(posts.length)
     // Process each post
     for (const post of posts) {
       try {
         const postId = post.id;
         const subredditId = post.subredditId;
 
-        // Only process items from the current subreddit
+        // Only process items from the current subreddit (primary: subredditId, secondary: permalink)
         if (subredditId !== context.subredditId) {
-          // console.log(`[fetchUserContent] Skipping post ${postId} from different subreddit: ${subredditName}`);
           continue;
+        }
+        const postPermalink = post.permalink;
+        if (postPermalink && context.subredditName) {
+          const plMatch = postPermalink.match(/\/r\/([^/]+)/);
+          if (plMatch && plMatch[1]?.toLowerCase() !== context.subredditName.toLowerCase()) {
+            continue;
+          }
         }
 
         // If dependant flair matching is enabled, validate the post flair

@@ -36,6 +36,7 @@ export interface CommentData {
   url: string;
   repliedToUser: string;
   parentPostTitle: string;
+  subredditName: string;
   userFlairText?: string;
   flairBgColor?: string;
   flairTextColor?: string;

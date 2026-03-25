@@ -44,12 +44,14 @@ export const postCommentCreate = async (
     const repliedToUser = await reddit.getUserById(body.post.authorId);
     const correctUrl = `https://www.reddit.com${comment.permalink}`;
 
-    // Add comment to database using lib function
+    // Add comment to database using lib function (pass subreddit name from trigger for validation)
+    const sourceSubredditName = body.subreddit?.name;
     const dbResult = await addCommentToDb(
       comment,
       user.username,
       repliedToUser?.username || '',
-      body.post.title
+      body.post.title,
+      sourceSubredditName
     );
 
     if (!dbResult.success) {

@@ -1,4 +1,4 @@
-import { redis, reddit, Post } from '@devvit/web/server';
+import { redis, reddit, context, Post } from '@devvit/web/server';
 import { PostData, PostDatRecord } from '../../shared/types/post';
 
 /**
@@ -15,6 +15,21 @@ export async function processPost(post: Post): Promise<void> {
     if (!postId || !authorId) {
       console.warn(`[processPost] Skipping post with missing ID or authorId`);
       return;
+    }
+
+    // Subreddit validation
+    const expectedSubreddit = context.subredditName;
+    const postSubreddit = post.subredditName;
+    const permalinkSubreddit = post.permalink ? extractSubredditFromPermalink(post.permalink) : undefined;
+
+    if (postSubreddit && expectedSubreddit && postSubreddit.toLowerCase() !== expectedSubreddit.toLowerCase()) {
+      console.warn(`[processPost] BLOCKED cross-subreddit post ${postId}: post.subredditName=${postSubreddit} expected=${expectedSubreddit}`);
+      throw new Error(`Cross-subreddit post blocked: ${postSubreddit} !== ${expectedSubreddit}`);
+    }
+
+    if (permalinkSubreddit && expectedSubreddit && permalinkSubreddit.toLowerCase() !== expectedSubreddit.toLowerCase()) {
+      console.warn(`[processPost] BLOCKED cross-subreddit post ${postId}: permalink r/${permalinkSubreddit} != expected r/${expectedSubreddit}`);
+      throw new Error(`Cross-subreddit post blocked: permalink mismatch`);
     }
 
     const key = 'global_posts';
@@ -90,7 +105,8 @@ export async function processPost(post: Post): Promise<void> {
       galleryImages: galleryImages || '',
       postLink: postLink || '',
       postFlairText: postFlairText,
-      postFlairTemplateId: postFlairTemplateId
+      postFlairTemplateId: postFlairTemplateId,
+      subredditName: postSubreddit || expectedSubreddit || ''
     };
 
     // Store the detailed data in a hash
@@ -107,4 +123,9 @@ export async function processPost(post: Post): Promise<void> {
     console.error(`[processPost] Error processing post:`, error);
     throw error;
   }
+}
+
+function extractSubredditFromPermalink(permalink: string): string | undefined {
+  const match = permalink.match(/\/r\/([^/]+)/);
+  return match ? match[1] : undefined;
 }
