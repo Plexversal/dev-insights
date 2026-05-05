@@ -11,7 +11,7 @@ export const getCommentsHandler = async (
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 50;
 
-    const cacheKey = `comments_${offset}_${limit}`;
+    const cacheKey = `comments_${context.subredditName}_${offset}_${limit}`;
 
     const data = await cache(
       async () => {
@@ -100,6 +100,9 @@ export const getCommentsHandler = async (
             console.error(`Error fetching data for comment ${commentId}:`, err);
           }
         }
+
+        // Defensive sort: ensure newest-first regardless of zRange reverse flag behavior
+        commentsWithData.sort((a: any, b: any) => Number(b.timestamp) - Number(a.timestamp));
 
         // console.log(`Returning ${commentsWithData.length} comments with data`);
 

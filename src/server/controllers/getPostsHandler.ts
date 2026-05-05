@@ -14,7 +14,7 @@ export const getPostsHandler = async (
     const flairFilter = req.query.flairFilter as string | undefined;
     const excludeFlair = req.query.excludeFlair === 'true';
 
-    const cacheKey = `posts_${offset}_${limit}_${flairFilter || 'none'}_${excludeFlair}`;
+    const cacheKey = `posts_${context.subredditName}_${offset}_${limit}_${flairFilter || 'none'}_${excludeFlair}`;
 
     const data = await cache(
       async () => {
@@ -159,6 +159,9 @@ export const getPostsHandler = async (
           // Move offset forward for next batch
           redisOffset += batchSize;
         }
+
+        // Defensive sort: ensure newest-first regardless of zRange reverse flag behavior
+        allFilteredPosts.sort((a, b) => Number(b.timestamp) - Number(a.timestamp));
 
         const postsWithData = allFilteredPosts;
 
